@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const stayController = require('../controllers/stayController');
-const { validateStay } = require('../middlewares/stayValidator');
+const { validateStay } = require('../validators/stayValidator');
 const validate = require('../middlewares/validationMiddleware');
 
 // créer un séjour

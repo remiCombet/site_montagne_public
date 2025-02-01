@@ -2,13 +2,13 @@ const express = require('express');
 const router = express.Router();
 const stayAccessController = require('../controllers/stayAccessController');
 const validate = require('../middlewares/validationMiddleware');
-const stayAccessValidator = require('../middlewares/stayAccessValidator');
+const { validateAddStayAccess } = require('../validators/stayAccessValidator');
 
 // Route pour récupérer toutes les associations StayAccess
 router.get('/', stayAccessController.getAllStayAccess);
 
 // Route pour ajouter un accès à un séjour
-router.post('/add', stayAccessValidator, validate, stayAccessController.addStayAccess);
+router.post('/add', validateAddStayAccess, validate, stayAccessController.addStayAccess);
 
 // Route pour récupérer tous les accès liés à un séjour spécifique
 router.get('/:stay_id', stayAccessController.getAccessByStay);

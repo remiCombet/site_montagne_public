@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const stayEquipmentController = require('../controllers/stayEquipmentController');
-const { validateAddStayEquipment } = require('../middlewares/stayEquipmentValidator');
+const { validateAddStayEquipment } = require('../validators/stayEquipmentValidator');
 const validate = require('../middlewares/validationMiddleware');
 
 // Ajouter une equipement à un séjour

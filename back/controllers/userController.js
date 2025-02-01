@@ -1,6 +1,7 @@
 const { User } = require('../models');
 const bcrypt = require('bcryptjs');
 const { validationResult } = require('express-validator');
+require('dotenv').config();
 
 // attention supprimer les reponse dans les catch error: error.message en prod
 
@@ -39,6 +40,8 @@ exports.createUser = async (req, res) => {
             phone,
             role: 'user'
         });
+
+        const token = jwt.sign({ id: newUser.id, email: newUser.email }, process.env.JWT_SECRET, { expiresIn: '1h' });
 
         // réponse positive
         res.json({

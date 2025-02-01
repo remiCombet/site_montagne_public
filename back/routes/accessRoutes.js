@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const accessController = require('../controllers/accessController');
 const accessValidator = require('../validators/accessValidator');
-const validate = require('../middleware/validate');
+const validate = require('../middlewares/validationMiddleware');
 
 // créer un acces
 router.post('/add',  accessValidator, validate, accessController.createAccess);

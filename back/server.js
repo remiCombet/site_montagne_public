@@ -8,6 +8,7 @@ const helmet = require('helmet');
 
 // Routes
 const userRoutes = require('./routes/userRoutes');
+const loginRoutes = require('./routes/loginRoutes')
 const stayRoutes = require('./routes/stayRoutes');
 const categoryRoutes = require('./routes/categoryRoutes');
 const highlightsRoutes = require('./routes/highlightRoutes');
@@ -27,6 +28,9 @@ app.use(helmet());
 // Routes
 // routes utilisateurs
 app.use('/api/users', userRoutes);
+
+// routes de connexion
+app.use('/api/login', loginRoutes);
 
 // routes séjour
 app.use('/api/stays', stayRoutes);

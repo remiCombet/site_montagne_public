@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const accommodationController = require('../controllers/accommodationController');
 const accommodationValidator = require('../validators/accommodationValidator');
-const validate = require('../middleware/validate');
+const validate = require('../middlewares/validationMiddleware');
 
 // Route pour récupérer toutes les accommodations
 router.get('/', accommodationController.getAllAccommodations);

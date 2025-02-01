@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const stayStepController = require('../controllers/stayStepController');
 const stayStepValidator = require('../validators/stayStepValidator');
-const { validate } = require('../middlewares/validationMiddleware');
+const validate = require('../middlewares/validationMiddleware');
 
 // Route pour récupérer toutes les étapes d'un séjour
 router.get('/:stayId/steps', stayStepController.getAllStaySteps);
