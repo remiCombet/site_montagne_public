@@ -89,6 +89,26 @@ module.exports = (sequelize) => {
       foreignKey: 'reception_point_id',
       as: 'receptionPoint',
     });
+
+    Stay.hasMany(models.StayEquipment, {
+      foreignKey: 'stay_id',
+      as: 'equipments',
+    });
+
+    Stay.hasMany(models.StayTheme, {
+      foreignKey: 'stay_id',
+      as: 'stayThemes',
+    });
+
+    Stay.hasMany(models.StayStep, {
+      foreignKey: 'stay_id',
+      as: 'staySteps',
+    });
+
+    Stay.hasMany(models.StayToPrepare, {
+      foreignKey: 'stay_id' ,
+      as: 'toPrepares',
+    });
   };
 
   return Stay;

@@ -9,6 +9,16 @@ const helmet = require('helmet');
 // Routes
 const userRoutes = require('./routes/userRoutes');
 const stayRoutes = require('./routes/stayRoutes');
+const categoryRoutes = require('./routes/categoryRoutes');
+const highlightsRoutes = require('./routes/highlightRoutes');
+const themeRoutes = require('./routes/themeRoutes');
+const accessRoutes = require('./routes/accessRoutes');
+const stayAccessRoutes = require('./routes/stayAccessRoutes');
+const stayEquipmentRoutes = require('./routes/stayEquipmentRoutes');
+const stayThemeRoutes = require('./routes/stayThemeRoutes');
+const accommodationRoutes = require('./routes/accommodationRoutes');
+const stayStepRoutes = require('./routes/stayStepRoutes');
+const stayToPrepareRoutes = require('./routes/stayToPrepare');
 
 app.use(express.json());
 app.use(cors());
@@ -20,6 +30,36 @@ app.use('/api/users', userRoutes);
 
 // routes séjour
 app.use('/api/stays', stayRoutes);
+
+// routes catégories
+app.use('/api/categories', categoryRoutes);
+
+// routes points positifs
+app.use('/api/highlights', highlightsRoutes);
+
+// routes acces
+app.use('/api/access', accessRoutes);
+
+// routes themes
+app.use('/api/themes', themeRoutes);
+
+// routes stayAccess
+app.use('/api/stay-accesses', stayAccessRoutes);
+
+// routes stayCatégory
+app.use('/api/stay-equipments', stayEquipmentRoutes);
+
+// routes stayTheme
+app.use('/api/stay-themes', stayThemeRoutes);
+
+// routes accommodation
+app.use('/api/accommodations', accommodationRoutes);
+
+// routes pour stayStep
+app.use('/api/stay-steps', stayStepRoutes);
+
+// routes stayToPrepare
+app.use('/api/stay-to-prepare', stayToPrepareRoutes);
 
 // Route d'accueil du site
 app.get('/', async (req, res, next) => {

@@ -32,7 +32,15 @@ module.exports = (sequelize) => {
         timestamps: true,
       }
     );
-  
+    
+    Accommodation.associate = (models) => {
+      // Association avec StayStep
+      Accommodation.hasMany(models.StayStep, {
+        foreignKey: "accommodation_id",
+        as: "staySteps",
+      });
+    };
+    
     return Accommodation;
   };
   

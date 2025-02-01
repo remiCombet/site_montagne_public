@@ -1,22 +1,24 @@
-const { Theme } = require('../models');
+const { Highlight } = require('../models');
 
 // attention supprimer les reponse dans les catch error: error.message en prod
 
-// Ajouter un theme
-exports.createTheme = async (req, res) => {
-    const { name } = req.body;
+// Ajouter un point positif
+exports.createHighlights = async (req, res) => {
+    const { title, description, stay_id } = req.body;
 
     try {
         // Tout est ok
-        const newhighlight = await Theme.create({
-            name
+        const newhighlight = await Highlight.create({
+            title,
+            description,
+            stay_id
         });
 
         // message
         res.json({
             status: 200,
             msg: "point positif créé avec succès",
-            theme: newhighlight
+            hightlight: newhighlight
         });
     } catch (error) {
         // gestion des erreurs
@@ -31,23 +33,23 @@ exports.createTheme = async (req, res) => {
     }
 };
 
-// récupérer tous les themes
-exports.getAllTheme = async (req, res) => {
+// récupérer tous les points positifs
+exports.getAllHighlights = async (req, res) => {
     try {
-        const themes = await Theme.findAll();
+        const highlights = await Highlight.findAll();
 
-        // cas ou pas de theme trouvé
-        if (!themes || themes.length === 0) {
+        // cas ou pas de point positif trouvé
+        if (!highlights || highlights.length === 0) {
             return res.json({
                 status: 404,
                 msg: "aucun point positif trouvée"
             });
         }
 
-        // cas ou theme est trouvé
+        // cas ou le point positif est trouvé
         res.json({
             status: 200,
-            themes
+            highlights
         });
     } catch (error) {
         // Gestion des erreurs
@@ -60,24 +62,24 @@ exports.getAllTheme = async (req, res) => {
 };
 
 // Récupérer un point positif par son id
-exports.getThemeById = async (req, res) => {
+exports.getHighlightsById = async (req, res) => {
     const { id } = req.params;
 
     try {
-        const theme = await Theme.findByPk(id);
+        const highlight = await Highlight.findByPk(id);
 
-        // cas ou pas de theme trouvé
-        if (!theme) {
+        // cas ou pas de point positif trouvé
+        if (!highlight) {
             return res.json({
                 status: 404,
-                msg: "aucun theme trouvé"
+                msg: "aucun point positif trouvé"
             });
         }
 
         // cas positif, réponse
         res.json({
             status: 200,
-            theme
+            highlight
         });
     } catch (error) {
         // gestion des erreurs
@@ -90,65 +92,67 @@ exports.getThemeById = async (req, res) => {
 };
 
 // Modifier un point positif
-exports.updateTheme = async (req, res) => {
+exports.updateHighlights = async (req, res) => {
     const { id } = req.params;
-    const { name } = req.body;
+    const { title, description, stay_id } = req.body;
 
     try {
-        const theme = await Theme.findByPk(id);
+        const highlight = await Highlight.findByPk(id);
 
-        // cas ou pas de theme trouvé
-        if (!theme) {
+        // cas ou pas de point positif trouvé
+        if (!highlight) {
             return res.json({
                 status: 404,
-                msg: "aucun theme trouvé"
+                msg: "aucun point positif trouvé"
             });
         }
 
         // cas ou tout est bon
-        theme.name = name || theme.name;
+        highlight.title = title || highlight.title;
+        highlight.description = description || highlight.description;
+        highlight.stay_id = stay_id || highlight.stay_id;
 
         // sauvegarde des changements
-        await theme.save();
+        await highlight.save();
 
         // réponse positive
         res.json ({
             status : 200,
-            msg: "theme modifié avec succes",
-            theme
+            msg: "point positif modifié avec succes",
+            highlight
         });
     } catch (error) {
         // gestion des erreurs
         console.error(error);
         res.json({
             status: 500,
-            message: "Erreur serveur lors de la modification du theme"
+            message: "Erreur serveur lors de la modification du point positif"
         });
     }
 };
 
-// Supprimer un theme
-exports.deleteTheme = async (req, res) => {
+// Supprimer un point positif
+exports.deleteHighlights = async (req, res) => {
     const { id } = req.params;
 
     try {
-        const theme = await Theme.findByPk(id);
+        const highlight = await Highlight.findByPk(id);
 
-        // cas ou pas de theme trouvé
-        if (!theme) {
+        // cas ou pas de point positif trouvé
+        if (!highlight) {
             return res.json({
                 status: 404,
-                msg: "aucune theme trouvée"
+                msg: "aucune point positif trouvée"
             });
         }
 
         // catégorie trouvé, suppression
-        await theme.destroy();
+        await highlight.destroy();
 
         // réponse
         res.json({
             status : 200,
-            msg: "theme supprimé avec succes"
+            msg: "point positif supprimé avec succes"
         })
     } catch (error) {
         // gestion des erreurs

@@ -21,6 +21,13 @@ module.exports = (sequelize) => {
         timestamps: true,
       }
     );
+
+    Theme.associate = (models) => {
+      Theme.hasMany(models.StayTheme, {
+        foreignKey: 'theme_id',
+        as: 'stayThemes',
+      });
+    };
   
     return Theme;
   };
