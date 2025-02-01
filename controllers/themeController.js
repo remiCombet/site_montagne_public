@@ -1,10 +1,20 @@
 const { Theme } = require('../models');
+const { validationResult } = require('express-validator');
 
 // attention supprimer les reponse dans les catch error: error.message en prod
 
 // Ajouter un theme
 exports.createTheme = async (req, res) => {
     const { name } = req.body;
+    const errors = validationResult(req);
+
+    if (!errors.isEmpty()) {
+        return res.json({
+            status: 400,
+            msg: 'Erreur de validation',
+            errors: errors.array(),
+        });
+    }
 
     try {
         // Tout est ok
@@ -91,8 +101,17 @@ exports.getThemeById = async (req, res) => {
 
 // Modifier un point positif
 exports.updateTheme = async (req, res) => {
+    const errors = validationResult(req);
     const { id } = req.params;
     const { name } = req.body;
+
+    if (!errors.isEmpty()) {
+        return res.json({
+            status: 400,
+            msg: 'Erreur de validation',
+            errors: errors.array(),
+        });
+    }
 
     try {
         const theme = await Theme.findByPk(id);

@@ -1,8 +1,18 @@
 const { StayToPrepare, Stay, Category } = require('../models');
+const { validationResult } = require('express-validator');
 
 // Ajouter un équipement à un séjour
 exports.addStayToPrepare = async (req, res) => {
     const { stay_id, category_id } = req.body;
+    const errors = validationResult(req);
+
+    if (!errors.isEmpty()) {
+        return res.json({
+        status: 400,
+        msg: 'Erreur de validation',
+        errors: errors.array(),
+        });
+    }
 
     if (!stay_id || !category_id) {
         return res.json({

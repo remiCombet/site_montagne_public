@@ -1,9 +1,11 @@
 const express = require('express');
 const router = express.Router();
 const stayEquipmentController = require('../controllers/stayEquipmentController');
+const { validateAddStayEquipment } = require('../middlewares/stayEquipmentValidator');
+const validate = require('../middlewares/validationMiddleware');
 
 // Ajouter une equipement à un séjour
-router.post('/add', stayEquipmentController.addStayEquipment);
+router.post('/add', validateAddStayEquipment, validate, stayEquipmentController.addStayEquipment);
 
 // Récupérer toutes les equipements liées à un séjour
 router.get('/:stay_id', stayEquipmentController.getEquipmentsByStay);

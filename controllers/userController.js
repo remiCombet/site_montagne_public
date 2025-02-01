@@ -1,11 +1,21 @@
 const { User } = require('../models');
 const bcrypt = require('bcryptjs');
+const { validationResult } = require('express-validator');
 
 // attention supprimer les reponse dans les catch error: error.message en prod
 
 // Ajouter un utilisateur
 exports.createUser = async (req, res) => {
     const { firstname, lastname, email, password, phone } = req.body;
+    const errors = validationResult(req);
+
+    if (!errors.isEmpty()) {
+        return res.json({
+            status: 400,
+            msg: 'Erreur de validation',
+            errors: errors.array(),
+        });
+    }
 
     try {
         // Vérification si l'adresse email est déja dans la bdd
@@ -80,6 +90,15 @@ exports.getAllUsers = async (req, res) => {
 // Récupérer un utilisateur par son id
 exports.getUserById = async (req, res) => {
     const { id } = req.params;
+    const errors = validationResult(req);
+
+    if (!errors.isEmpty()) {
+        return res.json({
+            status: 400,
+            msg: 'Erreur de validation',
+            errors: errors.array(),
+        });
+    }
 
     try {
         const user = await User.findByPk(id);
@@ -110,6 +129,15 @@ exports.getUserById = async (req, res) => {
 exports.updateUser = async (req, res) => {
     const { id } = req.params;
     const { firstname, lastname, email, phone } = req.body;
+    const errors = validationResult(req);
+
+    if (!errors.isEmpty()) {
+        return res.json({
+            status: 400,
+            msg: 'Erreur de validation',
+            errors: errors.array(),
+        });
+    }
 
     try {
         const user = await User.findByPk(id);

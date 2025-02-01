@@ -1,6 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const accommodationController = require('../controllers/accommodationController');
+const accommodationValidator = require('../validators/accommodationValidator');
+const validate = require('../middleware/validate');
 
 // Route pour récupérer toutes les accommodations
 router.get('/', accommodationController.getAllAccommodations);
@@ -9,12 +11,12 @@ router.get('/', accommodationController.getAllAccommodations);
 router.get('/:id', accommodationController.getAccommodationById);
 
 // Route pour créer une nouvelle accommodation
-router.post('/add', accommodationController.createAccommodation);
+router.post('/add', accommodationValidator, validate, accommodationController.createAccommodation);
 
 // Route pour mettre à jour une accommodation
-router.put('/:id', accommodationController.updateAccommodation);
+router.put('/:id', accommodationValidator, validate, accommodationController.updateAccommodation);
 
 // Route pour supprimer une accommodation
-router.delete('/:id', accommodationController.deleteAccommodation);
+router.delete('/:id', accommodationValidator, validate, accommodationController.deleteAccommodation);
 
 module.exports = router;

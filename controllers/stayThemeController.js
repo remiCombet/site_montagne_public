@@ -1,9 +1,18 @@
 const { StayTheme, Stay, Theme } = require('../models');
+const { validationResult } = require('express-validator');
 
-// Récupérer tous les thèmes associés à un séjour
 // Récupérer tous les thèmes associés à un séjour
 exports.getThemesByStay = async (req, res) => {
   const { stay_id } = req.params;
+  const errors = validationResult(req);
+
+  if (!errors.isEmpty()) {
+    return res.json({
+      status: 400,
+      msg: 'Erreur de validation',
+      errors: errors.array(),
+    });
+  }
 
   try {
     const stayThemes = await StayTheme.findAll({
@@ -75,6 +84,15 @@ exports.addThemeToStay = async (req, res) => {
 // Supprimer un thème d'un séjour
 exports.removeThemeFromStay = async (req, res) => {
   const { stay_id, theme_id } = req.params;
+  const errors = validationResult(req);
+
+  if (!errors.isEmpty()) {
+    return res.json({
+      status: 400,
+      msg: 'Erreur de validation',
+      errors: errors.array(),
+    });
+  }
 
   try {
     const deleted = await StayTheme.destroy({
