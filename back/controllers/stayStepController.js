@@ -2,13 +2,13 @@ const { StayStep, Stay, Accommodation } = require('../models'); // Assurez-vous 
 
 // Récupérer toutes les étapes de séjour pour un séjour spécifique
 exports.getAllStaySteps = async (req, res) => {
-  const { stay_id } = req.params;
-
+  const { stayId } = req.params;
+  console.log('stayId :',stayId)
   try {
     const staySteps = await StayStep.findAll({
-      where: { stay_id },
+      where: { stay_id: stayId },
+      attributes: ['stay_id', 'step_number', 'title', 'description', 'duration', 'elevation_gain', 'elevation_loss'],
       include: [
-        { model: Stay, as: 'stay' },
         { model: Accommodation, as: 'accommodation' },
       ],
     });
@@ -36,18 +36,19 @@ exports.getAllStaySteps = async (req, res) => {
 
 // Créer une nouvelle étape de séjour
 exports.createStayStep = async (req, res) => {
-  const { stay_id, accommodation_id, step_number, title, description, duration, elevation_gain, elevation_loss } = req.body;
+  const { accommodation_id, step_number, title, description, duration, elevation_gain, elevation_loss } = req.body;
+  const { stayId } = req.params;
 
   try {
     const stayStep = await StayStep.create({
-      stay_id,
-      accommodation_id,
       step_number,
       title,
       description,
       duration,
       elevation_gain,
       elevation_loss,
+      stay_id: stayId,
+      accommodation_id,
     });
 
     res.json({

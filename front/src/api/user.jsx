@@ -1,16 +1,16 @@
 import axios from "axios";
 import { config } from "../config";
 
-// Fonction pour ajouter un utilisateur
-export function addOneUser(datas) {
-    return axios.post(`${config.api_url}/api/users/add`, datas)
-        .then((res) => {
-            return res.data;
-        })
-        .catch((err) => {
-            return err;
-        });
-}
+// // Fonction pour ajouter un utilisateur
+// export function addOneUser(datas) {
+//     return axios.post(`${config.api_url}/api/users/add`, datas)
+//         .then((res) => {
+//             return res.data;
+//         })
+//         .catch((err) => {
+//             return err;
+//         });
+// }
 
 // Fonction pour récupérer tous les utilisateurs
 export function getAllUsers() {

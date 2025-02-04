@@ -23,9 +23,9 @@ module.exports = (sequelize) => {
           allowNull: true,
         },
         duration: {
-          type: DataTypes.INTEGER,
+          type: DataTypes.DECIMAL(4,2),
           allowNull: false,
-        },
+        },        
         elevation_gain: {
           type: DataTypes.INTEGER,
           allowNull: true,

@@ -2,11 +2,11 @@ const express = require('express');
 const router = express.Router();
 const userController = require('../controllers/userController');
 const { validateCreateUser, validateUpdateUser, validateUserId } = require('../validators/userValidator');
-const withAdminAuth = require('../middlewares/withAuth');
+const withAdminAuth = require('../middlewares/withAuthAdmin');
 const withAuth = require('../middlewares/withAuth');
 
 // créer un utilisateur
-router.post('/add', validateCreateUser, userController.createUser);
+router.post('/sign-up', validateCreateUser, userController.createUser);
 
 // Récupérer tous les utilisateurs
 router.get('/', withAuth, withAdminAuth, userController.getAllUsers);

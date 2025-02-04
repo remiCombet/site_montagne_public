@@ -1,34 +1,43 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import Header from "./components/header";
+import Home from "./containers/home";
+import Register from "./containers/user/register";
+import Login from "./containers/user/login";
+import Profil from "./containers/user/profil";
+import Stay from "./components/stayList";
+import StayDetails from "./containers/stay/stayDetails";
+import Highlights from "./components/testHighlights";
+
+import Test from "./components/test";
+
+import RequireAuth from "./utils/requireAuth";
+
+import { Routes, Route } from "react-router-dom";
 
 function App() {
-  const [count, setCount] = useState(0)
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
+    <div className="App">
+      {/* <Header /> */}
+      <section className="background-section">
+
+      </section>
+      <main className="main-content">
+        <Routes>
+          {/* <Route path="/" element={<RequireAuth child={Home} auth={false} admin={false}/>}/> */}
+          <Route path="/" element={<Home />} />
+          <Route path="/register" element={<Register />}/>
+          <Route path="/login" element={<Login />}/>
+          <Route path="/profil" element={<RequireAuth child={Profil} auth={true} admin={false}/>}/>
+          <Route path="/stays" element={<RequireAuth child={Stay} auth={true} admin={false}/>}/>
+          <Route path="/stays/:id" element={<RequireAuth child={StayDetails} auth={true} admin={false}/>}/>
+          <Route path="/highlights" element={<Highlights />}/>
+
+          <Route path="/test" element={<Test />}/>
+
+          <Route path="*" element={<div>Page non trouvée</div>} />
+        </Routes>
+      </main>
+    </div>
   )
 }
 

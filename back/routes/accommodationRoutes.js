@@ -10,6 +10,9 @@ router.get('/', accommodationController.getAllAccommodations);
 // Route pour récupérer une accommodation par son ID
 router.get('/:id', accommodationController.getAccommodationById);
 
+// Route pour récupérer une accommodation en fonction du stayStep_id
+router.get('/:stayStepId', accommodationController.getAccommodationByStayStep);
+
 // Route pour créer une nouvelle accommodation
 router.post('/add', accommodationValidator, validate, accommodationController.createAccommodation);
 

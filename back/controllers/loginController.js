@@ -20,7 +20,7 @@ exports.login = async (req, res) => {
 
         // Vérification si l'utilisateur existe
         if (!user) {
-            return res.json({ status: 404, msg: "Utilisateur non trouvé" });
+            return res.status(404).json({ msg: "Utilisateur non trouvé" });
         }
 
         // Vérification du mot de passe
@@ -32,7 +32,7 @@ exports.login = async (req, res) => {
         // Création du token JWT
         const payload = {
             userId: user.id,  // Id de l'utilisateur
-            isAdmin: user.id_role === 1 || false,  // Ajout du statut d'administrateur
+            isAdmin: user.role === "admin" || false,  // Ajout du statut d'administrateur
         };
 
         // Génération du token (avec une expiration de 1 heure par exemple)
@@ -49,7 +49,7 @@ exports.login = async (req, res) => {
                 lastname: user.lastname,
                 email: user.email,
                 phone: user.phone,
-                role: user.id_role === 1 ? "admin" : "user",
+                role: user.role === "admin" ? "admin" : "user",
             }
         });
     } catch (error) {
@@ -59,7 +59,7 @@ exports.login = async (req, res) => {
 };
 
 // Fonction de reconnexion
-exports.checkToken = async (req, res) => {
+exports.checkMyToken = async (req, res) => {
     try {
         const { id, isAdmin } = req.user;
         
@@ -68,7 +68,7 @@ exports.checkToken = async (req, res) => {
 
         // Vérification si l'utilisateur existe encore dans la base de données
         if (!user) {
-            return res.json({ status:404, msg: "Utilisateur non trouvé" });
+            return res.status(404).json({ msg: "Utilisateur non trouvé" });
         }
 
         // Réponse avec les informations utilisateur
@@ -81,7 +81,7 @@ exports.checkToken = async (req, res) => {
                 lastname: user.lastname,
                 email: user.email,
                 phone: user.phone,
-                role: user.id_role === 1 ? "admin" : "user",
+                role: user.id_role === "admin" ? "admin" : "user",
             },
         });
     } catch (error) {

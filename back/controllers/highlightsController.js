@@ -91,6 +91,38 @@ exports.getHighlightsById = async (req, res) => {
     }
 };
 
+// Récupérer les points positifs par stay_id
+exports.getHighlightsByStayId = async (req, res) => {
+    const { stayId } = req.params;  // Récupérer l'id du séjour depuis les paramètres de l'URL
+
+    try {
+        const highlights = await Highlight.findAll({
+            where: { stay_id: stayId },  // Filtrer par stay_id
+        });
+
+        // Si aucun point positif n'est trouvé
+        if (!highlights || highlights.length === 0) {
+            return res.json({
+                status: 404,
+                msg: "Aucun point positif trouvé pour ce séjour"
+            });
+        }
+
+        // Répondre avec les points positifs associés au séjour
+        res.json({
+            status: 200,
+            highlights
+        });
+    } catch (error) {
+        // Gestion des erreurs
+        console.error(error);
+        res.json({
+            status: 500,
+            message: "Erreur serveur lors de la récupération des points positifs"
+        });
+    }
+};
+
 // Modifier un point positif
 exports.updateHighlights = async (req, res) => {
     const { id } = req.params;

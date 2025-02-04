@@ -14,6 +14,9 @@ router.get('/', highlightsController.getAllHighlights);
 // Récupérer un point potitif par id
 router.get('/:id', highlightValidator, validate, highlightsController.getHighlightsById);
 
+// récupérer les highlights d'un séjour
+router.get('/stays/:stayId', highlightsController.getHighlightsByStayId);
+
 // Modifier un point potitif
 router.put('/:id', highlightValidator, validate, highlightsController.updateHighlights);
 

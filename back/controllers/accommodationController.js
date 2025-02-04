@@ -54,6 +54,43 @@ exports.getAccommodationById = async (req, res) => {
   }
 };
 
+// Récupérer un logement en fonction de l'étape 
+exports.getAccommodationByStayStep = async (req, res) => {
+  const { stayStepId } = req.params;
+
+  try {
+    // Vérifier si l'étape de séjour existe
+    const stayStep = await StayStep.findByPk(stayStepId);
+    if (!stayStep) {
+      return res.json({
+        status: 404,
+        msg: 'L\'étape de séjour spécifiée n\'existe pas.',
+      });
+    }
+
+    // Récupérer l'hébergement lié à cette étape
+    const accommodation = await Accommodation.findByPk(stayStep.accommodation_id);
+    if (!accommodation) {
+      return res.json({
+        status: 404,
+        msg: 'Aucun hébergement trouvé pour cette étape de séjour.',
+      });
+    }
+
+    res.json({
+      status: 200,
+      msg: 'Hébergement récupéré avec succès.',
+      accommodation,
+    });
+  } catch (error) {
+    console.error(error);
+    res.json({
+      status: 500,
+      msg: 'Oups, une erreur est survenue lors de la récupération de l\'hébergement.',
+    });
+  }
+};
+
 // Créer une nouvelle accommodation
 exports.createAccommodation = async (req, res) => {
   const { name, description, meal_type, meal_description } = req.body;

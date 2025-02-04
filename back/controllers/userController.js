@@ -41,8 +41,6 @@ exports.createUser = async (req, res) => {
             role: 'user'
         });
 
-        const token = jwt.sign({ id: newUser.id, email: newUser.email }, process.env.JWT_SECRET, { expiresIn: '1h' });
-
         // réponse positive
         res.json({
             status: 200,
@@ -132,66 +130,47 @@ exports.getUserById = async (req, res) => {
 exports.updateUser = async (req, res) => {
     const { id } = req.params;
     const { firstname, lastname, email, phone } = req.body;
-    const errors = validationResult(req);
-
-    if (!errors.isEmpty()) {
-        return res.json({
-            status: 400,
-            msg: 'Erreur de validation',
-            errors: errors.array(),
-        });
-    }
+    const loggdInUserId = req.user.id; // id de l'utilisateur connecté
+    const isAdmin = req.user.isAdmin;
 
     try {
         const user = await User.findByPk(id);
 
-        // non trouvé
         if (!user) {
-            return res.json({
-                status: 404,
-                msg: "utilisateur non trouvé"
-            })
+            return res.json({ status: 404, msg: "User not found" });
         }
 
-         // vérification si l'adresse modifiée n'est pas déja dans la bdd
-         if (email && email !== user.email) {
-                const existingUser = await User.findOne({ where : {email} });
+        // Vérification : utilisateur authentifié modifie son propre compte, ou c'est un admin?
+        if (user.id !== loggdInUserId && !isAdmin) {
+            return res.json({ status: 403, msg: "vous ne pouvez pas modifier ce compte"})
+        }
 
-                // si elle est déja présente, réponse
-                if (existingUser) {
-                    return res.json({
-                        status: 400,
-                        msg: 'Cet email est déjà enregistré. Veuillez en utiliser un autre.'
-                    });
-                }
+        // Si l'email a été modifié, on vérifie qu'il n'existe pas déjà dans la base de données
+        if (email && email !== user.email) {
+            const existingUser = await User.findOne({ where: { email } });
 
-         }
+            if (existingUser) {
+                return res.json({
+                    status: 400,
+                    msg: 'Cet email est déjà enregistré. Veuillez en utiliser un autre.'
+                });
+            }
+        }
 
-        //  tout est bon
+        // Mise à jour des données de l'utilisateur
         user.firstname = firstname || user.firstname;
         user.lastname = lastname || user.lastname;
         user.email = email || user.email;
         user.phone = phone || user.phone;
 
-        // sauvegarde des changements
         await user.save();
 
-        // réponse
-        res.json({
-            status: 200,
-            msg: "utilisateur modifié avec succès",
-            user,
-        })
-
-    } catch (error) {
-        console.error(error);
-        res.json({
-            status:500,
-            msg: "oups une erreur est survenue",
-            error: error.message 
-        });
+        res.json({ status:200, msg: "User updated", user });
+    } catch (err) {
+        console.error(err);
+        res.json({ status:500, error: err.message });
     }
-}
+};
 
 // supprimer un utilisateur
 exports.deleteUser = async (req, res) => {

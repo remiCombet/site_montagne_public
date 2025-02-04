@@ -19,7 +19,8 @@ const stayEquipmentRoutes = require('./routes/stayEquipmentRoutes');
 const stayThemeRoutes = require('./routes/stayThemeRoutes');
 const accommodationRoutes = require('./routes/accommodationRoutes');
 const stayStepRoutes = require('./routes/stayStepRoutes');
-const stayToPrepareRoutes = require('./routes/stayToPrepare');
+const stayToPrepareRoutes = require('./routes/stayToPrepareRoutes');
+const receptionPointRoutes = require('./routes/receptionPointRoutes');
 
 app.use(express.json());
 app.use(cors());
@@ -42,10 +43,13 @@ app.use('/api/categories', categoryRoutes);
 app.use('/api/highlights', highlightsRoutes);
 
 // routes acces
-app.use('/api/access', accessRoutes);
+app.use('/api/accesses', accessRoutes);
 
 // routes themes
 app.use('/api/themes', themeRoutes);
+
+// routes receptionPoint
+app.use('/api/reception-point', receptionPointRoutes);
 
 // routes stayAccess
 app.use('/api/stay-accesses', stayAccessRoutes);
@@ -74,8 +78,12 @@ app.get('/', async (req, res, next) => {
 })
 
 // Synchronisation des modèles avec la base de données
-db.sequelize.sync().then(() => {
-    app.listen(9500, () => {
-        console.log('Server is running on http://localhost:9500');
-    });
+// db.sequelize.sync().then(() => {
+//     app.listen(9500, () => {
+//         console.log('Server is running on http://localhost:9500');
+//     });
+// });
+
+app.listen(9500, () => {
+    console.log('Server is running on http://localhost:9500');
 });
