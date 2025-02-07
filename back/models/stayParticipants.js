@@ -34,6 +34,8 @@ module.exports = (sequelize) => {
       {
         tableName: 'stay_participants',
         timestamps: true,
+        createdAt: 'created_at',
+        updatedAt: 'updated_at',
       }
     );
   

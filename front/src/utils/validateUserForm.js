@@ -1,4 +1,4 @@
-import { validateForm } from "./validateUtils";
+import { validateFormAsync } from "./validateUtils";
 
 export const validateUserField = (label, field, value) => {
     if (!value) return `${label} est requis.`;
@@ -29,4 +29,4 @@ export const validateUserField = (label, field, value) => {
     return true;
 };
 
-export const validateUserForm = (fields) => validateForm(fields, validateUserField);
+export const validateUserForm = (fields) => validateFormAsync(fields, validateUserField);

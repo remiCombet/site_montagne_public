@@ -1,24 +1,36 @@
 import React, { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { Link } from 'react-router-dom';
+import { format } from 'date-fns';
+
+// appel des fonctionnalités des Reducer
 import { selectStay, setSelectedStay } from '../../slices/staySlice';
 import { setHighlights, selectHighlights } from '../../slices/highlightSlice';
+
+// appels API
 import { getHighlightsByStay } from '../../api/highlights';
 import { getStayStepByStayId } from '../../api/stayStep';
-import { format } from 'date-fns';
-// import { getAccessByStayId } from '../../api/stayAccess';
-// import { getAccommodationByStepId } from '../../api/accommodation';
+import { getThemeByStayId } from '../../api/stayTheme';
+
+// importationdes composants
 import StayStep from '../../components/stayStep';
 import Access from '../../components/access';
 import Reception from '../../components/reception';
+import Equipment from '../../components/equipment';
+import ToPrepare from '../../components/toPrepare';
+import StayTheme from '../../components/stayTheme';
+import Test from '../../components/test';
 
 const StayDetails = () => {
     const { selectedStay } = useSelector(selectStay);
     const { highlights } = useSelector(selectHighlights);
     const dispatch = useDispatch();
     
-    // State pour stocker les étapes de séjour
+    // State pour stocker localement les données
     const [staySteps, setStaySteps] = useState([]);
+    const [stayThemes, setStayThemes] = useState([]);
+
+    // State pour stocker les étapes de séjour
 
     // State pour gérer l'onglet sélectionné
     const [activeTab, setActiveTab] = useState('resume');
@@ -44,6 +56,19 @@ const StayDetails = () => {
             .then((res) => {
                 if (res.status === 200) {
                     setStaySteps(res.staySteps);
+                } else {
+                    console.error("Erreur lors de la récupération des étapes du séjour");
+                }
+            })
+            .catch((err) => {
+                console.error("Erreur lors du chargement des étapes du séjour", err);
+            });
+
+            // Chargement des thèmes du séjour via l'API
+            getThemeByStayId(selectedStay.id)
+            .then((res) => {
+                if (res.status === 200) {
+                    setStayThemes(res.themes);
                 } else {
                     console.error("Erreur lors de la récupération des étapes du séjour");
                 }
@@ -109,8 +134,27 @@ const StayDetails = () => {
                 <p>Aucune étape disponible pour ce séjour.</p>
             )}
 
-                {/* Fiche technique */}
+            {/* Affichage des thèmes du séjour */}
+            {stayThemes.length > 0 ? (
                 <div>
+                    <h3>Thèmes du séjour :</h3>
+                    <ul>
+                        {stayThemes.map((theme) => (
+                            <li key={theme.id}>
+                                <strong>{theme.name}</strong>
+                            </li>
+                        ))}
+                    </ul>
+                </div>
+            ) : (
+                <p>Aucun thème associé à ce séjour.</p>
+            )}
+
+             {/* Intégration du composant Test */}
+             <Test stayId={selectedStay.id} />
+
+            {/* Fiche technique */}
+            <div>
                 <h3>Fiche technique</h3>
                 <div className="tabs">
                     <button onClick={() => setActiveTab('resume')} className={activeTab === 'resume' ? 'active' : ''}>Résumé</button>
@@ -133,8 +177,9 @@ const StayDetails = () => {
                     )}
                     {activeTab === 'equipment' && (
                         <div>
-                            <h4>Équipement</h4>
-                            <p>Liste des équipements nécessaires pour ce séjour...</p>
+                            <h4>Équipements</h4>
+                            <Equipment stayId={selectedStay.id} />
+                            <ToPrepare stayId={selectedStay.id} />
                         </div>
                     )}
                 </div>

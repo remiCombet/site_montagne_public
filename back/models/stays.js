@@ -55,7 +55,7 @@ module.exports = (sequelize) => {
         allowNull: false,
       },
       status: {
-        type: DataTypes.ENUM('en_attente_validation', 'programmé', 'validé', 'supprimé'),
+        type: DataTypes.ENUM('participants_insuffisants', 'en_attente_de_validation', 'validé', 'supprimé'),
         allowNull: false,
       },
       user_id: {

@@ -43,7 +43,6 @@ exports.getThemesByStay = async (req, res) => {
     res.json({
       status: 200,
       msg: 'Thèmes récupérés avec succès.',
-      stay: stayData,
       themes: themes,
     });
   } catch (error) {

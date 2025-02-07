@@ -25,7 +25,7 @@ const StayStep = ({ staySteps }) => {
                 <ul>
                     {staySteps.map((step, index) => (
                         <li key={step.id || index}>
-                            <h4>{step.title}</h4>
+                            <h4>Étape {index + 1}: {step.title}</h4>
                             {showDetails && (
                                 <div>
                                     <p><strong>Description :</strong> {step.description}</p>

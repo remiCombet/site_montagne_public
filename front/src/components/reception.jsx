@@ -35,7 +35,7 @@ const Reception = ({ receptionPointId }) => {
 
     return (
         <div>
-            <h3>Point de réception</h3>
+            <h4>Point de réception</h4>
             {receptionPoint ? (
                 <div>
                     <p><strong>Location:</strong> {receptionPoint.location}</p>

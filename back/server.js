@@ -21,6 +21,7 @@ const accommodationRoutes = require('./routes/accommodationRoutes');
 const stayStepRoutes = require('./routes/stayStepRoutes');
 const stayToPrepareRoutes = require('./routes/stayToPrepareRoutes');
 const receptionPointRoutes = require('./routes/receptionPointRoutes');
+const stayParticipantsRoutes = require('./routes/stayParticipantsRoutes');
 
 app.use(express.json());
 app.use(cors());
@@ -68,6 +69,13 @@ app.use('/api/stay-steps', stayStepRoutes);
 
 // routes stayToPrepare
 app.use('/api/stay-to-prepare', stayToPrepareRoutes);
+
+// routes stayParticipants
+app.use('/api/stay-participants', stayParticipantsRoutes);
+
+
+const testRoutes = require('./routes/testRoutes');
+app.use ('/api', testRoutes);
 
 // Route d'accueil du site
 app.get('/', async (req, res, next) => {

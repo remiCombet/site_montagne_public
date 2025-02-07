@@ -4,7 +4,7 @@ const stayThemeController = require('../controllers/stayThemeController');
 const stayThemeValidator = require('../validators/stayThemeValidator');
 
 // Récupérer tous les thèmes pour un séjour
-router.get('/:stay_id', stayThemeController.getThemesByStay);
+router.get('/stay/:stay_id', stayThemeController.getThemesByStay);
 
 // Ajouter un thème à un séjour
 router.post('/add', stayThemeValidator, stayThemeController.addThemeToStay);

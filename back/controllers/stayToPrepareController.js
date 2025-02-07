@@ -41,46 +41,40 @@ exports.addStayToPrepare = async (req, res) => {
     }
 };
 
-// Récupérer tous les équipements liés à un séjour
-exports.getToPreparesByStay = async (req, res) => {
-    const { stay_id } = req.params;
-
+// Récupérer tous les équipements à prévoir liés à un séjour
+exports.getToPrepareByStayId = async (req, res) => {
     try {
-        // Récupérer le séjour avec ses équipements associés
-        const stay = await Stay.findByPk(stay_id, {
-            include: [
-                {
-                    model: StayToPrepare,
-                    as: 'toPrepares',
-                    include: [
-                        { model: Category, as: 'category' }
-                    ],
-                    attributes: { exclude: ['stay_id', 'category_id'] }
-                }
-            ]
+        const { stay_id } = req.params;
+
+        // Récupérer les éléments à prévoir pour le séjour donné
+        const toPrepare = await StayToPrepare.findAll({
+            where: { stay_id },
+            include: {
+                model: Category,
+                as: 'category'
+            }
         });
 
-        // Vérifier si le séjour existe
-        if (!stay) {
-            return res.json({
-                status: 404,
-                msg: "Séjour non trouvé."
-            });
-        }
+        // Regrouper les éléments par type de catégorie (ex: vetement, pharmacie)
+        const groupedToPrepare = toPrepare.reduce((acc, item) => {
+            const categoryType = item.category.type;
+            if (!acc[categoryType]) {
+                acc[categoryType] = [];
+            }
+            acc[categoryType].push(item);
+            return acc;
+        }, {});
 
-        // Réponse avec les informations du séjour et des équipements
-        res.json({
+        // Reformater la réponse pour correspondre à la structure souhaitée
+        const response = {
             status: 200,
-            msg: "Séjour et équipements à emmener récupérés avec succès.",
-            stay 
-        });
+            toPrepare: groupedToPrepare
+        };
+
+        res.json(response);
     } catch (error) {
-        // Gestion des erreurs
         console.error(error);
-        res.json({
-            status: 500,
-            msg: "Oups, une erreur est survenue"
-        });
+        res.json({ status: 500, msg: 'Erreur serveur' });
     }
 };
 

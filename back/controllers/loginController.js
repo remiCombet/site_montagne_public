@@ -31,8 +31,8 @@ exports.login = async (req, res) => {
 
         // Création du token JWT
         const payload = {
-            userId: user.id,  // Id de l'utilisateur
-            isAdmin: user.role === "admin" || false,  // Ajout du statut d'administrateur
+            userId: user.id,
+            isAdmin: user.role === "admin" || false,
         };
 
         // Génération du token (avec une expiration de 1 heure par exemple)

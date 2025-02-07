@@ -31,46 +31,46 @@ exports.addStayEquipment = async (req, res) => {
     }
 };
 
-// Récupérer tous les équipements liés à un séjour
+// Récupérer tous les équipements liés à un séjour et les regrouper par catégorie
 exports.getEquipmentsByStay = async (req, res) => {
-    const { stay_id } = req.params;
-
     try {
-        // Récupérer le séjour avec ses équipements associés
-        const stay = await Stay.findByPk(stay_id, {
-            include: [
-                {
-                    model: StayEquipment,
-                    as: 'equipments',
-                    include: [
-                        { model: Category, as: 'category' }
-                    ],
-                    attributes: { exclude: ['stay_id', 'category_id'] }
-                }
-            ]
+        const { stay_id } = req.params;
+
+        // Récupérer les équipements associés au séjour avec leur catégorie
+        const equipments = await StayEquipment.findAll({
+            where: { stay_id },
+            include: {
+                model: Category,
+                as: 'category'
+            }
         });
 
-        // Vérifier si le séjour existe
-        if (!stay) {
+        // Vérifier si des équipements ont été trouvés
+        if (equipments.length === 0) {
             return res.json({
                 status: 404,
-                msg: "Séjour non trouvé."
+                msg: "Aucun équipement trouvé pour ce séjour."
             });
         }
 
-        // Réponse avec les informations du séjour et des équipements
+        // Regrouper les équipements par type de catégorie
+        const groupedEquipments = equipments.reduce((acc, item) => {
+            const categoryType = item.category.type;
+            if (!acc[categoryType]) {
+                acc[categoryType] = [];
+            }
+            acc[categoryType].push(item);
+            return acc;
+        }, {});
+
+        // Réponse formatée
         res.json({
             status: 200,
-            msg: "Séjour et équipements récupérés avec succès.",
-            stay 
+            equipments: groupedEquipments
         });
     } catch (error) {
-        // Gestion des erreurs
         console.error(error);
-        res.json({
-            status: 500,
-            msg: "Oups, une erreur est survenue"
-        });
+        res.json({ status: 500, msg: "Oups, une erreur est survenue" });
     }
 };
 

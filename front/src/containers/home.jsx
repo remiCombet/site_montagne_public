@@ -13,7 +13,6 @@ const home = () => {
     // chargement des séjours
     getAllStays()
     .then((res) => {
-      console.log("Données API : ", res);
       if (res && res.stays) {
         dispatch(setStays(res.stays));
       }
@@ -63,6 +62,10 @@ const home = () => {
         )}
       </div> */}
       <StayList />
+
+      <div>
+      {/* <Link to="/test">test</Link> */}
+      </div>
     </div>
   )
 }
