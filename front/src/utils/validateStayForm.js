@@ -1,10 +1,9 @@
-// validateStay.js
-
 import { validateFormAsync } from "./validateUtils";
-import { Theme, Category, Highlight } from "../models";
+// import { checkAssociations } from "../api/validate"; 
 
 export const validateStayField = async (label, field, value) => {
     if (!value) return `${label} est requis.`;
+
     switch (field) {
         case "title":
             if (value.length < 3) return `${label} doit comporter au moins 3 caractères.`;
@@ -32,44 +31,39 @@ export const validateStayField = async (label, field, value) => {
             const levels = ["facile", "modéré", "sportif", "difficile", "extrême"];
             if (!levels.includes(value)) return `${label} doit être l'un des niveaux suivants : ${levels.join(", ")}.`;
             break;
-        case "theme":
-            return await validateAssociation(value, "Theme");
-        case "category":
-            return await validateAssociation(value, "Category");
-        case "highlight":
-            return await validateAssociation(value, "Highlight");
+        // case "theme":
+        // case "category":
+        // case "highlight":
+        //     return await validateAssociation(value, field);
         default:
             return true;
     }
+
     return true;
 };
 
-const validateAssociation = async (associationIds, modelName) => {
-    if (!Array.isArray(associationIds) || associationIds.length === 0) {
-        return `${modelName} est requis.`;
-    }
-    let model;
-    switch (modelName) {
-        case "Theme":
-            model = Theme;
-            break;
-        case "Category":
-            model = Category;
-            break;
-        case "Highlight":
-            model = Highlight;
-            break;
-        default:
-            return `Modèle pour ${modelName} introuvable.`;
-    }
-    for (let id of associationIds) {
-        const record = await model.findByPk(id);
-        if (!record) {
-            return `${modelName} avec l'ID ${id} n'existe pas.`;
-        }
-    }
-    return true;
-};
+// 🔹 Vérifie l'existence des IDs côté backend via une API
+// const validateAssociation = async (associationIds, modelName) => {
+//     if (!Array.isArray(associationIds) || associationIds.length === 0) {
+//         return `${modelName} est requis.`;
+//     }
+
+//     try {
+//         const response = await checkAssociations({ [modelName]: associationIds });
+//         if (response.status !== 200) {
+//             return `Erreur de validation pour ${modelName}.`;
+//         }
+
+//         const { invalidIds } = response.data;
+//         if (invalidIds.length > 0) {
+//             return `${modelName} avec les IDs suivants n'existent pas : ${invalidIds.join(", ")}.`;
+//         }
+//     } catch (error) {
+//         return `Erreur de validation pour ${modelName}.`;
+//     }
+
+//     return true;
+// };
 
 export const validateStayForm = async (fields) => {
     return await validateFormAsync(fields, validateStayField);

@@ -94,7 +94,7 @@ exports.getAccessById = async (req, res) => {
 exports.updateAccess = async (req, res) => {
     const { id } = req.params;
     const { category, informations } = req.body;
-
+    console.log(id, category, informations)
     try {
         const access = await Access.findByPk(id);
 

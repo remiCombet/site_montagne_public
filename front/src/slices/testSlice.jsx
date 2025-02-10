@@ -1,25 +1,33 @@
 import { createSlice } from "@reduxjs/toolkit";
 
+// État initial du slice "stay", gère les séjours, les demandes et les participants.
 const initialState = {
-    stays: [],
-    selectedStay: null,
-    stayRequests: {},
-    stayParticipants: {}
+    stays: [], // Liste des séjours
+    selectedStay: null, // Séjour actuellement sélectionné
+    stayRequests: {}, // Liste des demandes de séjour par séjour_id
+    stayParticipants: {} // Liste des participants par séjour_id
 };
 
 export const staySlice = createSlice({
     name: "stay",
     initialState,
     reducers: {
+        // Met à jour la liste des séjours
         setStays: (state, action) => {
             state.stays = action.payload;
         },
+
+        // Met à jour le séjour actuellement sélectionné
         setSelectedStay: (state, action) => {
             state.selectedStay = action.payload;
         },
+
+        // Ajoute un nouveau séjour à la liste des séjours
         addStay: (state, action) => {
             state.stays.push(action.payload);
         },
+
+        // Met à jour un séjour existant en fonction de son id
         updateStay: (state, action) => {
             const index = state.stays.findIndex(stay => stay.id === action.payload.id);
             if (index !== -1) {
@@ -29,12 +37,16 @@ export const staySlice = createSlice({
                 }
             }
         },
+
+        // Supprime un séjour de la liste des séjours et met à jour le séjour sélectionné si nécessaire
         deleteStay: (state, action) => {
             state.stays = state.stays.filter(stay => stay.id !== action.payload);
             if (state.selectedStay?.id === action.payload) {
                 state.selectedStay = null;
             }
         },
+
+        // Ajoute une demande de séjour
         addStayRequest: (state, action) => {
             state.stayRequests = {
                 ...state.stayRequests,
@@ -44,6 +56,8 @@ export const staySlice = createSlice({
                 ]
             };
         },
+
+        // Met à jour une demande de séjour existante
         updateStayRequest: (state, action) => {
             const { stay_id, request_id, ...updatedData } = action.payload;
             if (state.stayRequests[stay_id]) {
@@ -56,16 +70,22 @@ export const staySlice = createSlice({
                 }
             }
         },
+
+        // Supprime une demande de séjour
         deleteStayRequest: (state, action) => {
             const { stay_id, request_id } = action.payload;
             if (state.stayRequests[stay_id]) {
                 state.stayRequests[stay_id] = state.stayRequests[stay_id].filter(req => req.request_id !== request_id);
             }
         },
+
+        // Met à jour les demandes de séjour pour un séjour spécifique
         setStayRequests: (state, action) => {
             const { stay_id, participants } = action.payload;
             state.stayRequests[stay_id] = participants || [];
         },
+
+        // Met à jour les participants pour un séjour spécifique et ajuste le statut du séjour en fonction du nombre de participants
         updateStayParticipants: (state, action) => {
             const { stay_id, participants } = action.payload;
             const stayIndex = state.stays.findIndex(stay => stay.id === stay_id);
@@ -74,27 +94,21 @@ export const staySlice = createSlice({
                 
                 // Calcul du nombre total de participants
                 const peopleNumber = participants.reduce((sum, participant) => sum + participant.people_number, 0);
-
-                // Calcul du nombre de lignes (participants)
                 const totalLines = participants.length;
-
-                // Ajout du nombre de lignes au total des participants
                 const totalParticipants = peopleNumber + totalLines;
-                
-                // Calcul du nombre de participants en attente (ceux dont le statut est "en_attente")
+
+                // Calcul du nombre de participants en attente et confirmés
                 const pendingParticipants = participants.filter(participant => participant.status === 'en_attente').length;
-                
-                // Calcul du nombre total de participants confirmés
                 const confirmedParticipants = totalParticipants - pendingParticipants;
 
-                // Mise à jour des participants et des comptes en attente dans `stayParticipants`
+                // Mise à jour du nombre total et des participants confirmés
                 state.stayParticipants[stay_id] = {
                     totalParticipants,
                     pendingParticipants,
                     confirmedParticipants
                 };
-                console.log(confirmedParticipants)
-                // Mise à jour du statut du séjour en fonction du nombre de participants confirmés
+
+                // Détermine le statut du séjour
                 let updatedStatus = "en_attente_de_validation";
                 if (confirmedParticipants < stay.min_participant) {
                     updatedStatus = "participants_insuffisants";
@@ -102,10 +116,10 @@ export const staySlice = createSlice({
                     updatedStatus = "complet";
                 }
 
-                // Mise à jour du statut du séjour dans `stays`
+                // Mise à jour du statut du séjour
                 state.stays[stayIndex].status = updatedStatus;
 
-                // Mise à jour du statut de `selectedStay` si nécessaire
+                // Mise à jour du statut du séjour sélectionné si nécessaire
                 if (state.selectedStay?.id === stay_id) {
                     state.selectedStay.status = updatedStatus;
                 }
@@ -114,5 +128,8 @@ export const staySlice = createSlice({
     }
 });
 
+// Exportation des actions
 export const { setStays, setSelectedStay, addStay, updateStay, deleteStay, addStayRequest, updateStayRequest, deleteStayRequest, setStayRequests, updateStayParticipants} = staySlice.actions;
+
+// Exportation du reducer
 export default staySlice.reducer;

@@ -25,7 +25,7 @@ exports.createTheme = async (req, res) => {
         // message
         res.json({
             status: 200,
-            msg: "point positif créé avec succès",
+            msg: "theme créé avec succès",
             theme: newhighlight
         });
     } catch (error) {
@@ -50,7 +50,7 @@ exports.getAllTheme = async (req, res) => {
         if (!themes || themes.length === 0) {
             return res.json({
                 status: 404,
-                msg: "aucun point positif trouvée"
+                msg: "aucun theme trouvée"
             });
         }
 
@@ -64,7 +64,7 @@ exports.getAllTheme = async (req, res) => {
         console.error(error);
         res.json({
             status: 500,
-            message: "Erreur serveur lors de la récupération des points positifs"
+            message: "Erreur serveur lors de la récupération des themes"
         });
     }
 };
@@ -94,7 +94,7 @@ exports.getThemeById = async (req, res) => {
         console.error(error);
         res.json({
             status: 500,
-            message: "Erreur serveur lors de la récupération du point positif"
+            message: "Erreur serveur lors de la récupération du theme"
         });
     }
 };

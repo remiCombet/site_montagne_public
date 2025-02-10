@@ -12,6 +12,19 @@ exports.addStayAccess = async (req, res) => {
     }
 
     try {
+        // pour vérifier si l'accès est déjà associé au séjour
+        const existingAssociation = await StayAccess.findOne({
+            where: { stay_id, access_id }
+        });
+
+        // si cest le cas
+        if (existingAssociation) {
+            return res.json({
+                status: 400,
+                msg: "Cet accès est déjà associé à ce séjour."
+            });
+        }
+
         const stayAccess = await StayAccess.create({ stay_id, access_id});
 
         // réponse

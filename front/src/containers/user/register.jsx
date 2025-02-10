@@ -5,7 +5,7 @@ import { validateUserForm } from "../../utils/validateUserForm"
 // import Breadcrumb from '../../utils/breadcrumb';
 
 const Register = () => {
-    const [firstname, setFirstname] = useState('');
+    const [firstname, setFirstname] = useState("");
     const [lastname, setLastname] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");

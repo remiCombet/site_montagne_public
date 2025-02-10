@@ -32,6 +32,10 @@ const home = () => {
       <Link to="/profil">profil</Link>
       <br/>
       <Link to="/stays">séjours</Link>
+      <br />
+      <Link to="/admin/themes">admin</Link>
+      <br />
+      <Link to="/admin/accesses">admin-2</Link>
 
       <br/>
       {/* <Link to="/test">test</Link> */}
