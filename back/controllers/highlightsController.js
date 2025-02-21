@@ -5,6 +5,10 @@ const { Highlight } = require('../models');
 // Ajouter un point positif
 exports.createHighlights = async (req, res) => {
     const { title, description, stay_id } = req.body;
+    console.log(stay_id)
+    if (isNaN(stay_id) || Number(stay_id) <= 0) {
+        return res.status(400).json({ msg: "L'ID du séjour doit être un nombre entier valide." });
+    }
 
     try {
         // Tout est ok
@@ -33,6 +37,7 @@ exports.createHighlights = async (req, res) => {
     }
 };
 
+// vu que lié avec stay_id dans la table meme pas vraiement utile ? 
 // récupérer tous les points positifs
 exports.getAllHighlights = async (req, res) => {
     try {
@@ -93,17 +98,18 @@ exports.getHighlightsById = async (req, res) => {
 
 // Récupérer les points positifs par stay_id
 exports.getHighlightsByStayId = async (req, res) => {
-    const { stayId } = req.params;  // Récupérer l'id du séjour depuis les paramètres de l'URL
+    const { stayId } = req.params;
 
     try {
         const highlights = await Highlight.findAll({
-            where: { stay_id: stayId },  // Filtrer par stay_id
+            where: { stay_id: stayId },
         });
 
         // Si aucun point positif n'est trouvé
         if (!highlights || highlights.length === 0) {
             return res.json({
-                status: 404,
+                status: 200,
+                highlights: [],
                 msg: "Aucun point positif trouvé pour ce séjour"
             });
         }

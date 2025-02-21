@@ -109,6 +109,8 @@ exports.updateStay = async (req, res) => {
     const { id } = req.params;
     const { title, description, location, price, physical_level, technical_level, min_participant, max_participant, start_date, end_date, reception_point_id, status, user_id } = req.body;
 
+    console.log("Données reçues dans le body :", req.body);
+    console.log("ID reçu dans params :", req.params.id);
     try {
         const stay = await Stay.findByPk(id);
 

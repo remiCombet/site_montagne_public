@@ -3,6 +3,9 @@ const router = express.Router();
 const stayStepController = require('../controllers/stayStepController');
 const stayStepValidator = require('../validators/stayStepValidator');
 const validate = require('../middlewares/validationMiddleware');
+const withAuth = require('../middlewares/withAuth');
+const withAdminAuth = require('../middlewares/withAuthAdmin');
+
 const { checkStayIdExists } = require('../middlewares/stayMiddleware');
 
 
@@ -13,12 +16,12 @@ router.get('/:stayId', stayStepController.getAllStaySteps);
 router.get('/:stayId/:stepId', stayStepController.getStayStepById);
 
 // Route pour créer une nouvelle étape de séjour
-router.post('/:stayId/add', stayStepValidator, validate, stayStepController.createStayStep);
+router.post('/:stayId', withAuth, withAdminAuth, stayStepValidator, validate, stayStepController.createStayStep);
 
 // Route pour mettre à jour une étape de séjour
-router.put('/:stayId/:stepId', stayStepValidator, validate, stayStepController.updateStayStep);
+router.put('/:stayId/:stepId', withAuth, withAdminAuth, stayStepValidator, validate, stayStepController.updateStayStep);
 
 // Route pour supprimer une étape de séjour
-router.delete('/:stayId/:stepId', stayStepController.deleteStayStep);
+router.delete('/:stayId/:stepId', withAuth, withAdminAuth, stayStepController.deleteStayStep);
 
 module.exports = router;

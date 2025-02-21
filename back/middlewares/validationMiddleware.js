@@ -3,6 +3,7 @@
     module.exports = (req, res, next) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
+        console.log("Erreurs de validation:", errors.array());
     return res.status(400).json({
         status: 400,
         msg: 'Erreurs de validation',

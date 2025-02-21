@@ -1,13 +1,13 @@
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
-import { setStays, selectStay} from '../slices/staySlice';
+import { setStays } from '../slices/staySlice';
 import { getAllStays } from '../api/stay';
 import StayList from '../components/stayList';
 
 const home = () => {
   const dispatch = useDispatch();
-  const { stays } = useSelector(selectStay);
+  const stays = useSelector((state) => state.stay.stays);
 
   useEffect(() => {
     // chargement des séjours
@@ -36,6 +36,8 @@ const home = () => {
       <Link to="/admin/themes">admin</Link>
       <br />
       <Link to="/admin/accesses">admin-2</Link>
+      <br />
+      <Link to="/admin-dashboard">dashboard</Link>
 
       <br/>
       {/* <Link to="/test">test</Link> */}

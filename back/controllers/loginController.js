@@ -81,7 +81,7 @@ exports.checkMyToken = async (req, res) => {
                 lastname: user.lastname,
                 email: user.email,
                 phone: user.phone,
-                role: user.id_role === "admin" ? "admin" : "user",
+                role: user.role === "admin" ? "admin" : "user",
             },
         });
     } catch (error) {

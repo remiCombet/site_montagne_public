@@ -4,6 +4,7 @@ const { validationResult } = require('express-validator');
 // Récupérer tous les thèmes associés à un séjour
 exports.getThemesByStay = async (req, res) => {
   const { stay_id } = req.params;
+  console.log('zbrah: ', stay_id)
   const errors = validationResult(req);
 
   if (!errors.isEmpty()) {
@@ -58,12 +59,21 @@ exports.getThemesByStay = async (req, res) => {
 
 // Ajouter un thème à un séjour
 exports.addThemeToStay = async (req, res) => {
-  const { stay_id, theme_id } = req.body;
-
+  const { stayId, themeId} = req.body;
+  console.log("stay :", stayId, "theme :", themeId)
   try {
+    // Vérifier si le thème est déjà associé à ce séjour
+    const existingAssociation = await StayTheme.findOne({
+      where: { stay_id: stayId, theme_id: themeId }
+    });
+
+    if (existingAssociation) {
+        return res.status(400).json({ status: 400, msg: "Ce thème est déjà associé à ce séjour." });
+    }
+
     const stayTheme = await StayTheme.create({
-      stay_id,
-      theme_id,
+      stay_id: stayId,
+      theme_id: themeId,
     });
 
     res.json({
@@ -76,6 +86,7 @@ exports.addThemeToStay = async (req, res) => {
     res.json({
       status: 500,
       msg: "Oups, une erreur est survenue",
+      error: error
     });
   }
 };
@@ -118,5 +129,20 @@ exports.removeThemeFromStay = async (req, res) => {
       status: 500,
       msg: "Oups, une erreur est survenue",
     });
+  }
+};
+
+// fonction pour vérifier si un theme est ssocié a un séjour
+exports.checkThemeUsage = async (req, res) => {
+  try {
+      const { themeId } = req.params;
+
+      // Vérifier si ce thème est encore utilisé dans `stay_theme`
+      const stayCount = await StayTheme.count({ where: { theme_id: themeId } });
+
+      res.json({ status: 200, isUsed: stayCount > 0 });
+  } catch (error) {
+      console.error("Erreur lors de la vérification du thème :", error);
+      res.json({ status: 500, msg: "Erreur serveur lors de la vérification du thème." });
   }
 };

@@ -7,11 +7,15 @@ import Stay from "./components/stayList";
 import StayDetails from "./containers/stay/stayDetails";
 import Highlights from "./components/testHighlights";
 
+import AdminDashboard from "./containers/adminDashboard";
+
 import Theme from "./components/admin/theme";
 import Access from "./components/admin/access";
 import Test from "./components/test";
 
 import RequireAuth from "./utils/requireAuth";
+
+import './sass/main.scss';
 
 import { Routes, Route } from "react-router-dom";
 
@@ -33,6 +37,8 @@ function App() {
           <Route path="/stays" element={<RequireAuth child={Stay} auth={true} admin={false}/>}/>
           <Route path="/stays/:id" element={<RequireAuth child={StayDetails} auth={true} admin={false}/>}/>
           <Route path="/highlights" element={<Highlights />}/>
+
+          <Route path="/admin-dashboard" element={<RequireAuth child={AdminDashboard} auth={true} admin={true}/>}/>
 
           <Route path="/admin/themes" element={<Theme />}/>
           <Route path="/admin/accesses" element={<Access />}/>

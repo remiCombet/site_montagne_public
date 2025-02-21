@@ -7,7 +7,7 @@ const withAuth = require('../middlewares/withAuth');
 const withAdminAuth = require('../middlewares/withAuthAdmin');
 
 // créer un point potitif
-router.post('/add', withAuth, withAdminAuth, highlightValidator, validate, highlightsController.createHighlights);
+router.post('/', withAuth, withAdminAuth, highlightValidator, validate, highlightsController.createHighlights);
 
 // Récupérer tous les points potitifs
 router.get('/', highlightsController.getAllHighlights);

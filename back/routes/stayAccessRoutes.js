@@ -11,7 +11,7 @@ const withAuth = require('../middlewares/withAuth');
 router.get('/', stayAccessController.getAllStayAccess);
 
 // Route pour ajouter un accès à un séjour
-router.post('/add', withAuth, withAdminAuth, validateAddStayAccess, validate, stayAccessController.addStayAccess);
+router.post('/', withAuth, withAdminAuth, validateAddStayAccess, validate, stayAccessController.addStayAccess);
 
 // Route pour récupérer tous les accès liés à un séjour spécifique
 router.get('/:stay_id', stayAccessController.getAccessByStay);

@@ -1,11 +1,10 @@
 import React from "react";
 import { useSelector } from "react-redux";
-import { selectStay } from "../slices/staySlice";
 
 import StayCard from "../containers/stay/stayCard";
 
 const StayList = () => {
-    const { stays } = useSelector(selectStay);
+    const stays = useSelector((state) => state.stay.stays);
 
     return (
         <div className="stay-list">

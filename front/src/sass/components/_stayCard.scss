@@ -1,0 +1,26 @@
+.stay-card {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: flex-start;
+    
+    p {
+        font-size: 1.1rem;
+    }
+    
+    .stay-title {
+        font-size: 1.2rem;
+        font-weight: bold;
+    }
+
+    .stay-location {
+        color: #777;
+        font-size: 0.9rem;
+    }
+
+    .stay-description {
+        margin-top: 0.5rem;
+        font-size: 1rem;
+        color: #555;
+    }
+}

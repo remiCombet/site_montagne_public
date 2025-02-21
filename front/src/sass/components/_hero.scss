@@ -1,0 +1,158 @@
+@use '../utils/variables' as *;
+
+.hero {
+    width: 100%;
+    height: 60vh;
+    position: relative;
+    text-align: center;
+    margin: 0;
+    padding: 0;
+    overflow: hidden; // Pour masquer les images qui débordent
+
+    &__image-container {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        background-size: cover;
+        background-repeat: no-repeat;
+        transition: transform 0.5s ease-in-out;
+
+        &--first {
+            background-image: url('https://res.cloudinary.com/dpa2kakxx/image/upload/c_scale,w_1920/v1736608654/site_montagne_v2/images_site/background2_uedp61.jpg');
+            background-position: 50% 0;
+            transform: translateX(0);
+            z-index: 1;
+        }
+
+        &--second {
+            background-image: url('https://res.cloudinary.com/dpa2kakxx/image/upload/c_scale,w_1920/v1736608653/site_montagne_v2/images_site/background1_ysqjhr.jpg');
+            background-size: cover;
+            background-position: center;
+            transform: translateX(100%);
+            z-index: 0;
+        }
+    }
+
+    // Classes pour l'animation de slide
+    .slide-left {
+        transform: translateX(-100%);
+    }
+
+    .slide-center {
+        transform: translateX(0);
+    }
+
+    .slide-right {
+        transform: translateX(100%);
+    }
+
+    &__controls {
+        position: absolute;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        display: flex;
+        gap: 10px;
+        z-index: 2;
+    }
+
+    &__button {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        border: 2px solid white;
+        background: transparent;
+        cursor: pointer;
+        padding: 0;
+        transition: all 0.3s ease;
+
+        &.active {
+            background: white;
+            transform: scale(1.2);
+        }
+
+        &:hover {
+            transform: scale(1.2);
+        }
+    }
+
+    &__overlay {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: linear-gradient(transparent, transparent);
+        color: white;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        transition: background 0.3s ease;
+
+        .hero__title,
+        .hero__subtitle {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.3s ease;
+        }
+    }
+
+    &:hover {
+        .hero__overlay {
+            background: linear-gradient(transparent, rgba(0, 0, 0, 0.7));
+            animation: showAndHide 1.5s forwards;
+        }
+
+        .hero__title,
+        .hero__subtitle {
+            opacity: 1;
+            transform: translateY(0);
+            animation: showAndHideText 1.5s forwards;
+        }
+
+        .hero__subtitle {
+            transition-delay: 0.1s;
+        }
+    }
+
+    &__title {
+        font-size: 2.5rem;
+        margin-bottom: $spacing-small;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    }
+
+    &__subtitle {
+        font-size: 1.2rem;
+        text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+        margin-bottom: 0;
+    }
+}
+
+@keyframes showAndHide {
+    0% { background: linear-gradient(transparent, transparent); }
+    20% { background: linear-gradient(transparent, rgba(0, 0, 0, 0.7)); }
+    80% { background: linear-gradient(transparent, rgba(0, 0, 0, 0.7)); }
+    100% { background: linear-gradient(transparent, transparent); }
+}
+
+@keyframes showAndHideText {
+    0% { opacity: 0; transform: translateY(20px); }
+    20% { opacity: 1; transform: translateY(0); }
+    80% { opacity: 1; transform: translateY(0); }
+    100% { opacity: 0; transform: translateY(20px); }
+}
+
+@media (min-width: 768px) {
+    .hero {
+        height: 70vh;
+
+        &__title {
+            font-size: 3.5rem;
+        }
+
+        &__subtitle {
+            font-size: 1.5rem;
+        }
+    }
+}

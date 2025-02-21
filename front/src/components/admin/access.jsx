@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from 'react-router-dom';
 import DOMPurify from 'dompurify';
 import { createAccess, updateAccess, deleteAccess } from "../../api/admin/access";
-import { getAllAccesses } from "../../api/publicApi";
+import { getAllAccesses, getAllStayAccess } from "../../api/publicApi";
 
 // Fonction pour décoder les entités HTML
 const decodeHtml = (html) => {
@@ -15,6 +15,7 @@ const Access = () => {
     const [category, setCategory] = useState('');
     const [informations, setInformations] = useState('');
     const [accesses, setAccesses] = useState([]);
+    const [stayAccesses, setStayAccesses] = useState([]);
     const [isPopupOpen, setIsPopupOpen] = useState(false);
     const [currentAccessId, setCurrentAccessId] = useState(null);
     const [currentCategory, setCurrentCategory] = useState('');
@@ -37,12 +38,24 @@ const Access = () => {
             .catch(() => {
                 setMessage({ type: "error", text: "Erreur lors de la récupération des accès." });
             });
+
+            getAllStayAccess()
+            .then((res) => {
+                if (res.status === 200) {
+                    setStayAccesses(res.data || []);
+                } else {
+                    setMessage({ type: "error", text: "Impossible de charger les accès des séjours." });
+                }
+            })
+            .catch(() => {
+                setMessage({ type: "error", text: "Erreur lors de la récupération des accès des séjours." });
+            });
     }, [refresh]);
 
     const handleEdit = (id, category, informations) => {
         setCurrentAccessId(id);
-        setCurrentCategory(decodeHtml(category));  // Décoder ici pour éviter d'avoir à le faire dans les inputs
-        setCurrentInformations(decodeHtml(informations));  // Décoder ici aussi
+        setCurrentCategory(decodeHtml(category));
+        setCurrentInformations(decodeHtml(informations));
         setIsPopupOpen(true);
     };
 
@@ -133,6 +146,21 @@ const Access = () => {
                     </ul>
                 ) : (
                     <p>Aucun accès disponible.</p>
+                )}
+            </article>
+
+            <article>
+                <h2>Liste des accès des séjours</h2>
+                {stayAccesses.length > 0 ? (
+                    <ul>
+                        {stayAccesses.map((stayAccess) => (
+                            <li key={stayAccess.id}>
+                                Séjour ID {stayAccess.stay_id}: {decodeHtml(stayAccess.category)}
+                            </li>
+                        ))}
+                    </ul>
+                ) : (
+                    <p>Aucun accès de séjour disponible.</p>
                 )}
             </article>
 

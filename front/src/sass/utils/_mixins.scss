@@ -1,0 +1,42 @@
+@use 'variables' as *;
+
+// Mixin pour centrer le site horizontalement
+@mixin center-horizontal($width: 100%) {
+    display: block;
+    margin: 0 auto;
+    max-width: $width;
+}
+
+// Mixin pour la marge horizontale (gauche et droite)
+@mixin margin-horizontal($value) {
+    margin-left: $value;
+    margin-right: $value;
+}
+  
+// Mixin pour la marge verticale (haut et bas)
+@mixin margin-vertical($value) {
+    margin-top: $value;
+    margin-bottom: $value;
+}
+  
+// Mixin pour le padding horizontal (gauche et droite)
+@mixin padding-horizontal($value) {
+    padding-left: $value;
+    padding-right: $value;
+}
+  
+// Mixin pour le padding vertical (haut et bas)
+@mixin padding-vertical($value) {
+    padding-top: $value;
+    padding-bottom: $value;
+}
+
+@mixin respond-to($breakpoint) {
+    @if map-has-key($breakpoints, $breakpoint) {
+        @media screen and (max-width: map-get($breakpoints, $breakpoint)) {
+            @content;
+        }
+    } @else {
+        @warn "Le breakpoint '#{$breakpoint}' n'existe pas dans $breakpoints.";
+    }
+}

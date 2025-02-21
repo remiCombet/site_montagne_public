@@ -1,15 +1,41 @@
 import { useEffect, useState } from "react";
 import { Link } from 'react-router-dom';
-import { createTheme, updateTheme, deleteTheme } from "../../api/admin/theme";
-import { getAllThemes } from "../../api/publicApi";
+import { createTheme, updateTheme, deleteTheme, addThemeStay } from "../../api/admin/theme";
+import { getAllThemes, getAllThemesByStayid } from "../../api/publicApi";
 import { validateStayForm } from "../../utils/validateStayForm";
 
-const Theme = () => {
+const Theme = ({ stay, selectedStay }) => {
     const [name, setName] = useState('');
     const [themes, setThemes] = useState([]);
 
     // Gestion des erreurs/validation
     const [message, setMessage] = useState({ type: "", text: "" });
+
+    useEffect(() => {
+        if (selectedStay) {
+            console.log(selectedStay.id);
+            getAllThemesByStayid(selectedStay.id)
+                .then(data => {
+                    console.log("Données reçues :", data);
+                    setThemes(Array.isArray(data.themes) ? data.themes : []);
+                })
+                .catch(err => {
+                    console.error("Erreur lors du chargement des thèmes :", err);
+                    setThemes([]);
+                });
+        }
+    }, [selectedStay]);
+    
+
+    useEffect(() => {
+        if (message.text) {
+            const timer = setTimeout(() => {
+                setMessage({ type: "", text: ""});
+            }, 1500);
+
+            return () => clearTimeout(timer);
+        }
+    }, [message])
 
     useEffect(() => {
         getAllThemes()
@@ -150,7 +176,7 @@ const Theme = () => {
                     <p>Aucun thème disponible.</p>
                 )}
             </article>
-            <article>
+            <article className="bottom-line">
                 <h2>Enregister un thème</h2>
                 <form
                     role="form"
@@ -174,7 +200,7 @@ const Theme = () => {
                     />
                 </form>
             </article>
-            <article><Link to="/">Accueil</Link></article>
+            {/* <article><Link to="/">Accueil</Link></article> */}
         </section>
     );
 };

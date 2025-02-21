@@ -18,11 +18,11 @@ export function createAccess(accessData) {
 
 // on ne s'en sert pas ? 
 // Récupérer un acces par son id
-export function getAccessByid(accessId) {
-    return axios.get(`${config.api_url}/api/accesses/${accessId}`, authHeaders())
-        .then(res => res.data)
-        .catch(err => err.response?.data || { status: 500, msg: "Erreur serveur" });
-}
+// export function getAccessByid(accessId) {
+//     return axios.get(`${config.api_url}/api/accesses/${accessId}`, authHeaders())
+//         .then(res => res.data)
+//         .catch(err => err.response?.data || { status: 500, msg: "Erreur serveur" });
+// }
 
 // Modifier un acces
 export function updateAccess(accessId, accessData) {
@@ -34,6 +34,21 @@ export function updateAccess(accessId, accessData) {
 // Supprimer un acces
 export function deleteAccess(accessId) {
     return axios.delete(`${config.api_url}/api/accesses/${accessId}`, authHeaders())
+        .then(res => res.data)
+        .catch(err => err.response?.data || { status: 500, msg: "Erreur serveur" });
+}
+
+// Gestion de stayAccess
+// Ajouter un un acces a un sejour
+export function addStayAccess(stayAccessData) {
+    return axios.post(`${config.api_url}/api/stay-accesses`, stayAccessData, authHeaders())
+        .then(res => res.data)
+        .catch(err => err.response?.data || { status: 500, msg: "Erreur serveur" });
+}
+
+// supprimer un acces lié à un sejour
+export function deleteStayAccess(stayAccessId) {
+    return axios.delete(`${config.api_url}/api/stay-accesses/${stayAccessId}`, authHeaders())
         .then(res => res.data)
         .catch(err => err.response?.data || { status: 500, msg: "Erreur serveur" });
 }

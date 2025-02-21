@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import { format } from 'date-fns';
 
 // appel des fonctionnalités des Reducer
-import { selectStay, setSelectedStay } from '../../slices/staySlice';
+import { setSelectedStay } from '../../slices/staySlice';
 import { setHighlights, selectHighlights } from '../../slices/highlightSlice';
 
 // appels API
@@ -22,7 +22,8 @@ import StayTheme from '../../components/stayTheme';
 import Test from '../../components/test';
 
 const StayDetails = () => {
-    const { selectedStay } = useSelector(selectStay);
+    const stays = useSelector((state) => state.stay.stays);
+    const selectedStay = useSelector((state) => state.stay.selectedStay);
     const { highlights } = useSelector(selectHighlights);
     const dispatch = useDispatch();
     
@@ -31,6 +32,7 @@ const StayDetails = () => {
     const [stayThemes, setStayThemes] = useState([]);
 
     // State pour stocker les étapes de séjour
+    
 
     // State pour gérer l'onglet sélectionné
     const [activeTab, setActiveTab] = useState('resume');

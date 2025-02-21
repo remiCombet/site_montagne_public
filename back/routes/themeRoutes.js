@@ -14,6 +14,7 @@ router.get('/', themeController.getAllTheme);
 // Récupérer un theme par id
 router.get('/:id', withAuth, withAdminAuth, themeController.getThemeById);
 
+// pas sur de garder cette route
 // Modifier un theme
 router.put('/:id', withAuth, withAdminAuth, validateUpdateTheme, themeController.updateTheme);
 

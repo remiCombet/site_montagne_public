@@ -3,9 +3,11 @@ const router = express.Router();
 const stayController = require('../controllers/stayController');
 const { validateStay } = require('../validators/stayValidator');
 const validate = require('../middlewares/validationMiddleware');
+const withAuth = require('../middlewares/withAuth');
+const withAdminAuth = require('../middlewares/withAuthAdmin');
 
 // créer un séjour
-router.post('/add', validateStay, validate, stayController.createStay);
+router.post('/', validateStay, validate, stayController.createStay);
 
 // Récupérer tous les séjours
 router.get('/', stayController.getAllStays);
@@ -14,7 +16,7 @@ router.get('/', stayController.getAllStays);
 router.get('/:id', stayController.getStayById);
 
 // Modifier un séjour
-router.put('/:id', validateStay, validate,stayController.updateStay);
+router.put('/:id', withAuth, withAdminAuth, validateStay, validate, stayController.updateStay);
 
 // modifier le statut d'un séjour
 router.put('/status/:id', stayController.updateStayStatus)

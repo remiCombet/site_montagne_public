@@ -47,6 +47,7 @@ export function getStayById(stayId) {
 // Fonction pour mettre à jour un séjour
 export function updateStay(stayId, stayData) {
     const token = getAuthToken();
+    
     return axios.put(`${config.api_url}/api/stays/${stayId}`, stayData, {
         headers: {
             "x-access-token": token,

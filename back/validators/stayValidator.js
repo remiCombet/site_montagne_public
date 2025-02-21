@@ -51,9 +51,9 @@ const validateStay = [
   body('reception_point_id')
     .isInt().withMessage('L\'ID du point de réception est invalide'),
 
-  body('status')
-    .isIn(['en_attente_validation', 'programmé', 'validé', 'supprimé'])
-    .withMessage('Le statut doit être parmi "en_attente_validation", "programmé", "validé", ou "supprimé"'),
+  // body('status')
+  //   .isIn(['participants_insuffisants', 'en_attente_validation', 'programmé', 'validé', 'complet', 'supprimé'])
+  //   .withMessage('Le statut doit être parmi "participants_insuffisants",  "en_attente_validation", "programmé", "validé", "complet" ou "supprimé"'),
 
   body('user_id')
     .isInt().withMessage('L\'ID de l\'utilisateur est invalide'),

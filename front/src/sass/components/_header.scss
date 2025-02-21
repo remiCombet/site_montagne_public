@@ -1,0 +1,20 @@
+@use '../utils/variables';
+@use '../utils/mixins';
+
+.header-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: variables.$header-height;
+    background: linear-gradient(90deg, #4d4d4d 0%, #3f3f3f 40%, #333333 60%, #1A1A1A 80%, #000000 100%);
+    color: #FFFFFF;
+    border-bottom: 1px solid rgb(19, 19, 19); 
+    z-index: 10;
+    position: relative;
+    box-shadow: 0 8px 12px rgba(0, 0, 0, 0.9);
+    @include mixins.padding-horizontal(20px);
+
+    width:100%;
+    max-width: 1200px;
+    width: 0 auto;
+}

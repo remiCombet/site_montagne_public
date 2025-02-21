@@ -10,15 +10,25 @@ exports.createTheme = async (req, res) => {
 
     if (!errors.isEmpty()) {
         return res.json({
-            status: 400,
+            status: 422,
             msg: 'Erreur de validation',
             errors: errors.array(),
         });
     }
 
     try {
+        // Vérifier si un thème avec ce nom existe déjà
+        const existingTheme = await Theme.findOne({ where: { name } });
+
+        if (existingTheme) {
+            return res.json({
+                status: 400,
+                msg: "Ce thème existe déjà.",
+            });
+        }
+
         // Tout est ok
-        const newhighlight = await Theme.create({
+        const newTheme = await Theme.create({
             name
         });
 
@@ -26,7 +36,7 @@ exports.createTheme = async (req, res) => {
         res.json({
             status: 200,
             msg: "theme créé avec succès",
-            theme: newhighlight
+            theme: newTheme
         });
     } catch (error) {
         // gestion des erreurs

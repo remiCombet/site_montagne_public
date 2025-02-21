@@ -7,7 +7,7 @@ exports.getAllStaySteps = async (req, res) => {
   try {
     const staySteps = await StayStep.findAll({
       where: { stay_id: stayId },
-      attributes: ['stay_id', 'step_number', 'title', 'description', 'duration', 'elevation_gain', 'elevation_loss'],
+      attributes: [ 'id', 'stay_id', 'step_number', 'title', 'description', 'duration', 'elevation_gain', 'elevation_loss'],
       include: [
         { model: Accommodation, as: 'accommodation' },
       ],
@@ -67,19 +67,19 @@ exports.createStayStep = async (req, res) => {
 
 // Récupérer une étape de séjour par son ID
 exports.getStayStepById = async (req, res) => {
-    const { stayId, stepId } = req.params; // Récupérer les IDs depuis les paramètres de l'URL
+    const { stayId, stepId } = req.params;
   
     try {
       // Trouver l'étape de séjour correspondante
       const stayStep = await StayStep.findOne({
         where: {
           id: stepId,
-          stay_id: stayId, // Assurer que l'étape est associée à ce séjour
+          stay_id: stayId,
         },
         include: [
           {
             model: Accommodation,
-            as: 'accommodation', // Inclure l'accommodation associée
+            as: 'accommodation',
           },
         ],
       });
@@ -109,11 +109,16 @@ exports.getStayStepById = async (req, res) => {
 
 // Mettre à jour une étape de séjour
 exports.updateStayStep = async (req, res) => {
-  const { step_id } = req.params;
-  const { stay_id, accommodation_id, step_number, title, description, duration, elevation_gain, elevation_loss } = req.body;
+  const { stayId, stepId } = req.params;
+  const { accommodation_id, step_number, title, description, duration, elevation_gain, elevation_loss } = req.body;
 
   try {
-    const stayStep = await StayStep.findByPk(step_id);
+    const stayStep = await StayStep.findOne({
+      where: {
+        id: stepId,
+        stay_id: stayId
+      }
+    });
 
     if (!stayStep) {
       return res.json({
@@ -123,14 +128,13 @@ exports.updateStayStep = async (req, res) => {
     }
 
     await stayStep.update({
-      stay_id,
-      accommodation_id,
       step_number,
       title,
       description,
       duration,
       elevation_gain,
       elevation_loss,
+      accommodation_id,
     });
 
     res.json({
@@ -149,10 +153,15 @@ exports.updateStayStep = async (req, res) => {
 
 // Supprimer une étape de séjour
 exports.deleteStayStep = async (req, res) => {
-  const { step_id } = req.params;
+  const { stayId, stepId } = req.params;
 
   try {
-    const stayStep = await StayStep.findByPk(step_id);
+    const stayStep = await StayStep.findOne({
+      where: {
+        id: stepId,
+        stay_id: stayId
+      }
+    });
 
     if (!stayStep) {
       return res.json({
@@ -168,7 +177,7 @@ exports.deleteStayStep = async (req, res) => {
       msg: 'L\'étape de séjour a été supprimée avec succès.',
     });
   } catch (error) {
-    console.error(error);
+    console.error('Erreur de suppression:', error);
     res.json({
       status: 500,
       msg: 'Oups, une erreur est survenue lors de la suppression de l\'étape de séjour.',
