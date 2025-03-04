@@ -30,17 +30,27 @@ exports.createReceptionPoint = async (req, res) => {
 
 // Récupérer tous les points de réception
 exports.getAllReceptionPoints = async (req, res) => {
+    const { page = 1, limit = 10 } = req.query;
+    
     try {
-        const receptionPoints = await ReceptionPoint.findAll();
+        const points = await ReceptionPoint.findAndCountAll({
+            limit: parseInt(limit),
+            offset: (page - 1) * limit,
+            order: [['createdAt', 'DESC']]
+        });
+        
         res.json({
             status: 200,
-            data: receptionPoints,
+            data: points.rows,
+            total: points.count,
+            currentPage: page,
+            totalPages: Math.ceil(points.count / limit)
         });
     } catch (error) {
         console.error(error);
-        res.json({
+        res.status(500).json({ 
             status: 500,
-            msg: "Erreur lors de la récupération des points de réception",
+            message: "Erreur lors de la récupération des points de réception" 
         });
     }
 };
@@ -72,18 +82,32 @@ exports.getReceptionPointById = async (req, res) => {
     }
 };
 
-// Récupérer un point de réception par receptionPointId
+// Récupérer un point de réception pour un séjour
 exports.getReceptionPointByStayId = async (req, res) => {
-    const { receptionPointId } = req.params;
+    const { stayId } = req.params;
+    console.log('Recherche du point de réception pour le séjour:', stayId);
 
     try {
-        // Chercher le point de réception avec receptionPointId
-        const receptionPoint = await ReceptionPoint.findByPk(receptionPointId);
+        const stay = await Stay.findByPk(stayId, {
+            attributes: ["reception_point_id"],
+        });
+        console.log('Séjour trouvé:', stay);
+
+        if (!stay || !stay.reception_point_id) {
+            console.log('Aucun point de réception associé au séjour');
+            return res.json({
+                status: 404,
+                msg: "Point de réception non trouvé pour ce séjour",
+            });
+        }
+
+        const receptionPoint = await ReceptionPoint.findByPk(stay.reception_point_id);
+        console.log('Point de réception trouvé:', receptionPoint);
 
         if (!receptionPoint) {
             return res.json({
                 status: 404,
-                msg: "Point de réception non trouvé",
+                msg: "Les informations du point de réception sont introuvables",
             });
         }
 
@@ -92,7 +116,7 @@ exports.getReceptionPointByStayId = async (req, res) => {
             data: receptionPoint,
         });
     } catch (error) {
-        console.error(error);
+        console.error('Erreur complète:', error);
         res.json({
             status: 500,
             msg: "Erreur lors de la récupération du point de réception",
@@ -102,11 +126,11 @@ exports.getReceptionPointByStayId = async (req, res) => {
 
 // Mettre à jour un point de réception
 exports.updateReceptionPoint = async (req, res) => {
-    const { id } = req.params;
+    const { receptionPointId } = req.params;
     const { location, contact_name, contact_phone, contact_email, opening_time, closing_time } = req.body;
 
     try {
-        const receptionPoint = await ReceptionPoint.findByPk(id);
+        const receptionPoint = await ReceptionPoint.findByPk(receptionPointId);
 
         if (!receptionPoint) {
             return res.json({
@@ -140,10 +164,10 @@ exports.updateReceptionPoint = async (req, res) => {
 
 // Supprimer un point de réception
 exports.deleteReceptionPoint = async (req, res) => {
-    const { id } = req.params;
+    const { receptionPointId } = req.params;
 
     try {
-        const receptionPoint = await ReceptionPoint.findByPk(id);
+        const receptionPoint = await ReceptionPoint.findByPk(receptionPointId);
 
         if (!receptionPoint) {
             return res.json({
@@ -160,6 +184,7 @@ exports.deleteReceptionPoint = async (req, res) => {
         });
     } catch (error) {
         console.error(error);
+        console.log(error)
         res.json({
             status: 500,
             msg: "Erreur lors de la suppression du point de réception",

@@ -1,12 +1,13 @@
 const express = require('express');
 const router = express.Router();
 const stayToPrepareController = require('../controllers/stayToPrepareController');
-const stayToPrepareValidator = require('../validators/stayToPrepareValidator');
+const { validateAddStayToPrepare, validateDeleteStayToPrepare} = require('../validators/stayToPrepareValidator');
+const validate = require('../middlewares/validationMiddleware');
 const withAuth = require('../middlewares/withAuth');
 const withAdminAuth = require('../middlewares/withAuthAdmin');
 
 // Ajouter un élément à emmener à un séjour
-router.post('/add', withAuth, withAdminAuth, stayToPrepareValidator, stayToPrepareController.addStayToPrepare);
+router.post('/stay/:stay_id', withAuth, withAdminAuth, validateAddStayToPrepare, validate, stayToPrepareController.addStayToPrepare);
 
 // Récupérer tous les équipements à emmener d’un séjour spécifique
 router.get('/stay/:stay_id', stayToPrepareController.getToPrepareByStayId);
@@ -15,6 +16,6 @@ router.get('/stay/:stay_id', stayToPrepareController.getToPrepareByStayId);
 router.get('/', withAuth, withAdminAuth, stayToPrepareController.getAllStayToPrepares);
 
 // Supprimer un équipement d’un séjour
-router.delete('/:id', withAuth, withAdminAuth, stayToPrepareController.removeStayToPrepare);
+router.delete('/stay/:stay_id/:category_id', withAuth, withAdminAuth, validateDeleteStayToPrepare, validate, stayToPrepareController.removeStayToPrepare);
 
 module.exports = router;

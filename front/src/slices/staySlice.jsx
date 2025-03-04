@@ -1,115 +1,5 @@
-// import { createSlice } from "@reduxjs/toolkit";
+import { createSlice, createSelector } from "@reduxjs/toolkit";
 
-// const initialState = {
-//     stays: [],
-//     selectedStay: null,
-//     stayRequests: [], // Pour stocker les demandes de réservation
-// };
-
-// export const staySlice = createSlice({
-//     name: "stay",
-//     initialState,
-//     reducers: {
-//         setStays: (state, action) => {
-//             state.stays = action.payload;
-//         },
-//         setSelectedStay: (state, action) => {
-//             state.selectedStay = action.payload;
-//         },
-//         addStay: (state, action) => {
-//             state.stays.push(action.payload);
-//         },
-//         updateStay: (state, action) => {
-//             const index = state.stays.findIndex(stay => stay.id === action.payload.id);
-//             if (index !== -1) {
-//                 state.stays[index] = { ...state.stays[index], ...action.payload };
-//                 if (state.selectedStay?.id === action.payload.id) {
-//                     state.selectedStay = { ...state.selectedStay, ...action.payload };
-//                 }
-//             }
-//         },
-//         deleteStay: (state, action) => {
-//             state.stays = state.stays.filter(stay => stay.id !== action.payload);
-//             if (state.selectedStay?.id === action.payload) {
-//                 state.selectedStay = null;
-//             }
-//         },
-//         // Nouvelles actions pour la gestion des réservations
-//         // setStayRequests: (state, action) => {
-//         //     state.stayRequests = action.payload; // Charge toutes les demandes de séjour
-//         // },
-//         // addStayRequest: (state, action) => {
-//         //     state.stayRequests.push(action.payload); // Ajoute une nouvelle demande de séjour
-//         // },
-//         // updateStayRequest: (state, action) => {
-//         //     const { stayId, userId, status, numberOfPeople } = action.payload;
-//         //     const requestIndex = state.stayRequests.findIndex(
-//         //         request => request.stayId === stayId && request.userId === userId
-//         //     );
-//         //     if (requestIndex !== -1) {
-//         //         state.stayRequests[requestIndex] = {
-//         //             ...state.stayRequests[requestIndex],
-//         //             status,
-//         //             numberOfPeople
-//         //         };
-//         //     }
-//         // },
-//         // // Calculer le nombre total de participants à partir des demandes de séjour
-//         // calculateTotalParticipants: (state, action) => {
-//         //     const { stayId } = action.payload;
-//         //     const participantsCount = state.stayRequests
-//         //         .filter(request => request.stayId === stayId)
-//         //         .reduce((total, request) => total + request.numberOfPeople + 1, 0); // +1 pour l'utilisateur
-
-//         //     // Calculer et mettre à jour le statut du séjour
-//         //     const stayIndex = state.stays.findIndex(stay => stay.id === stayId);
-//         //     if (stayIndex !== -1) {
-//         //         const stay = state.stays[stayIndex];
-//         //         if (participantsCount >= stay.minParticipants) {
-//         //             stay.status = 'validé'; // Le séjour est validé si le nombre de participants atteint le minimum
-//         //         } else {
-//         //             stay.status = 'en attente'; // Sinon, il reste en attente
-//         //         }
-//         //     }
-//         // },
-//         // // Mettre à jour le statut du séjour à partir de l'état actuel des demandes
-//         // updateStayStatusFromRequests: (state, action) => {
-//         //     const { stayId, capacity } = action.payload;
-//         //     const totalParticipants = state.stayRequests
-//         //         .filter(request => request.stayId === stayId)
-//         //         .reduce((sum, request) => sum + request.numberOfPeople + 1, 0); // +1 pour l'utilisateur
-
-//         //     const stayIndex = state.stays.findIndex(stay => stay.id === stayId);
-//         //     if (stayIndex !== -1) {
-//         //         const stay = state.stays[stayIndex];
-//         //         if (totalParticipants >= capacity) {
-//         //             stay.status = 'validé';
-//         //         } else {
-//         //             stay.status = 'en attente';
-//         //         }
-//         //     }
-//         // }
-//     }
-// });
-
-// export const { 
-//     setStays, 
-//     setSelectedStay, 
-//     addStay, 
-//     updateStay, 
-//     deleteStay,
-//     setStayRequests,
-//     addStayRequest,
-//     updateStayRequest,
-//     calculateTotalParticipants,
-//     updateStayStatusFromRequests
-// } = staySlice.actions;
-
-// export const selectStay = (state) => state.stay;
-
-// export default staySlice.reducer;
-
-import { createSlice } from "@reduxjs/toolkit";
 
 // État initial du slice "stay", gère les séjours, les demandes et les participants.
 const initialState = {
@@ -171,22 +61,38 @@ export const staySlice = createSlice({
         // Met à jour une demande de séjour existante
         updateStayRequest: (state, action) => {
             const { stay_id, request_id, ...updatedData } = action.payload;
-            if (state.stayRequests[stay_id]) {
-                const index = state.stayRequests[stay_id].findIndex(req => req.request_id === request_id);
+            const stayIdStr = stay_id.toString();
+            
+            if (state.stayRequests[stayIdStr]) {
+                const index = state.stayRequests[stayIdStr].findIndex(req => req.id === request_id);
+                
                 if (index !== -1) {
-                    state.stayRequests[stay_id][index] = {
-                        ...state.stayRequests[stay_id][index],
+                    state.stayRequests[stayIdStr][index] = {
+                        ...state.stayRequests[stayIdStr][index],
                         ...updatedData
                     };
+                } else {
+                    console.warn("Request not found:", {
+                        stayId: stayIdStr,
+                        requestId: request_id
+                    });
                 }
+            } else {
+                console.warn("Stay not found:", {
+                    stayId: stayIdStr
+                });
             }
         },
 
         // Supprime une demande de séjour
         deleteStayRequest: (state, action) => {
             const { stay_id, request_id } = action.payload;
-            if (state.stayRequests[stay_id]) {
-                state.stayRequests[stay_id] = state.stayRequests[stay_id].filter(req => req.request_id !== request_id);
+            const stayIdStr = stay_id.toString();
+            
+            if (state.stayRequests[stayIdStr]) {
+                state.stayRequests[stayIdStr] = state.stayRequests[stayIdStr].filter(
+                    req => req.id !== request_id
+                );
             }
         },
 
@@ -203,44 +109,103 @@ export const staySlice = createSlice({
             if (stayIndex !== -1) {
                 const stay = state.stays[stayIndex];
                 
-                // Calcul du nombre total de participants
-                const peopleNumber = participants.reduce((sum, participant) => sum + participant.people_number, 0);
-                const totalLines = participants.length;
-                const totalParticipants = peopleNumber + totalLines;
-
-                // Calcul du nombre de participants en attente et confirmés
-                const pendingParticipants = participants.filter(participant => participant.status === 'en_attente').length;
-                const confirmedParticipants = totalParticipants - pendingParticipants;
-
-                // Mise à jour du nombre total et des participants confirmés
+                // Calcul du nombre total de participants pour TOUTES les demandes
+                let totalParticipants = 0;
+                let confirmedParticipants = 0;
+                let pendingParticipants = 0;
+                
+                // Pour chaque demande, calculer le nombre total de personnes (demandeur + accompagnants)
+                participants.forEach(participant => {
+                    // Nombre de personnes pour cette demande
+                    const peopleCount = 1 + parseInt(participant.people_number || 0);
+                    
+                    // Ajouter au compteur approprié selon le statut
+                    if (participant.status === 'validé') {
+                        confirmedParticipants += peopleCount;
+                    } else if (participant.status === 'en_attente') {
+                        pendingParticipants += peopleCount;
+                    }
+                    // Note: les demandes refusées ne sont pas comptées dans le total
+                    
+                    // Ajouter au total uniquement si la demande est validée ou en attente
+                    if (participant.status !== 'refusé') {
+                        totalParticipants += peopleCount;
+                    }
+                });
+        
+                // Mise à jour des statistiques du séjour
                 state.stayParticipants[stay_id] = {
                     totalParticipants,
                     pendingParticipants,
                     confirmedParticipants
                 };
-
-                // Détermine le statut du séjour
+        
+                // Détermine le statut du séjour en fonction des personnes confirmées
                 let updatedStatus = "en_attente_de_validation";
                 if (confirmedParticipants < stay.min_participant) {
                     updatedStatus = "participants_insuffisants";
                 } else if (confirmedParticipants >= stay.max_participant) {
                     updatedStatus = "complet";
                 }
-
+        
                 // Mise à jour du statut du séjour
                 state.stays[stayIndex].status = updatedStatus;
-
+        
                 // Mise à jour du statut du séjour sélectionné si nécessaire
                 if (state.selectedStay?.id === stay_id) {
                     state.selectedStay.status = updatedStatus;
                 }
             }
-        },    
+        },
     }
 });
 
+
 // Exportation des actions
 export const { setStays, setSelectedStay, addStay, updateStayStore, deleteStayStore, addStayRequest, updateStayRequest, deleteStayRequest, setStayRequests, updateStayParticipants} = staySlice.actions;
+
+
+// Sélecteurs de base
+export const selectStayState = (state) => state.stay;
+export const selectStays = (state) => state.stay.stays;
+export const selectSelectedStay = (state) => state.stay.selectedStay;
+export const selectStayRequests = (state) => state.stay.stayRequests;
+export const selectStayParticipants = (state) => state.stay.stayParticipants;
+
+
+// Sélecteurs mémorisés
+export const selectStayById = createSelector(
+    [selectStays, (_, stayId) => stayId],
+    (stays, stayId) => stays.find(stay => stay.id === stayId)
+);
+
+export const selectRequestsByStayId = createSelector(
+    [selectStayRequests, (_, stayId) => stayId],
+    (requests, stayId) => requests[stayId] || []
+);
+
+export const selectParticipantsByStayId = createSelector(
+    [selectStayParticipants, (_, stayId) => stayId],
+    (participants, stayId) => participants[stayId] || {
+        totalParticipants: 0,
+        pendingParticipants: 0,
+        confirmedParticipants: 0
+    }
+);
+
+
+// Sélecteur complexe combinant plusieurs données
+export const selectStayWithDetails = createSelector(
+    [selectStayById, selectRequestsByStayId, selectParticipantsByStayId],
+    (stay, requests, participants) => {
+        if (!stay) return null;
+        return {
+            ...stay,
+            requests,
+            participants
+        };
+    }
+);
 
 // Exportation du reducer
 export default staySlice.reducer;

@@ -16,6 +16,12 @@
 @use './components/calendar';
 @use './components/adminDashboard';
 @use './components/updateStayPopup';
+@use './components/buttons';
+@use './components/receptionPoint';
+@use './components/stayEditPopup';
+@use './components/equipments';
+@use './components/alerts';
+@use './components/reservation';
 
 * {
     margin: 0;

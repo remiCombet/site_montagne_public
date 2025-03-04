@@ -4,26 +4,26 @@ const { StayParticipant, Stay } = require("../models");
  * Récupère tous les participants d'un séjour donné.
  * URL attendue : GET /api/stayParticipants/:stay_id
  */
-exports.getStayParticipants = async (req, res) => {
-  const { stay_id } = req.params;
-  try {
-    const participants = await StayParticipant.findAll({
-      where: { stay_id }
-    });
-    return res.status(200).json({
-      status: 200,
-      msg: "Participants récupérés avec succès",
-      data: participants
-    });
-  } catch (error) {
-    console.error("Erreur lors de la récupération des participants :", error);
-    return res.status(500).json({
-      status: 500,
-      msg: "Erreur serveur lors de la récupération des participants",
-      error: error.message
-    });
-  }
-};
+// exports.getStayParticipants = async (req, res) => {
+//   const { stay_id } = req.params;
+//   try {
+//     const participants = await StayParticipant.findAll({
+//       where: { stay_id }
+//     });
+//     return res.status(200).json({
+//       status: 200,
+//       msg: "Participants récupérés avec succès",
+//       data: participants
+//     });
+//   } catch (error) {
+//     console.error("Erreur lors de la récupération des participants :", error);
+//     return res.status(500).json({
+//       status: 500,
+//       msg: "Erreur serveur lors de la récupération des participants",
+//       error: error.message
+//     });
+//   }
+// };
 
 /**
  * Ajoute un nouveau participant (une demande de réservation) pour un séjour.
@@ -68,7 +68,7 @@ exports.updateStayParticipant = async (req, res) => {
   const { id } = req.params;
   const { people_number, comment } = req.body;
   try {
-    const participant = await StayParticipants.findByPk(id);
+    const participant = await StayParticipant.findByPk(id);
     if (!participant) {
       return res.status(404).json({
         status: 404,
@@ -106,7 +106,7 @@ exports.updateStayParticipant = async (req, res) => {
 exports.deleteStayParticipant = async (req, res) => {
   const { id } = req.params;
   try {
-    const participant = await StayParticipants.findByPk(id);
+    const participant = await StayParticipant.findByPk(id);
     if (!participant) {
       return res.status(404).json({
         status: 404,
@@ -139,7 +139,7 @@ exports.deleteStayParticipant = async (req, res) => {
  */
 const updateStayStatus = async (stay_id) => {
   try {
-    const participants = await StayParticipants.findAll({ where: { stay_id } });
+    const participants = await StayParticipant.findAll({ where: { stay_id } });
     const totalParticipants = participants.reduce(
       (total, p) => total + 1 + Number(p.people_number),
       0
@@ -169,7 +169,7 @@ exports.adminUpdateStayParticipantStatus = async (req, res) => {
   const { id } = req.params;
   const { status } = req.body;
   try {
-    const participant = await StayParticipants.findByPk(id);
+    const participant = await StayParticipant.findByPk(id);
     if (!participant) {
       return res.status(404).json({
         status: 404,
@@ -205,7 +205,7 @@ exports.adminUpdateStayParticipantStatus = async (req, res) => {
 const updateStayStatusValidated = async (stay_id) => {
   try {
     // Sélectionner uniquement les demandes validées
-    const validatedParticipants = await StayParticipants.findAll({ 
+    const validatedParticipants = await StayParticipant.findAll({ 
       where: { 
         stay_id,
         status: "validé"
@@ -227,5 +227,60 @@ const updateStayStatusValidated = async (stay_id) => {
     }
   } catch (error) {
     console.error("Erreur lors de la mise à jour du statut (validé) du séjour :", error);
+  }
+};
+
+
+// Fonction pour récupérer toutes les demandes de réservation (stayParticipants)
+exports.getAllStayParticipants = async (req, res) => {
+  try {
+    const participants = await StayParticipant.findAll();
+
+    // Calcul du total des personnes pour chaque demande (participant + accompagnants)
+    const participantsWithTotal = participants.map((participant) => ({
+      ...participant.dataValues,
+      total_people: 1 + Number(participant.people_number) // 1 pour le participant + 'people_number' pour les accompagnants
+    }));
+
+    return res.status(200).json({
+      status: 200,
+      msg: "Participants récupérés avec succès",
+      data: participantsWithTotal
+    });
+  } catch (error) {
+    console.error("Erreur lors de la récupération des participants :", error);
+    return res.status(500).json({
+      status: 500,
+      msg: "Erreur serveur lors de la récupération des participants",
+      error: error.message
+    });
+  }
+};
+
+// Fonction pour récupérer toutes les demandes de réservation pour un séjour donné
+exports.getStayParticipants = async (req, res) => {
+  const { stay_id } = req.params;
+  try {
+    const participants = await StayParticipant.findAll({
+      where: { stay_id }
+    });
+
+    const participantsWithTotal = participants.map((participant) => ({
+      ...participant.dataValues,
+      total_people: 1 + Number(participant.people_number) // 1 pour le participant + 'people_number' pour les accompagnants
+    }));
+
+    return res.status(200).json({
+      status: 200,
+      msg: "Participants récupérés avec succès",
+      data: participantsWithTotal
+    });
+  } catch (error) {
+    console.error("Erreur lors de la récupération des participants :", error);
+    return res.status(500).json({
+      status: 500,
+      msg: "Erreur serveur lors de la récupération des participants",
+      error: error.message
+    });
   }
 };

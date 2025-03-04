@@ -10,7 +10,7 @@ module.exports = [
     body('description')
         .trim()
         .escape()
-        .optional()
+        .notEmpty().withMessage('Le champ type de repas est requis')
         .isString().withMessage('Le champ description doit être une chaîne de caractères'),
 
     body('meal_type')

@@ -21,6 +21,11 @@ export function createStayStep(stayId, stayStepsData) {
 
 // Modifier une étape
 export function updateStayStep(stayId, stayStepId, stayStepsData) {
+    console.log('Données envoyées:', {
+        stayId,
+        stayStepId,
+        stayStepsData
+    });
     return axios.put(`${config.api_url}/api/stay-steps/${stayId}/${stayStepId}`, stayStepsData, authHeaders())
     .then((res) => {
         console.log(res.data);

@@ -1,29 +1,71 @@
 // validators/stayToPrepareValidator.js
-const { check } = require('express-validator');
+const { check, param } = require('express-validator');
 const { Stay, Category } = require('../models');
 
-module.exports = [
-  // Valider que stay_id est un entier positif
-  check('stay_id').isInt({ gt: 0 }).withMessage('Le stay_id doit être un entier positif'),
+module.exports = {
+    validateAddStayToPrepare: [
+        // Validation du stayId dans l'URL
+        param('stay_id')
+            .trim()
+            .notEmpty()
+            .toInt()
+            .custom(async (value, { req }) => {
+                console.log('Validation stay_id:', {
+                    value,
+                    type: typeof value,
+                    params: req.params
+                });
+                
+                const stay = await Stay.findByPk(value);
+                if (!stay) {
+                    throw new Error("Le séjour avec cet ID n'existe pas");
+                }
+                return true;
+            }),
 
-  // Valider que category_id est un entier positif
-  check('category_id').isInt({ gt: 0 }).withMessage('Le category_id doit être un entier positif'),
+        // Validation du category_id dans le body
+        check('category_id')
+            .trim()
+            .notEmpty()
+            .toInt()
+            .custom(async (value, { req }) => {
+                console.log('Validation category_id:', {
+                    value,
+                    type: typeof value,
+                    body: req.body
+                });
 
-  // Vérification que stay_id existe dans la table Stay
-  check('stay_id').custom(async (value) => {
-    const stay = await Stay.findByPk(value);
-    if (!stay) {
-      throw new Error('Le séjour avec cet ID n\'existe pas');
-    }
-    return true;
-  }),
+                const category = await Category.findByPk(value);
+                if (!category) {
+                    throw new Error("La catégorie avec cet ID n'existe pas");
+                }
+                return true;
+            })
+    ],
 
-  // Vérification que category_id existe dans la table Category
-  check('category_id').custom(async (value) => {
-    const category = await Category.findByPk(value);
-    if (!category) {
-      throw new Error('La catégorie avec cet ID n\'existe pas');
-    }
-    return true;
-  })
-];
+    validateDeleteStayToPrepare: [
+        param('stay_id')
+            .trim()
+            .notEmpty()
+            .toInt()
+            .custom(async (value, { req }) => {
+                const stay = await Stay.findByPk(value);
+                if (!stay) {
+                    throw new Error("Le séjour avec cet ID n'existe pas");
+                }
+                return true;
+            }),
+
+        param('category_id')
+            .trim()
+            .notEmpty()
+            .toInt()
+            .custom(async (value, { req }) => {
+                const category = await Category.findByPk(value);
+                if (!category) {
+                    throw new Error("La catégorie avec cet ID n'existe pas");
+                }
+                return true;
+            })
+    ]
+};

@@ -9,11 +9,8 @@ import StayTest from "../components/autre/stayTest";
 
 const AdminDashboard = () => {
     const [currentSection, setCurrentSection] = useState('reservations');
-    const [selectedStay, setSelectedStay] = useState(null);
-    
-    // vu qu'il n'y a pas d'id dans l'url et pas apres comment on peut récupérer cet id comme ceci : 
+    const [selectedStay, setSelectedStay] = useState(null); 
     const { id } = useParams();
-    //  ??? 
 
     const renderContent = () => {
         switch (currentSection) {
@@ -21,11 +18,6 @@ const AdminDashboard = () => {
                 return <Reservations />;
             case 'stays':
                 return (
-                    // <Stays
-                    //     // stayId={id}
-                    //     // onStaySelect={setSelectedStay}
-                    // />
-
                     <StayTest
                         stayId={id}
                         onStaySelect={setSelectedStay}

@@ -1,13 +1,12 @@
-// middlewares/stayAccessValidator.js
-const { check } = require('express-validator');
+const { param } = require('express-validator');
 const { Stay, Access } = require('../models');
 
 module.exports = {
   // Validator pour ajouter un accès à un séjour
   validateAddStayAccess: [
-    // Vérification que le stay_id existe dans la table Stay
-    check('stay_id')
-      .isInt().withMessage('Le stay_id doit être un entier.')
+    // Vérification que le stayId existe dans la table Stay
+    param('stayId')
+      .isInt().withMessage('Le stayId doit être un entier.')
       .custom(async (value) => {
         const stay = await Stay.findByPk(value);
         if (!stay) {
@@ -16,9 +15,9 @@ module.exports = {
         return true;
       }),
 
-    // Vérification que l'access_id existe dans la table Access
-    check('access_id')
-      .isInt().withMessage('Le access_id doit être un entier.')
+    // Vérification que l'accessId existe dans la table Access
+    param('accessId')
+      .isInt().withMessage('Le accessId doit être un entier.')
       .custom(async (value) => {
         const access = await Access.findByPk(value);
         if (!access) {

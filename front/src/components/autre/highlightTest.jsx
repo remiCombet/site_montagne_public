@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { getHighlightsByStayId } from '../../api/publicApi';
 import { createHighlight, deleteHighlight, updateHighlight } from '../../api/admin/highlight';
 import { validateHighlightForm } from '../../utils/validatehighlight';
+// @ts-ignore
 import { decodeHTML } from '../../utils/decodeHTML';
 
 const HighlightTest = ({ stay, onClose }) => {
@@ -49,10 +50,6 @@ const HighlightTest = ({ stay, onClose }) => {
             onClose();
         }
     };
-
-    useEffect(() => {
-        console.log('Updated stayHighlights:', stayHighlights);
-    }, [stayHighlights]);
     
     // Gestion de la création d'un nouveau point positif
     const handleCreateHighlight = async (e) => {
@@ -65,7 +62,7 @@ const HighlightTest = ({ stay, onClose }) => {
             { name: "description", field: "description", value: description },
             { name: "stay_id", field: "stay_id", value: parseInt(stayId, 10)},
         ]
-        console.log(fielsToValidate)
+
         // Validation du formulaire
         const validationErrors = validateHighlightForm(fielsToValidate);
 
@@ -82,10 +79,7 @@ const HighlightTest = ({ stay, onClose }) => {
         // Appel à l'API pour créer le point positif
         createHighlight(newHighlightData)
         .then((res) => {
-            console.log(res)
             if (res.status === 200) {
-                // console.log('before:', stayHighlights);
-                console.log(res)
                 // Utilisation de la fonction de mise à jour avec la version précédente de l'état
                 setStayHighlights((prevHighlights) => [...prevHighlights, res.hightlight]);
 

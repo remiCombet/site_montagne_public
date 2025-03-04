@@ -1,169 +1,229 @@
 import { useState, useEffect} from 'react';
 import { getStayStepByStayId } from '../../api/publicApi';
 import { createStayStep, updateStayStep, deleteStayStep } from '../../api/admin/stayStep';
-import { validateStayStepForm } from '../../utils/validateStayStep';
+import { getAccommodationByStayStepId } from '../../api/publicApi';
+import { createAccommodation, updateAccommodation } from '../../api/admin/accommodation';
+import { validateStayStep } from '../../utils/validateStayStep';
+import { validateAccommodation } from '../../utils/validateAccommodation';
+
 
 const StayStepTest = ({ stay, onClose }) => {
     const stayId = stay.id;
     const [staySteps, setStaySteps] = useState([]);
     const [editingStayStepId, setEditingStayStepId] = useState(null);
     const [showForm, setShowForm] = useState(false);
-    const [error, setError] = useState(false);
 
     // Gestion des erreurs/validation
     const [message, setMessage] = useState({ type: "", text: "" });
 
-    // États pour les champs du formulaire
+    // États pour les champs du formulaire de l'étape
     const [stepNumber, setStepNumber] = useState("");
     const [title, setTitle] = useState("");
     const [description, setDescription] = useState("");
     const [duration, setDuration] = useState("");
     const [elevationGain, setElevationGain] = useState("");
     const [elevationLoss, setElevationLoss] = useState("");
+    
+    // États pour les champs du formulaire de l'hébergement
     const [accommodationId, setAccommodationId] = useState("");
+    const [accommodationName, setAccommodationName] = useState("");
+    const [accommodationDescription, setAccommodationDescription] = useState("");
+    const [mealType, setMealType] = useState("");
+    const [mealDescription, setMealDescription] = useState("");
+
+    
+    // Fonction de réinitialisation du formulaire
+    const resetForm = () => {
+        // Réinitialisation des champs de l'étape
+        setStepNumber("");
+        setTitle("");
+        setDescription("");
+        setDuration("");
+        setElevationGain("");
+        setElevationLoss("");
+        
+        // Réinitialisation des champs de l'hébergement
+        setAccommodationId("");
+        setAccommodationName("");
+        setAccommodationDescription("");
+        setMealType("");
+        setMealDescription("");
+        setShowForm(false);
+    };
 
     // Gestion de l'ajout d'une étape
     const handleCreateStayStep = async (e) => {
         e.preventDefault();
+        setMessage({ type: "", text: "" });
 
-        setMessage({type: "", text: ""});
-
-        const fielsToValidate = [
-            { name: "numéro d'étape", field: "stepNumber", value: stepNumber },
+         // Validation de l'étape
+        const stayStepFields = [
+            { name: "step_number", field: "step_number", value: parseInt(stepNumber, 10) },
             { name: "title", field: "title", value: title },
             { name: "description", field: "description", value: description },
-            { name: "duration", field: "duration", value: duration },
-            { name: "elevationGain", field: "elevationGain", value: elevationGain },
-            { name: "elevationLoss", field: "elevationLoss", value: elevationLoss },
-            { name: "stayId", field: "stayId", value: parseInt(stayId, 10) },
-            { name: "accommodationId", field: "accommodationId", value: accommodationId },
+            { name: "duration", field: "duration", value: parseFloat(duration) },
+            { name: "elevation_gain", field: "elevation_gain", value: parseInt(elevationGain, 10) },
+            { name: "elevation_loss", field: "elevation_loss", value: parseInt(elevationLoss, 10) }
         ];
 
-        console.log(fielsToValidate)
+        const accommodationFields = [
+            { name: "accommodationName", field: "accommodationName", value: accommodationName },
+            { name: "accommodationDescription", field: "accommodationDescription", value: accommodationDescription },
+            { name: "mealType", field: "mealType", value: mealType },
+            { name: "mealDescription", field: "mealDescription", value: mealDescription }
+        ];
 
-        // Validation du formulaire
-        const validationErrors = validateStayStepForm(fielsToValidate);
+        const stayStepErrors = validateStayStep(stayStepFields);
+        const accommodationErrors = validateAccommodation(accommodationFields);
 
-        // cas ou il y a des erreurs
-        if (validationErrors.length > 0) {
-            setMessage({ type: "error", text: validationErrors.join(', ') });
-            console.log('error')
+        const allErrors = [...stayStepErrors, ...accommodationErrors];
+
+        if (allErrors.length > 0) {
+            setMessage({ type: "error", text: allErrors.join(", ") });
             return;
-        };
+        }
 
-        // préparation des données
-        const newStayStepData = {
-            step_number: stepNumber,
-            title,
-            description,
-            duration,
-            elevation_gain: elevationGain,
-            elevation_loss: elevationLoss,
-            // a changer apres avoir fait la selection de l'accommodation
-            accommodation_id: 1,
-        };
+        try {
+            // Création d'un nouvel hébergement
+            const accommodationData = {
+                name: accommodationName,
+                description: accommodationDescription,
+                meal_type: mealType,
+                meal_description: mealDescription
+            };
 
-        console.log(newStayStepData)
+            const resAccommodation = await createAccommodation(accommodationData);
+            if (resAccommodation.status === 201) {
+                // Création de l'étape avec l'hébergement
+                const stayStepData = {
+                    step_number: parseInt(stepNumber, 10),
+                    title,
+                    description,
+                    duration: parseFloat(duration),
+                    elevation_gain: parseInt(elevationGain, 10),
+                    elevation_loss: parseInt(elevationLoss, 10),
+                    accommodation_id: resAccommodation.accommodation.id
+                };
 
-        // création des données
-        createStayStep(stayId, newStayStepData)
-        .then((res) => {
-            console.log(res)
-            if (res.status === 201) {
-                console.log(res)
-                // Mise à jour de l'état avec la nouvelle étape
-                setStaySteps((prevSteps) => [...prevSteps, res.stayStep]);
-
-                setMessage({ type: "success", text: "Étape ajoutée avec succès !" });
-
-                setShowForm(false)
-                // Réinitialisation des champs du formulaire
-                setStepNumber("");
-                setTitle("");
-                setDescription("");
-                setDuration("");
-                setElevationGain("");
-                setElevationLoss("");
-                setAccommodationId("");
+                const resStayStep = await createStayStep(stayId, stayStepData);
+                if (resStayStep.status === 201) {
+                    setStaySteps(prevSteps => [...prevSteps, resStayStep.stayStep]);
+                    setMessage({ type: "success", text: "Étape et hébergement créés avec succès !" });
+                    resetForm();
+                } else {
+                    setMessage({ type: "error", text: resStayStep.msg || "Erreur lors de la création de l'étape." });
+                }
             } else {
-                setMessage({ type: "error", text: "Erreur lors de la création de l'étape." });
+                setMessage({ type: "error", text: "Erreur lors de la création de l'hébergement." });
             }
-        })
-        .catch((err) => {
-            setMessage({ type: "error", text: "Erreur lors de la création de l'étape." });
+        } catch (err) {
             console.error(err);
-        });
+            setMessage({ type: "error", text: "Erreur lors de la création." });
+        }
     };
 
     // Gestion de la modification d'une étape
-    const handleUpdateStayStep = (e) => {
+    const handleUpdateStayStep = async (e) => {
         e.preventDefault();
-
         setMessage({ type: "", text: "" });
-
-        const fieldsToValidate = [
-            { name: "numéro d'étape", field: "stepNumber", value: stepNumber },
+    
+        // Validation de l'étape
+        const stayStepFields = [
+            { name: "step_number", field: "step_number", value: parseInt(stepNumber, 10) },
             { name: "title", field: "title", value: title },
             { name: "description", field: "description", value: description },
-            { name: "duration", field: "duration", value: duration },
-            { name: "elevationGain", field: "elevationGain", value: elevationGain },
-            { name: "elevationLoss", field: "elevationLoss", value: elevationLoss },
-            { name: "accommodationId", field: "accommodationId", value: accommodationId },
+            { name: "duration", field: "duration", value: parseFloat(duration) },
+            { name: "elevation_gain", field: "elevation_gain", value: parseInt(elevationGain, 10) },
+            { name: "elevation_loss", field: "elevation_loss", value: parseInt(elevationLoss, 10) }
         ];
-
-        // Validation du formulaire
-        const validationErrors = validateStayStepForm(fieldsToValidate);
-
-        // cas ou il y a des erreurs
-        if (validationErrors.length > 0) {
-            setMessage({ type: "error", text: validationErrors.join(', ') });
-            console.log('error')
+    
+        const accommodationFields = [
+            { name: "accommodationName", field: "accommodationName", value: accommodationName },
+            { name: "accommodationDescription", field: "accommodationDescription", value: accommodationDescription },
+            { name: "mealType", field: "mealType", value: mealType },
+            { name: "mealDescription", field: "mealDescription", value: mealDescription }
+        ];
+    
+        const stayStepErrors = validateStayStep(stayStepFields);
+        const accommodationErrors = validateAccommodation(accommodationFields);
+    
+        const allErrors = [...stayStepErrors, ...accommodationErrors];
+    
+        if (allErrors.length > 0) {
+            setMessage({ type: "error", text: allErrors.join(", ") });
             return;
-        };
-
-        // préparation des données
-        const updatedStayStepData = {
-            step_number: stepNumber,
-            title,
-            description,
-            duration,
-            elevation_gain: elevationGain,
-            elevation_loss: elevationLoss,
-            // stay_id: parseInt(stayId, 10),
-            // a changer apres avoir fait la selection de l'accommodation
-            accommodation_id: 1,
-        };
-
-        console.log(updatedStayStepData)
-
-        updateStayStep(stayId, editingStayStepId, updatedStayStepData)
-            .then((res) => {
-                if (res.status === 200) {
-                    setStaySteps(prevSteps => 
-                        prevSteps.map(step => 
-                            step.id === editingStayStepId ? res.stayStep : step
-                        )
-                    );
-                    setMessage({ type: "success", text: "Étape modifiée avec succès !" });
-                    setShowForm(false);
-                    setEditingStayStepId(null);
-
-                    // Réinitialisation des champs
-                    setStepNumber("");
-                    setTitle("");
-                    setDescription("");
-                    setDuration("");
-                    setElevationGain("");
-                    setElevationLoss("");
-                    setAccommodationId("");
+        }
+    
+        try {
+            // Préparation des données de l'hébergement
+            const accommodationData = {
+                name: accommodationName,
+                description: accommodationDescription,
+                meal_type: mealType,
+                meal_description: mealDescription
+            };
+    
+            let finalAccommodationId;
+    
+            // Si on a un ID d'hébergement, on met à jour, sinon on crée
+            if (accommodationId) {
+                const resAccommodation = await updateAccommodation(accommodationId, accommodationData);
+                if (resAccommodation.status === 200) {
+                    finalAccommodationId = accommodationId;
                 } else {
-                    setMessage({ type: "error", text: "Erreur lors de la modification de l'étape." });
+                    setMessage({ type: "error", text: "Erreur lors de la mise à jour de l'hébergement." });
+                    return;
                 }
-            })
-            .catch((err) => {
-                setMessage({ type: "error", text: "Erreur lors de la modification de l'étape." });
-                console.error(err);
-            });
+            } else {
+                const resAccommodation = await createAccommodation(accommodationData);
+                if (resAccommodation.status === 201) {
+                    finalAccommodationId = resAccommodation.accommodation.id;
+                } else {
+                    setMessage({ type: "error", text: "Erreur lors de la création de l'hébergement." });
+                    return;
+                }
+            }
+    
+            // Mise à jour de l'étape avec l'ID d'hébergement
+            const updatedStayStepData = {
+                step_number: parseInt(stepNumber, 10),
+                title,
+                description,
+                duration: parseFloat(duration),
+                elevation_gain: parseInt(elevationGain, 10),
+                elevation_loss: parseInt(elevationLoss, 10),
+                accommodation_id: finalAccommodationId
+            };
+    
+            const res = await updateStayStep(stayId, editingStayStepId, updatedStayStepData);
+            if (res.status === 200) {
+                // Mise à jour du state avec les nouvelles données
+                setStaySteps(prevSteps => 
+                    prevSteps.map(step => {
+                        if (step.id === editingStayStepId) {
+                            return {
+                                ...res.stayStep,
+                                accommodation: {
+                                    id: finalAccommodationId,
+                                    name: accommodationName,
+                                    description: accommodationDescription,
+                                    meal_type: mealType,
+                                    meal_description: mealDescription
+                                }
+                            };
+                        }
+                        return step;
+                    })
+                );
+                setMessage({ type: "success", text: "Étape et hébergement modifiés avec succès !" });
+                resetForm();
+            } else {
+                setMessage({ type: "error", text: res.msg || "Erreur lors de la modification de l'étape." });
+            }
+        } catch (err) {
+            console.error('Erreur complète:', err);
+            setMessage({ type: "error", text: "Erreur lors de la modification." });
+        }
     };
 
     // gestion de la suppression d'une étape
@@ -184,33 +244,63 @@ const StayStepTest = ({ stay, onClose }) => {
             });
         };
 
-    const handleEditStayStep = (step) => {
+    const handleEditStayStep = async (step) => {
+        // Remplir les champs de l'étape
         setEditingStayStepId(step.id);
-        setStepNumber(step.step_number);
-        setTitle(step.title);
-        setDescription(step.description);
-        setDuration(step.duration);
-        setElevationGain(step.elevation_gain);
-        setElevationLoss(step.elevation_loss);
-        setAccommodationId(step.accommodation_id || "");
+        setStepNumber(step.step_number ?? "");
+        setTitle(step.title ?? "");
+        setDescription(step.description ?? "");
+        setDuration(step.duration ?? "");
+        setElevationGain(step.elevation_gain ?? 0);
+        setElevationLoss(step.elevation_loss ?? 0);
         setShowForm(true);
+
+        // Si l'étape a un hébergement associé
+        if (step.accommodation) {
+            const accommodation = step.accommodation;
+            setAccommodationId(accommodation.id);
+            setAccommodationName(accommodation.name ?? "");
+            setAccommodationDescription(accommodation.description ?? "");
+            setMealType(accommodation.meal_type ?? "");
+            setMealDescription(accommodation.meal_description ?? "");
+        } else {
+            // Réinitialiser les champs d'hébergement si pas d'hébergement associé
+            resetAccommodationFields();
+            setMessage({ 
+                type: "warning", 
+                text: "Aucun hébergement associé à cette étape." 
+            });
+        }
+    };
+    
+    // Fonction utilitaire pour réinitialiser les champs d'hébergement
+    const resetAccommodationFields = () => {
+        setAccommodationId("");
+        setAccommodationName("");
+        setAccommodationDescription("");
+        setMealType("");
+        setMealDescription("");
     };
 
     useEffect(() => {
         getStayStepByStayId(stayId)
             .then((res) => {
                 if (res.status === 200) {
-                    console.log(res.staySteps)
-                    setStaySteps(res.staySteps)
+                    setStaySteps(res.staySteps || []);
                 } else {
-                    throw new Error("Erreur lors du chargement des étapes.");
+                    setStaySteps([]);
+                    console.log("Aucune étape trouvée pour ce séjour");
                 }
             })
             .catch((err) => {
-                setError("Impossible de récupérer les étapes.");
-                console.error(err);
-            })
-    }, [stayId])
+                console.error("Erreur lors de la récupération des étapes:", err);
+                setMessage({ 
+                    type: "error", 
+                    text: "Impossible de récupérer les étapes." 
+                });
+                setStaySteps([]);
+            });
+    }, [stayId]);
 
     useEffect(() => {
         if (message.text) {
@@ -267,8 +357,8 @@ const StayStepTest = ({ stay, onClose }) => {
                             name="stepNumber"
                             value={stepNumber}
                             onChange={(e) => setStepNumber(e.target.value)}
-                            aria-required="true"
                             className="form-control"
+                            required
                         />
                     </div>
 
@@ -282,7 +372,7 @@ const StayStepTest = ({ stay, onClose }) => {
                             name="title"
                             value={title}
                             onChange={(e) => setTitle(e.target.value)}
-                            aria-required="true"
+                            required
                             className="form-control"
                         />
                     </div>
@@ -296,7 +386,7 @@ const StayStepTest = ({ stay, onClose }) => {
                             name="description"
                             value={description}
                             onChange={(e) => setDescription(e.target.value)}
-                            aria-required="true"
+                            required
                             className="form-control"
                             rows="3"
                         />
@@ -312,7 +402,7 @@ const StayStepTest = ({ stay, onClose }) => {
                             name="duration"
                             value={duration}
                             onChange={(e) => setDuration(e.target.value)}
-                            aria-required="true"
+                            required
                             className="form-control"
                         />
                     </div>
@@ -327,7 +417,7 @@ const StayStepTest = ({ stay, onClose }) => {
                             name="elevationGain"
                             value={elevationGain}
                             onChange={(e) => setElevationGain(e.target.value)}
-                            aria-required="true"
+                            required
                             className="form-control"
                         />
                     </div>
@@ -342,24 +432,60 @@ const StayStepTest = ({ stay, onClose }) => {
                             name="elevationLoss"
                             value={elevationLoss}
                             onChange={(e) => setElevationLoss(e.target.value)}
-                            aria-required="true"
+                            required
                             className="form-control"
                         />
                     </div>
 
-                    <div className="form-group">
-                        <label htmlFor="accommodationId" aria-label="Identifiant de l'hébergement">
-                            Hébergement *
-                        </label>
-                        <input
-                            type="number"
-                            id="accommodationId"
-                            name="accommodationId"
-                            value={accommodationId || ""}
-                            onChange={(e) => setAccommodationId(e.target.value)}
-                            aria-required="true"
-                            className="form-control"
-                        />
+                    <div className="accommodation-section">
+                        <h4>Hébergement</h4>
+                        <div className="form-group">
+                            <label htmlFor="accommodationName">Nom de l'hébergement *</label>
+                            <input
+                                type="text"
+                                id="accommodationName"
+                                value={accommodationName}
+                                onChange={(e) => setAccommodationName(e.target.value)}
+                                className="form-control"
+                                required
+                            />
+                        </div>
+
+                        <div className="form-group">
+                            <label htmlFor="accommodationDescription">Description de l'hébergement</label>
+                            <textarea
+                                id="accommodationDescription"
+                                value={accommodationDescription}
+                                onChange={(e) => setAccommodationDescription(e.target.value)}
+                                className="form-control"
+                                rows="3"
+                                required
+                            />
+                        </div>
+
+                        <div className="form-group">
+                            <label htmlFor="mealType">Type de repas</label>
+                            <input
+                                type="text"
+                                id="mealType"
+                                value={mealType}
+                                onChange={(e) => setMealType(e.target.value)}
+                                className="form-control"
+                                required
+                            />
+                        </div>
+
+                        <div className="form-group">
+                            <label htmlFor="mealDescription">Description des repas</label>
+                            <textarea
+                                id="mealDescription"
+                                value={mealDescription}
+                                onChange={(e) => setMealDescription(e.target.value)}
+                                className="form-control"
+                                rows="2"
+                                required
+                            />
+                        </div>
                     </div>
 
                     <button 

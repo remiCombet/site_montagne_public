@@ -3,16 +3,8 @@ const { validationResult } = require('express-validator');
 
 // Ajouter un équipement à un séjour
 exports.addStayToPrepare = async (req, res) => {
-    const { stay_id, category_id } = req.body;
-    const errors = validationResult(req);
-
-    if (!errors.isEmpty()) {
-        return res.json({
-        status: 400,
-        msg: 'Erreur de validation',
-        errors: errors.array(),
-        });
-    }
+    const { stay_id } = req.params;
+    const { category_id } = req.body;
 
     if (!stay_id || !category_id) {
         return res.json({
@@ -68,13 +60,13 @@ exports.getToPrepareByStayId = async (req, res) => {
         // Reformater la réponse pour correspondre à la structure souhaitée
         const response = {
             status: 200,
-            toPrepare: groupedToPrepare
+            equipments: groupedToPrepare
         };
 
         res.json(response);
     } catch (error) {
         console.error(error);
-        res.json({ status: 500, msg: 'Erreur serveur' });
+        res.json({ status: 500, msg: 'Erreur serveur'});
     }
 };
 
@@ -115,10 +107,15 @@ exports.getAllStayToPrepares = async (req, res) => {
 
 // Supprimer une equipement d'un séjour
 exports.removeStayToPrepare = async (req, res) => {
-    const { id } = req.params;
+    const { stay_id, category_id } = req.params;
 
     try {
-        const stayToPrepare = await StayToPrepare.findByPk(id);
+        const stayToPrepare = await StayToPrepare.findOne({
+            where: { 
+                stay_id: stay_id,
+                category_id: category_id
+            }
+        });
 
         // Si pas trouvé
         if (!stayToPrepare) {
@@ -130,14 +127,20 @@ exports.removeStayToPrepare = async (req, res) => {
 
         // Suppression
         await StayToPrepare.destroy({
-            where: { id: stayToPrepare.id }
+            where: { 
+                stay_id: stay_id,
+                category_id: category_id
+            }
         });
 
         // Réponse
         res.json({
             status: 200,
             msg: "Association supprimée avec succès.",
-            stayToPrepare
+            removedEquipment: {
+                stay_id: stay_id,
+                category_id: category_id
+            }
         });
     } catch (error) {
         // Gestion des erreurs

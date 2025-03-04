@@ -17,12 +17,12 @@ const withAdminAuth = require('../middlewares/withAuthAdmin');
 // Middleware pour vérifier la capacité maximale des participants
 const checkMaxParticipants = require('../middlewares/checkMaxParticipants');
 
-router.post('/add', stayParticipantsController.addStayParticipant);
+// router.post('/', stayParticipantsController.addStayParticipant);
 router.put('/:id', stayParticipantsController.updateStayParticipant);
 router.put('/admin/:id', stayParticipantsController.adminUpdateStayParticipantStatus);
 router.delete('/:id', stayParticipantsController.deleteStayParticipant);
 router.get('/stay/:stay_id', stayParticipantsController.getStayParticipants);
-// router.get('/', stayParticipantsController.getAllStayParticipants);
+router.get('/', stayParticipantsController.getAllStayParticipants);
 
 
 
@@ -31,7 +31,7 @@ router.get('/stay/:stay_id', stayParticipantsController.getStayParticipants);
 //  * - Accessible uniquement aux utilisateurs authentifiés
 //  * - Vérification de la capacité maximale avant d'ajouter
 //  */
-// router.post('/add', withAuth, checkMaxParticipants, validateAddStayParticipant, validate, stayParticipantsController.addStayParticipant);
+router.post('/', withAuth, checkMaxParticipants, validateAddStayParticipant, validate, stayParticipantsController.addStayParticipant);
 
 // /**
 //  * Mettre à jour une demande de réservation (stayParticipant)
@@ -45,7 +45,7 @@ router.get('/stay/:stay_id', stayParticipantsController.getStayParticipants);
 //  * - Accessible uniquement aux administrateurs
 //  * - Permet de changer le statut d'une demande de réservation
 //  */
-// router.put('/admin/:id', withAuth, withAdminAuth, stayParticipantsController.adminUpdateStayParticipantStatus);
+router.patch('/admin/:id', withAuth, withAdminAuth, stayParticipantsController.adminUpdateStayParticipantStatus);
 
 // /**
 //  * Supprimer une demande de réservation (stayParticipant)

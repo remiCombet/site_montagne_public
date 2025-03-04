@@ -1,27 +1,71 @@
 // middlewares/stayEquipmentValidator.js
-const { check } = require('express-validator');
+const { check, param } = require('express-validator');
 const { Stay, Category } = require('../models');
 
 module.exports = {
-  validateAddStayEquipment: [
-    check('stay_id')
-      .isInt().withMessage('Le stay_id doit être un entier.')
-      .custom(async (value) => {
-        const stay = await Stay.findByPk(value);
-        if (!stay) {
-          throw new Error("Le séjour avec cet ID n'existe pas");
-        }
-        return true;
-      }),
-      
-    check('category_id')
-      .isInt().withMessage('Le category_id doit être un entier.')
-      .custom(async (value) => {
-        const category = await Category.findByPk(value);
-        if (!category) {
-          throw new Error("La catégorie avec cet ID n'existe pas");
-        }
-        return true;
-      }),
-  ]
+    validateAddStayEquipment: [
+        // Validation du stayId dans l'URL
+        param('stay_id')
+            .trim()
+            .notEmpty()
+            .toInt()
+            .custom(async (value, { req }) => {
+                console.log('Validation stay_id:', {
+                    value,
+                    type: typeof value,
+                    params: req.params
+                });
+                
+                const stay = await Stay.findByPk(value);
+                if (!stay) {
+                    throw new Error("Le séjour avec cet ID n'existe pas");
+                }
+                return true;
+            }),
+
+        // Validation du category_id dans le body
+        check('category_id')
+            .trim()
+            .notEmpty()
+            .toInt()
+            .custom(async (value, { req }) => {
+                console.log('Validation category_id:', {
+                    value,
+                    type: typeof value,
+                    body: req.body
+                });
+
+                const category = await Category.findByPk(value);
+                if (!category) {
+                    throw new Error("La catégorie avec cet ID n'existe pas");
+                }
+                return true;
+            })
+    ],
+
+    validateDeleteStayEquipment: [
+        param('stay_id')
+            .trim()
+            .notEmpty()
+            .toInt()
+            .custom(async (value, { req }) => {
+                const stay = await Stay.findByPk(value);
+                if (!stay) {
+                    throw new Error("Le séjour avec cet ID n'existe pas");
+                }
+                return true;
+            }),
+
+        param('category_id')
+            .trim()
+            .notEmpty()
+            .toInt()
+            .custom(async (value, { req }) => {
+                const category = await Category.findByPk(value);
+                if (!category) {
+                    throw new Error("La catégorie avec cet ID n'existe pas");
+                }
+                return true;
+            })
+    ]
 };

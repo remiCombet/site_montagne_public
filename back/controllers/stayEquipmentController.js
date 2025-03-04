@@ -1,8 +1,10 @@
+
 const { StayEquipment, Stay, Category } = require('../models');
 
 // Ajouter un équipement à un séjour
 exports.addStayEquipment = async (req, res) => {
-    const { stay_id, category_id } = req.body;
+    const { stay_id } = req.params;
+    const { category_id } = req.body;
 
     if (!stay_id || !category_id) {
         return res.json({
@@ -74,6 +76,7 @@ exports.getEquipmentsByStay = async (req, res) => {
     }
 };
 
+// Utile ? 
 // Lister toutes les associations StayCategory
 exports.getAllStayEquipments = async (req, res) => {
     try {
@@ -111,10 +114,15 @@ exports.getAllStayEquipments = async (req, res) => {
 
 // Supprimer une equipement d'un séjour
 exports.removeStayEquipment = async (req, res) => {
-    const { id } = req.params;
+    const { stay_id, category_id } = req.params;
 
     try {
-        const stayEquipment = await StayEquipment.findByPk(id);
+        const stayEquipment = await StayEquipment.findOne({
+            where: { 
+                stay_id: stay_id,
+                category_id: category_id
+            }
+        });
 
         // Si pas trouvé
         if (!stayEquipment) {
@@ -126,14 +134,20 @@ exports.removeStayEquipment = async (req, res) => {
 
         // Suppression
         await StayEquipment.destroy({
-            where: { id: stayEquipment.id }
+            where: { 
+                stay_id: stay_id,
+                category_id: category_id
+            }
         });
 
         // Réponse
         res.json({
             status: 200,
             msg: "Association supprimée avec succès.",
-            stayEquipment
+            removedEquipment: {
+                stay_id: stay_id,
+                category_id: category_id
+            }
         });
     } catch (error) {
         // Gestion des erreurs

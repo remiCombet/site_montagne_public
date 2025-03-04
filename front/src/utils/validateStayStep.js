@@ -1,42 +1,40 @@
-import { validateFormAsync } from "./validateUtils";
+export const validateStayStep = (fields) => {
+    const errors = [];
+    
+    fields.forEach(({ name, field, value }) => {
+        switch (field) {
+            case 'step_number':
+                if (!value || value < 1) {
+                    errors.push("Le numéro d'étape doit être supérieur à 0");
+                }
+                break;
+            case 'title':
+                if (!value || value.trim().length < 3) {
+                    errors.push("Le titre doit contenir au moins 3 caractères");
+                }
+                break;
+            case 'description':
+                if (!value || value.trim().length < 10) {
+                    errors.push("La description doit contenir au moins 10 caractères");
+                }
+                break;
+            case 'duration':
+                if (!value || value <= 0) {
+                    errors.push("La durée doit être supérieure à 0");
+                }
+                break;
+            case 'elevation_gain':
+                if (value < 0) {
+                    errors.push("Le dénivelé positif ne peut pas être négatif");
+                }
+                break;
+            case 'elevation_loss':
+                if (value < 0) {
+                    errors.push("Le dénivelé négatif ne peut pas être négatif");
+                }
+                break;
+        }
+    });
 
-export const validateStayStepField = async (label, field, value) => {
-    if (!value) return `${label} est requis.`;
-
-    switch (field) {
-        case "stepNumber":
-            if (isNaN(value) || Number(value) <= 0) return `${label} doit être un nombre positif.`;
-            break;
-        case "title":
-            if (value.length < 3) return `${label} doit comporter au moins 3 caractères.`;
-            if (value.length > 100) return `${label} ne peut pas dépasser 100 caractères.`;
-            break;
-        case "description":
-            if (value.length < 10) return `${label} doit comporter au moins 10 caractères.`;
-            if (value.length > 1000) return `${label} ne peut pas dépasser 1000 caractères.`;
-            break;
-        case "duration":
-            if (isNaN(value) || Number(value) <= 0) return `${label} doit être un nombre positif.`;
-            break;
-        case "elevationGain":
-            if (isNaN(value) || Number(value) < 0) return `${label} doit être un nombre positif ou nul.`;
-            break;
-        case "elevationLoss":
-            if (isNaN(value) || Number(value) < 0) return `${label} doit être un nombre positif ou nul.`;
-            break;
-        case "stayId":
-            if (isNaN(value) || Number(value) <= 0) return `${label} doit être un identifiant valide.`;
-            break;
-        case "accommodationId":
-            if (isNaN(value) || Number(value) <= 0) return `${label} doit être un identifiant valide.`;
-            break;
-        default:
-            return true;
-    }
-
-    return true;
-};
-
-export const validateStayStepForm = async (fields) => {
-    return await validateFormAsync(fields, validateStayStepField);
+    return errors;
 };

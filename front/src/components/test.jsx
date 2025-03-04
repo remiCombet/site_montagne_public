@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getTotalParticipants, addStayParticipant } from "../api/test";
-import { setStayRequests, updateStayParticipants } from "../slices/testSlice";
+import { setStayRequests, updateStayParticipants, selectRequestsByStayId, selectStayById, selectParticipantsByStayId } from "../slices/staySlice";
 
 const Test = ({ stayId }) => {
     const [loading, setLoading] = useState(true);
@@ -12,9 +12,11 @@ const Test = ({ stayId }) => {
     });
 
     const dispatch = useDispatch();
-    const stayRequests = useSelector((state) => state.test.stayRequests[stayId] || []);
-    const selectedStay = useSelector((state) => state.test.stays.find(stay => stay.id === stayId));
-    const stayParticipants = useSelector((state) => state.test.stayParticipants[stayId])
+    
+    // récupération des sélecteurs mémorisés
+    const stayRequests = useSelector(state => selectRequestsByStayId(state, stayId));
+    const selectedStay = useSelector(state => selectStayById(state, stayId));
+    const stayParticipants = useSelector(state => selectParticipantsByStayId(state, stayId));
 
     // Fonction pour récupérer les participants et mettre à jour l'état du séjour
     const fetchStayParticipants = async () => {

@@ -19,7 +19,10 @@ router.get('/:id', stayController.getStayById);
 router.put('/:id', withAuth, withAdminAuth, validateStay, validate, stayController.updateStay);
 
 // modifier le statut d'un séjour
-router.put('/status/:id', stayController.updateStayStatus)
+router.put('/status/:id', stayController.updateStayStatus);
+
+// modifier le point de réception d'un séjour
+router.patch('/reception-point/:stayId', withAuth, withAdminAuth, stayController.updateStayReceptionPoint);
 
 // Supprimer un séjour
 router.delete('/:id', stayController.deleteStay);

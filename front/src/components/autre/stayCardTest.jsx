@@ -5,6 +5,9 @@ import StayEditPopupTest from './stayEditPopupTest';
 import ThemeTest from './themeTest';
 import HighlightTest from './highlightTest';
 import StayStepTest from './stayStepTest';
+import AccessTest from './accessTest';
+import EquipmentsTest from './equipmentsTest';
+import { decodeHTML } from '../../utils/decodeHtml';
 
 const StayCardTest = ({ stay, onSelect, selectedStay, onDeselect }) => {
     // popup pour la modification d'un séjour
@@ -18,6 +21,12 @@ const StayCardTest = ({ stay, onSelect, selectedStay, onDeselect }) => {
 
     // popup pour la gestion des étapes d'un séjour
     const [isPopupStayStepOpen, setIsPopupStayStepOpen] = useState(false);
+
+    // popup pour la gestion des acces d'un séjour
+    const [isPopupAccessOpen, setIsPopupAccessOpen] = useState(false);
+
+    // popup pour la gestion des equipements fournis d'un séjour
+    const [isPopupEquipmentOpen, setIsPopupEquipmentOpen] = useState(false);
 
     // Gestion des erreurs/validation
     const [message, setMessage] = useState({ type: "", text: "" });
@@ -49,12 +58,13 @@ const StayCardTest = ({ stay, onSelect, selectedStay, onDeselect }) => {
 
             return () => clearTimeout(timer);
         }
-    })
+    }, [message]);
 
     return (
         <article className={isSelected ? 'selected' : ''}>
             <section>
-                {stay.title}
+                <p>ta</p>
+                {decodeHTML(stay.title)}
                 <br />
                 {/* Bouton pour ouvrir/fermer le popup */}
                 <button onClick={handleSelectStay}>
@@ -112,6 +122,36 @@ const StayCardTest = ({ stay, onSelect, selectedStay, onDeselect }) => {
                 <StayStepTest
                     stay={stay}
                     onClose={() => setIsPopupStayStepOpen(false)}
+                />
+            )}
+
+            {/* Gestion des acces */}
+            <section>
+                <button onClick={() => setIsPopupAccessOpen(true)}>
+                    Gérer les acces
+                </button>
+            </section>
+
+            {/* affichage du popup */}
+            {isPopupAccessOpen && (
+                <AccessTest 
+                    stay={stay}
+                    onClose={() => setIsPopupAccessOpen(false)}
+                />
+            )}
+
+            {/* Gestion des acces */}
+            <section>
+                <button onClick={() => setIsPopupEquipmentOpen(true)}>
+                    Gérer les équipement fournis
+                </button>
+            </section>
+
+            {/* affichage du popup */}
+            {isPopupEquipmentOpen && (
+                <EquipmentsTest 
+                    stay={stay}
+                    onClose={() => setIsPopupEquipmentOpen(false)}
                 />
             )}
 

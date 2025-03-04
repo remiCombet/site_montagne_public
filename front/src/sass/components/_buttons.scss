@@ -1,0 +1,35 @@
+.actions {
+    margin: 10px 0;
+    
+    &.center {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    button {
+        padding: 8px 15px;
+        border: none;
+        cursor: pointer;
+        border-radius: 5px;
+        
+        &:hover {
+            opacity: 0.9;
+        }
+    }
+}
+
+// classe pour les boutons individuels
+button.center {
+    display: block;
+    margin: 10px auto;
+    padding: 8px 15px;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+
+    &:hover {
+        opacity: 0.9;
+    }
+}

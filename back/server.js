@@ -5,6 +5,7 @@ const { Sequelize } = require('sequelize');
 const db = require('./models');
 const cors = require('cors');
 const helmet = require('helmet');
+const morgan = require('morgan');
 
 // Routes
 const userRoutes = require('./routes/userRoutes');
@@ -26,6 +27,7 @@ const stayParticipantsRoutes = require('./routes/stayParticipantsRoutes');
 app.use(express.json());
 app.use(cors());
 app.use(helmet());
+app.use(morgan('dev'));
 
 // Routes
 // routes utilisateurs
@@ -50,7 +52,7 @@ app.use('/api/accesses', accessRoutes);
 app.use('/api/themes', themeRoutes);
 
 // routes receptionPoint
-app.use('/api/reception-point', receptionPointRoutes);
+app.use('/api/reception-points', receptionPointRoutes);
 
 // routes stayAccess
 app.use('/api/stay-accesses', stayAccessRoutes);

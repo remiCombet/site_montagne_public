@@ -199,6 +199,36 @@ exports.updateStayStatus = async (req, res) => {
     }
 };
 
+// modifier le point de reception d'un séjour
+exports.updateStayReceptionPoint = async (req, res) => {
+    const { stayId } = req.params;
+    const { reception_point_id } = req.body;
+
+    try {
+        const stay = await Stay.findByPk(stayId);
+        
+        if (!stay) {
+            return res.json({
+                status: 404,
+                msg: "Séjour non trouvé"
+            });
+        }
+
+        await stay.update({ reception_point_id });
+
+        res.json({
+            status: 200,
+            msg: "Point de réception du séjour mis à jour avec succès"
+        });
+    } catch (error) {
+        console.error(error);
+        res.json({
+            status: 500,
+            msg: "Erreur lors de la mise à jour du point de réception"
+        });
+    }
+};
+
 // supprimer un séjour
 exports.deleteStay = async (req, res) => {
     const { id } = req.params;
