@@ -27,4 +27,7 @@ router.patch('/reception-point/:stayId', withAuth, withAdminAuth, stayController
 // Supprimer un séjour
 router.delete('/:id', stayController.deleteStay);
 
+// Récupérer le statut de remplissage d'un séjour
+router.get('/fill-status/:id', stayController.getStayFillStatus);
+
 module.exports = router;

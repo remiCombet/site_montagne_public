@@ -1,6 +1,78 @@
-const { Stay } = require('../models');
+const { Stay, StayParticipant, User } = require('../models');
 
 // attention supprimer les reponse dans les catch error: error.message en prod
+
+// Fonction utilitaire pour calculer le fill_status d'un séjour
+const calculateFillStatus = async (stayId) => {
+  try {
+    // Récupérer le séjour
+    const stay = await Stay.findByPk(stayId);
+    if (!stay) return null;
+    
+    // Récupérer les demandes validées pour ce séjour
+    const validRequests = await StayParticipant.findAll({
+      where: { 
+        stay_id: stayId,
+        status: 'validé'
+      }
+    });
+    
+    // Calculer le nombre de participants confirmés
+    let confirmedParticipants = 0;
+    validRequests.forEach(request => {
+      confirmedParticipants += 1 + (request.people_number || 0);
+    });
+    
+    // Déterminer l'état de remplissage
+    if (confirmedParticipants < stay.min_participant) {
+      return 'participants_insuffisants';
+    } else if (confirmedParticipants >= stay.max_participant) {
+      return 'complet';
+    } else {
+      return 'en_attente_de_validation';
+    }
+  } catch (error) {
+    console.error('Erreur lors du calcul du fill_status:', error);
+    return 'en_attente_de_validation'; // Valeur par défaut en cas d'erreur
+  }
+};
+
+// Ajouter les informations de remplissage à un séjour
+const addFillStatusInfo = async (stay) => {
+  try {
+    // Récupérer les demandes validées pour ce séjour
+    const validRequests = await StayParticipant.findAll({
+      where: { 
+        stay_id: stay.id,
+        status: 'validé'
+      }
+    });
+    
+    // Calculer le nombre de participants confirmés
+    let confirmedParticipants = 0;
+    validRequests.forEach(request => {
+      confirmedParticipants += 1 + (request.people_number || 0);
+    });
+    
+    // Ajouter les données calculées au séjour
+    stay.dataValues.confirmedParticipants = confirmedParticipants;
+    
+    // Déterminer l'état de remplissage
+    if (confirmedParticipants < stay.min_participant) {
+      stay.dataValues.fill_status = 'participants_insuffisants';
+    } else if (confirmedParticipants >= stay.max_participant) {
+      stay.dataValues.fill_status = 'complet';
+    } else {
+      stay.dataValues.fill_status = 'en_attente_de_validation';
+    }
+    
+    return stay;
+  } catch (error) {
+    console.error('Erreur lors de l\'ajout du fill_status:', error);
+    stay.dataValues.fill_status = 'en_attente_de_validation';
+    return stay;
+  }
+};
 
 // Ajouter un séjour
 exports.createStay = async (req, res) => {
@@ -11,7 +83,7 @@ exports.createStay = async (req, res) => {
     console.log('Données reçues :', req.body);
 
     try {
-        const newStay  = await Stay.create({
+        const newStay = await Stay.create({
             title,
             description,
             location,
@@ -27,11 +99,14 @@ exports.createStay = async (req, res) => {
             user_id
         });
 
+        // Ajouter le fill_status calculé (sera "participants_insuffisants" pour un nouveau séjour)
+        const stayWithFillStatus = await addFillStatusInfo(newStay);
+
         // réponse
         res.json({
             status: 200,
             msg: "séjour créé avec succès",
-            stay: newStay
+            stay: stayWithFillStatus
         });
     } catch (error) {
         // gestion des erreurs
@@ -49,7 +124,15 @@ exports.createStay = async (req, res) => {
 // récupérer tous les séjours
 exports.getAllStays = async (req, res) => {
     try {
-        const stays = await Stay.findAll();
+        const stays = await Stay.findAll({
+            include: [
+                {
+                    model: User,
+                    as: 'user',
+                    attributes: ['id', 'firstname', 'lastname'] 
+                }
+            ]
+        });
 
         // cas ou séjour non trouvé
         if (!stays || stays.length === 0) {
@@ -58,11 +141,14 @@ exports.getAllStays = async (req, res) => {
                 msg: "séjour non trouvé"
             });
         }
+        
+        // Ajouter le fill_status et les statistiques de participants à chaque séjour
+        const staysWithFillStatus = await Promise.all(stays.map(stay => addFillStatusInfo(stay)));
   
         // séjour trouvé
-        res.json ({
+        res.json({
             status: 200,
-            stays
+            stays: staysWithFillStatus
         });
     } catch (error) {
         // gestion des erreurs
@@ -79,7 +165,15 @@ exports.getStayById = async (req, res) => {
     const { id } = req.params;
 
     try {
-        const stay = await Stay.findByPk(id);
+        const stay = await Stay.findByPk(id, {
+            include: [
+                {
+                    model: User,
+                    as: 'user',
+                    attributes: ['id', 'firstname', 'lastname']
+                }
+            ]
+        });
 
         // Cas ou séjour non trouvé
         if (!stay) {
@@ -89,10 +183,13 @@ exports.getStayById = async (req, res) => {
             });
         }
 
+        // Ajouter le fill_status et les statistiques de participants
+        const stayWithFillStatus = await addFillStatusInfo(stay);
+
         // cas positif
         res.json({
-            status:200,
-            stay,
+            status: 200,
+            stay: stayWithFillStatus,
         });
     } catch (error) {
         // gestion des erreurs
@@ -139,12 +236,15 @@ exports.updateStay = async (req, res) => {
 
         // sauvegarde des changements
         await stay.save();
+        
+        // Ajouter le fill_status calculé
+        const stayWithFillStatus = await addFillStatusInfo(stay);
 
         // réponse
         res.json({
             status: 200,
             msg: "séjour modifié avec succès",
-            stay,
+            stay: stayWithFillStatus,
         });
 
     } catch (error) {
@@ -163,7 +263,6 @@ exports.updateStayStatus = async (req, res) => {
     const { id } = req.params;
     const { status } = req.body;
 
-
     try {
         const stay = await Stay.findByPk(id);
 
@@ -180,12 +279,15 @@ exports.updateStayStatus = async (req, res) => {
 
         // sauvegarde des changements
         await stay.save();
+        
+        // Ajouter le fill_status calculé
+        const stayWithFillStatus = await addFillStatusInfo(stay);
 
         // réponse
         res.json({
             status: 200,
             msg: "séjour modifié avec succès",
-            stay,
+            stay: stayWithFillStatus,
         });
 
     } catch (error) {
@@ -215,10 +317,14 @@ exports.updateStayReceptionPoint = async (req, res) => {
         }
 
         await stay.update({ reception_point_id });
+        
+        // Ajouter le fill_status calculé
+        const stayWithFillStatus = await addFillStatusInfo(stay);
 
         res.json({
             status: 200,
-            msg: "Point de réception du séjour mis à jour avec succès"
+            msg: "Point de réception du séjour mis à jour avec succès",
+            stay: stayWithFillStatus
         });
     } catch (error) {
         console.error(error);
@@ -259,6 +365,34 @@ exports.deleteStay = async (req, res) => {
             status:500,
             msg: "oups une erreur est survenue",
             error: error.message 
+        });
+    }
+};
+
+// Obtenir l'état de remplissage d'un séjour (méthode utilitaire pour les autres services)
+exports.getStayFillStatus = async (req, res) => {
+    const { id } = req.params;
+    
+    try {
+        const fillStatus = await calculateFillStatus(id);
+        
+        if (!fillStatus) {
+            return res.json({
+                status: 404,
+                msg: "séjour non trouvé"
+            });
+        }
+        
+        res.json({
+            status: 200,
+            fill_status: fillStatus
+        });
+    } catch (error) {
+        console.error(error);
+        res.json({
+            status: 500,
+            msg: "Erreur lors du calcul de l'état de remplissage",
+            error: error.message
         });
     }
 };

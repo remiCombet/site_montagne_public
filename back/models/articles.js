@@ -50,13 +50,21 @@ module.exports = (sequelize) => {
       {
         tableName: 'articles',
         timestamps: true,
+        createdAt: 'createdAt',
+        updatedAt: 'updatedAt',
+        underscored: false
       }
     );
   
     Article.associate = (models) => {
         Article.belongsTo(models.User, {
-          foreignKey: 'user_id',
+          foreignKey: 'id_user',
           as: 'user',
+        });
+        Article.hasMany(models.ArticleImage, {
+          foreignKey: 'article_id',
+          as: 'images',
+          onDelete: 'CASCADE'
         });
       };
   

@@ -40,6 +40,29 @@
                 background: #555;
             }
         }
+
+        // Ajoutez ces styles pour le bouton de fermeture
+        .close-btn {
+            background-color: #6c757d;
+            color: white;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+
+            &:hover {
+                background-color: #5a6268;
+            }
+        }
+
+        // Style pour le conteneur du bouton
+        .actions.center {
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
     }
 
     // ... reste du style existant ...

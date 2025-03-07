@@ -80,41 +80,55 @@ const ReceptionPointTest = ({ stayId, currentReceptionPointId, onPointChange }) 
     
     const handleChangePoint = () => {
         if (!selectedPointId) return;
-    
-        updateStayReceptionPoint(stayId, selectedPointId)
-            .then(res => {
-                if (res.status === 200) {
-                    onPointChange(selectedPointId);
-                    loadCurrentPoint();
-                    setShowSelectPoint(false);
-                    setMessage({ type: 'success', text: 'Point de réception modifié avec succès' });
-                }
-            })
-            .catch(error => {
-                console.error("Erreur lors du changement de point:", error);
-                setMessage({ type: 'error', text: 'Erreur lors du changement de point de réception' });
-            });
+
+        if (stayId) {
+            // Si un stayId existe, mettre à jour le point de réception pour ce séjour
+            updateStayReceptionPoint(stayId, selectedPointId)
+                .then(res => {
+                    if (res.status === 200) {
+                        onPointChange(selectedPointId);
+                        loadCurrentPoint();
+                        setShowSelectPoint(false);
+                        setMessage({ type: 'success', text: 'Point de réception modifié avec succès' });
+                        setTimeout(() => {
+                            setMode('view');
+                        }, 1500);
+                    }
+                })
+                .catch(error => {
+                    console.error("Erreur lors du changement de point:", error);
+                    setMessage({ type: 'error', text: 'Erreur lors du changement de point de réception' });
+                });
+        } else {
+            // Si c'est un nouveau séjour, simplement mettre à jour l'état local
+            onPointChange(selectedPointId);
+            // Trouver le point sélectionné pour le mettre comme point courant
+            const selectedPoint = receptionPoints.find(point => point.id === parseInt(selectedPointId));
+            setCurrentPoint(selectedPoint);
+            setShowSelectPoint(false);
+            setMessage({ type: 'success', text: 'Point de réception sélectionné' });
+        }
     };
 
-    const handleEdit = (point) => {
-        setFormData(point);
-        setEditingId(point.id);
-        setShowForm(true);
-    };
+    // const handleEdit = (point) => {
+    //     setFormData(point);
+    //     setEditingId(point.id);
+    //     setShowForm(true);
+    // };
 
-    const handleNew = () => {
-        // Réinitialiser le formulaire avec des valeurs vides
-        setFormData({
-            location: '',
-            contact_name: '',
-            contact_phone: '',
-            contact_email: '',
-            opening_time: '',
-            closing_time: ''
-        });
-        setEditingId(null);
-        setShowForm(true);
-    };
+    // const handleNew = () => {
+    //     // Réinitialiser le formulaire avec des valeurs vides
+    //     setFormData({
+    //         location: '',
+    //         contact_name: '',
+    //         contact_phone: '',
+    //         contact_email: '',
+    //         opening_time: '',
+    //         closing_time: ''
+    //     });
+    //     setEditingId(null);
+    //     setShowForm(true);
+    // };
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -159,7 +173,6 @@ const ReceptionPointTest = ({ stayId, currentReceptionPointId, onPointChange }) 
                         );
     
                         // Réinitialiser le formulaire
-                        setShowForm(false);
                         setEditingId(null);
                         setFormData({
                             location: '',
@@ -175,6 +188,9 @@ const ReceptionPointTest = ({ stayId, currentReceptionPointId, onPointChange }) 
                             type: 'success', 
                             text: 'Point de réception modifié avec succès' 
                         });
+                        setTimeout(() => {
+                            setMode('view');
+                        }, 1500);
                     }
                 })
                 .catch((err) => {
@@ -191,30 +207,58 @@ const ReceptionPointTest = ({ stayId, currentReceptionPointId, onPointChange }) 
                     // Ajouter le nouveau point à la liste des points de réception
                     setReceptionPoints(prevPoints => [...prevPoints, res.data]);
 
-                    // Attribuer le nouveau point de réception au séjour
-                    return updateStayReceptionPoint(stayId, res.data.id)
-                        .then(updateRes => {
-                            if (updateRes.status === 200) {
-                                onPointChange(res.data.id);
-                                
-                                // Réinitialiser le formulaire
-                                setShowForm(false);
-                                setFormData({
-                                    location: '',
-                                    contact_name: '',
-                                    contact_phone: '',
-                                    contact_email: '',
-                                    opening_time: '',
-                                    closing_time: ''
-                                });
-
-                                // Afficher le message de succès
-                                setMessage({ 
-                                    type: 'success', 
-                                    text: 'Point de réception créé et attribué avec succès' 
-                                });
-                            }
+                    if (stayId) {
+                        // Si un stayId existe, attribuer le nouveau point de réception au séjour
+                        return updateStayReceptionPoint(stayId, res.data.id)
+                            .then(updateRes => {
+                                if (updateRes.status === 200) {
+                                    onPointChange(res.data.id);
+                                    
+                                    // Réinitialiser le formulaire
+                                    setFormData({
+                                        location: '',
+                                        contact_name: '',
+                                        contact_phone: '',
+                                        contact_email: '',
+                                        opening_time: '',
+                                        closing_time: ''
+                                    });
+                                    
+                                    // Afficher le message de succès
+                                    setMessage({ 
+                                        type: 'success', 
+                                        text: 'Point de réception créé et attribué avec succès' 
+                                    });
+                                    
+                                    // Ajouter un délai avant de revenir à la vue principale
+                                    setTimeout(() => {
+                                        setMode('view');
+                                    }, 1500);
+                                }
+                            });
+                    } else {
+                        // Si c'est un nouveau séjour, simplement retourner le nouveau point
+                        onPointChange(res.data.id);
+                        
+                        // Réinitialiser le formulaire
+                        setFormData({
+                            location: '',
+                            contact_name: '',
+                            contact_phone: '',
+                            contact_email: '',
+                            opening_time: '',
+                            closing_time: ''
                         });
+
+                        // Afficher le message de succès
+                        setMessage({ 
+                            type: 'success', 
+                            text: 'Point de réception créé avec succès' 
+                        });
+
+                        // Changer de mode pour afficher les détails du nouveau point
+                        setMode('view');
+                    }
                 }
             })
             .catch((err) => {
@@ -383,9 +427,9 @@ const ReceptionPointTest = ({ stayId, currentReceptionPointId, onPointChange }) 
                             <button type="submit">
                                 {editingId ? "Sauvegarder" : "Créer"}
                             </button>
-                            <button type="button" onClick={() => setShowForm(false)}>
+                            {/* <button type="button" onClick={() => setShowForm(false)}>
                                 Annuler
-                            </button>
+                            </button> */}
                         </div>
                     </form>
                 </div>
@@ -400,7 +444,6 @@ const ReceptionPointTest = ({ stayId, currentReceptionPointId, onPointChange }) 
                             setMode('view');
                             setSelectedPointId('');
                             setSelectedPointDetails(null);
-                            setShowForm(false);
                         }}
                     >
                         Annuler

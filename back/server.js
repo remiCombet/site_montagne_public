@@ -23,11 +23,18 @@ const stayStepRoutes = require('./routes/stayStepRoutes');
 const stayToPrepareRoutes = require('./routes/stayToPrepareRoutes');
 const receptionPointRoutes = require('./routes/receptionPointRoutes');
 const stayParticipantsRoutes = require('./routes/stayParticipantsRoutes');
+const articleRoutes = require('./routes/articleRoutes');
+const articleImagesRoutes = require('./routes/articleImagesRoutes');
 
 app.use(express.json());
 app.use(cors());
 app.use(helmet());
 app.use(morgan('dev'));
+app.use(fileUpload({
+    useTempFiles: true,
+    tempFileDir: '/tmp/',
+    limits: { fileSize: 50 * 1024 * 1024 }
+}));
 
 // Routes
 // routes utilisateurs
@@ -75,6 +82,11 @@ app.use('/api/stay-to-prepare', stayToPrepareRoutes);
 // routes stayParticipants
 app.use('/api/stay-participants', stayParticipantsRoutes);
 
+// routes articles
+app.use('/api/articles', articleRoutes);
+
+// routes images articles
+app.use('/api/articles', articleImagesRoutes);
 
 const testRoutes = require('./routes/testRoutes');
 app.use ('/api', testRoutes);

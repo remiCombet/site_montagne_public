@@ -1,6 +1,6 @@
 const {DataTypes} = require("sequelize");
 
-module.exports = (sequelize) => {
+module.exports = (sequelize, DataTypes) => {
   const Stay = sequelize.define(
     'Stay',
     {
@@ -55,8 +55,17 @@ module.exports = (sequelize) => {
         allowNull: false,
       },
       status: {
-        type: DataTypes.ENUM('participants_insuffisants', 'en_attente_de_validation', 'validé', 'supprimé'),
+        type: DataTypes.ENUM('en_attente', 'validé', 'refusé', 'annulé'),
         allowNull: false,
+        defaultValue: 'en_attente',
+      },
+      // Définir fill_status comme un attribut virtuel
+      fill_status: {
+        type: DataTypes.VIRTUAL,
+        get() {
+          // Cette méthode sera appelée automatiquement quand l'attribut fill_status est demandé
+          return this.calculateFillStatus();
+        }
       },
       user_id: {
         type: DataTypes.INTEGER,
@@ -79,7 +88,34 @@ module.exports = (sequelize) => {
     }
   );
 
-  Stay.associate = (models) => {
+  // Définir un prototype de la méthode calculateFillStatus pour une instance 
+  Stay.prototype.calculateFillStatus = function() {
+    if (!this.stayParticipants) {
+      // Si les participants ne sont pas chargés, renvoyer une valeur par défaut
+      return 'en_attente_de_validation';
+    }
+
+    // Compter le nombre de participants confirmés
+    let confirmedParticipants = 0;
+    this.stayParticipants.forEach(participant => {
+      if (participant.status === 'validé') {
+        // Compter le demandeur + accompagnants
+        confirmedParticipants += 1 + (participant.people_number || 0);
+      }
+    });
+
+    // Déterminer le statut
+    if (confirmedParticipants < this.min_participant) {
+      return 'participants_insuffisants';
+    } else if (confirmedParticipants >= this.max_participant) {
+      return 'complet';
+    } else {
+      return 'en_attente_de_validation';
+    }
+  };
+
+  Stay.associate = function(models) {
+    // Associations
     Stay.belongsTo(models.User, {
       foreignKey: 'user_id',
       as: 'user',
@@ -109,7 +145,81 @@ module.exports = (sequelize) => {
       foreignKey: 'stay_id' ,
       as: 'toPrepares',
     });
+
+    // Association avec StayParticipant (et non StayRequest)
+    Stay.hasMany(models.StayParticipant, {
+      foreignKey: 'stay_id',
+      as: 'stayParticipants',  // Adapter l'alias pour correspondre au nom du modèle
+    });
+
+    // Déplacer la méthode statique ici pour avoir accès aux modèles
+    Stay.calculateFillStatus = async function(stayId) {
+      const stay = await this.findByPk(stayId, {
+        include: [
+          {
+            model: models.StayParticipant,  // Utiliser le bon nom de modèle
+            as: 'stayParticipants',  // Utiliser le même alias que dans l'association
+            where: { status: 'validé' },
+            required: false
+          }
+        ]
+      });
+
+      if (!stay) return null;
+
+      // Compter le nombre de participants confirmés
+      let confirmedParticipants = 0;
+      if (stay.stayParticipants && stay.stayParticipants.length > 0) {
+        stay.stayParticipants.forEach(participant => {
+          confirmedParticipants += 1 + (participant.people_number || 0);
+        });
+      }
+
+      // Déterminer le statut
+      if (confirmedParticipants < stay.min_participant) {
+        return 'participants_insuffisants';
+      } else if (confirmedParticipants >= stay.max_participant) {
+        return 'complet';
+      } else {
+        return 'en_attente_de_validation';
+      }
+    };
   };
+
+  // Ajouter un hook pour initialiser le fill_status lors du chargement
+  Stay.addHook('afterFind', async (stays, options) => {
+    if (!stays) return;
+    
+    // Si c'est un seul séjour (non-array)
+    if (!Array.isArray(stays)) {
+      stays = [stays];
+    }
+    
+    // Pour chaque séjour, calculer le fill_status si des stayParticipants sont chargés
+    for (const stay of stays) {
+      // Si les participants sont déjà chargés
+      if (stay.stayParticipants) {
+        let confirmedParticipants = 0;
+        stay.stayParticipants
+          .filter(participant => participant.status === 'validé')
+          .forEach(participant => {
+            confirmedParticipants += 1 + (participant.people_number || 0);
+          });
+        
+        // Ajouter une propriété dataValues.confirmedParticipants pour usage dans les contrôleurs
+        stay.dataValues.confirmedParticipants = confirmedParticipants;
+        
+        // Définir un getter personnalisé pour ce séjour spécifique
+        const fillStatus = confirmedParticipants < stay.min_participant 
+          ? 'participants_insuffisants' 
+          : confirmedParticipants >= stay.max_participant 
+            ? 'complet' 
+            : 'en_attente_de_validation';
+            
+        stay.dataValues.fill_status = fillStatus;
+      }
+    }
+  });
 
   return Stay;
 };

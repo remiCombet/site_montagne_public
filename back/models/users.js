@@ -43,7 +43,7 @@ module.exports = (sequelize, DataTypes) => {
   
     // Associations avec article et séjours
     User.associate = (models) => {
-      User.hasMany(models.Article, { foreignKey: 'user_id' });
+      User.hasMany(models.Article, { foreignKey: 'id_user' });
       User.hasMany(models.Stay, { foreignKey: 'user_id' });
     };
   

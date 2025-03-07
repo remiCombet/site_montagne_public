@@ -19,7 +19,7 @@ export const createReceptionPoint = (data) => {
 // Fonction pour récupérer tous les points de réception
 export const getAllReceptionPoints = () => {
   return axios
-    .get(`${config.api_url}/api/reception-point/`, {
+    .get(`${config.api_url}/api/reception-points/`, {
       headers: { Authorization: `Bearer ${getAuthToken()}` }
     })
     .then((res) => res.data)

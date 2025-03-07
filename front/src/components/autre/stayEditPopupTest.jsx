@@ -165,7 +165,13 @@ const StayEditPopupTest = ({ stay, onClose }) => {
 
             {/* Bouton de fermeture */}
             <div className="actions center">
-                <button className="close-btn" onClick={onClose}>Fermer</button>
+                <button 
+                    className="close-btn" 
+                    onClick={onClose}
+                    type="button"
+                >
+                    Fermer
+                </button>
             </div>
         </div>
     );

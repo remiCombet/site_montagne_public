@@ -3,6 +3,7 @@ import { useParams } from "react-router-dom";
 import Sidebar from "../components/admin/sidebar";
 import Stays from "../components/admin/stays";
 import Reservations from "../components/admin/reservations";
+import Article from "../components/autre/articles/article";
 import { Link } from "react-router-dom";
 
 import StayTest from "../components/autre/stayTest";
@@ -23,6 +24,8 @@ const AdminDashboard = () => {
                         onStaySelect={setSelectedStay}
                     />
                 );
+            case 'articles':
+                return <Article />;
             default:
                 return <div>Section inconnue</div>;
         }

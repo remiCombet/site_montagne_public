@@ -21,3 +21,16 @@ export function updateStayReceptionPoint(stayId, receptionPointId) {
     })
     .catch(err => err.response?.data || { status: 500, msg: "Erreur serveur" });
 };
+
+// Mettre à jour le statut d'un séjour
+export function updateStayStatus(stayId, status) {
+    return axios.put(
+        `${config.api_url}/api/stays/status/${stayId}`, 
+        { status }, 
+        authHeaders()
+    )
+    .then((res) => {
+        return res.data;
+    })
+    .catch(err => err.response?.data || { status: 500, msg: "Erreur serveur" });
+};

@@ -17,6 +17,8 @@ module.exports = (sequelize) => {
             model: 'articles',
             key: 'id',
           },
+          onDelete: 'CASCADE',
+          onUpdate: 'CASCADE' 
         },
         image_url: {
           type: DataTypes.STRING(512),
@@ -40,12 +42,17 @@ module.exports = (sequelize) => {
       {
         tableName: 'article_images',
         timestamps: false,
+        underscored: true
       }
     );
   
     ArticleImage.associate = (models) => {
-      // Define the relationship between ArticleImage and Article
-      ArticleImage.belongsTo(models.Article, { foreignKey: 'article_id' });
+      ArticleImage.belongsTo(models.Article, {
+        foreignKey: 'article_id',
+        as: 'article',
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE' 
+      });
     };
   
     return ArticleImage;

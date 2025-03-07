@@ -32,7 +32,10 @@ export const staySlice = createSlice({
         updateStayStore: (state, action) => {
             const index = state.stays.findIndex(stay => stay.id === action.payload.id);
             if (index !== -1) {
+                // Mise à jour de toutes les propriétés fournies
                 state.stays[index] = { ...state.stays[index], ...action.payload };
+                
+                // Mise à jour du séjour sélectionné si nécessaire
                 if (state.selectedStay?.id === action.payload.id) {
                     state.selectedStay = { ...state.selectedStay, ...action.payload };
                 }
@@ -125,7 +128,6 @@ export const staySlice = createSlice({
                     } else if (participant.status === 'en_attente') {
                         pendingParticipants += peopleCount;
                     }
-                    // Note: les demandes refusées ne sont pas comptées dans le total
                     
                     // Ajouter au total uniquement si la demande est validée ou en attente
                     if (participant.status !== 'refusé') {
@@ -140,20 +142,20 @@ export const staySlice = createSlice({
                     confirmedParticipants
                 };
         
-                // Détermine le statut du séjour en fonction des personnes confirmées
-                let updatedStatus = "en_attente_de_validation";
+                // Déterminer l'état de remplissage
+                let fillStatus = "en_attente_de_validation";
                 if (confirmedParticipants < stay.min_participant) {
-                    updatedStatus = "participants_insuffisants";
+                    fillStatus = "participants_insuffisants";
                 } else if (confirmedParticipants >= stay.max_participant) {
-                    updatedStatus = "complet";
+                    fillStatus = "complet";
                 }
-        
-                // Mise à jour du statut du séjour
-                state.stays[stayIndex].status = updatedStatus;
-        
-                // Mise à jour du statut du séjour sélectionné si nécessaire
+                
+                // Mise à jour de l'état de remplissage
+                state.stays[stayIndex].fill_status = fillStatus;
+                
+                // Mise à jour du séjour sélectionné si nécessaire
                 if (state.selectedStay?.id === stay_id) {
-                    state.selectedStay.status = updatedStatus;
+                    state.selectedStay.fill_status = fillStatus;
                 }
             }
         },

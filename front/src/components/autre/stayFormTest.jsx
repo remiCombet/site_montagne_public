@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { createStay } from '../../api/stay';
-import  { addStay } from '../../slices/staySlice'
+import { addStay } from '../../slices/staySlice';
 import { validateStayForm } from '../../utils/validateStayForm';
 import { getAllReceptionPoints } from '../../api/reception';
 import { parse, isValid, format } from 'date-fns';
+import ReceptionPointTest from './receptionPointTest'; // Importez votre composant
 
 const StayFormTest = ({ onClose }) => {
     const dispatch = useDispatch();
@@ -33,6 +34,9 @@ const StayFormTest = ({ onClose }) => {
     const [receptionPoints, setReceptionPoints] = useState([]);
     const [showPopup, setShowPopup] = useState(false);
 
+    // Pour rafraîchir la liste des points de réception après création d'un nouveau point
+    const [refreshReceptionPoints, setRefreshReceptionPoints] = useState(0);
+
     // Fonction pour valider et formater les dates
     const formatDate = (date) => {
         const parsedDate = parse(date, "yyyy-MM-dd'T'HH:mm", new Date()); // "yyyy-MM-dd'T'HH:mm" est le format de date venant de <input type="datetime-local" />
@@ -58,7 +62,16 @@ const StayFormTest = ({ onClose }) => {
         .catch((err) => {
             console.error('Erreur lors du chargement des points de réception:', err);
         })
-    }, []);
+    }, [refreshReceptionPoints]);
+
+    // Fonction pour mettre à jour le point de réception sélectionné
+    const handlePointChange = (newPointId) => {
+        setReceptionPoint(newPointId.toString());
+        // Rafraîchir la liste des points de réception
+        setRefreshReceptionPoints(prev => prev + 1);
+        // Fermer le popup
+        setShowPopup(false);
+    };
 
     // Validation de formulaire
     const onSubmitForm = async (e) => {
@@ -68,6 +81,11 @@ const StayFormTest = ({ onClose }) => {
  
         if (!technical_level || !physical_level) {
             setMessage({ type: "error", text: "Les niveaux physique et technique sont requis." });
+            return;
+        }
+
+        if (!receptionPoint) {
+            setMessage({ type: "error", text: "Veuillez sélectionner un point de réception." });
             return;
         }
 
@@ -107,8 +125,8 @@ const StayFormTest = ({ onClose }) => {
             max_participant: parseInt(max_participant),
             start_date,
             end_date,
-            reception_point_id: 1,
-            status: "participants_insuffisants",
+            reception_point_id: parseInt(receptionPoint) || 1,
+            status: "en_attente",
             user_id: userId
         };
 
@@ -137,120 +155,172 @@ const StayFormTest = ({ onClose }) => {
     };
 
     return (
-        <article>
+        <div className="popup-overlay">
+            <div className="popup-content">
+                <article>
+                    <form onSubmit={onSubmitForm}>
+                        <label>
+                            Titre
+                            <input
+                                type="text"
+                                value={title}
+                                onChange={(e) => setTitle(e.target.value)}
+                                required
+                            />
+                        </label>
+                        <label>
+                            Description
+                            <textarea
+                                value={description}
+                                onChange={(e) => setDescription(e.target.value)}
+                                required
+                            />
+                        </label>
+                        <label>
+                            Localisation
+                            <input
+                                type="text"
+                                value={location}
+                                onChange={(e) => setLocation(e.target.value)}
+                                required
+                            />
+                        </label>
+                        <label>
+                            Prix
+                            <input
+                                type="number"
+                                value={price}
+                                onChange={(e) => setPrice(e.target.value)}
+                                required
+                            />
+                        </label>
+                        <label>
+                            Niveau technique
+                            <select
+                                value={technical_level}
+                                onChange={(e) => setTechnical_level(e.target.value)}
+                                required
+                            >
+                                <option value="">Sélectionner un niveau</option>
+                                <option value="facile">Facile</option>
+                                <option value="modéré">Modéré</option>
+                                <option value="sportif">Sportif</option>
+                                <option value="difficile">Difficile</option>
+                                <option value="extreme">Extrême</option>
+                            </select>
+                        </label>
+                        <label>
+                            Niveau physique
+                            <select
+                                value={physical_level}
+                                onChange={(e) => setPhysical_level(e.target.value)}
+                                required
+                            >
+                                <option value="">Sélectionner un niveau</option>
+                                <option value="facile">Facile</option>
+                                <option value="modéré">Modéré</option>
+                                <option value="sportif">Sportif</option>
+                                <option value="difficile">Difficile</option>
+                                <option value="extreme">Extrême</option>
+                            </select>
+                        </label>
+                        <label>
+                            Participants min.
+                            <input
+                                type="number"
+                                value={min_participant}
+                                onChange={(e) => setMin_participant(e.target.value)}
+                                required
+                            />
+                        </label>
+                        <label>
+                            Participants max.
+                            <input
+                                type="number"
+                                value={max_participant}
+                                onChange={(e) => setMax_participant(e.target.value)}
+                                required
+                            />
+                        </label>
+                        <label>
+                            Date de début
+                            <input
+                                type="datetime-local"
+                                value={start_date}
+                                onChange={(e) => setStart_date(e.target.value)}
+                                required
+                            />
+                        </label>
+                        <label>
+                            Date de fin
+                            <input
+                                type="datetime-local"
+                                value={end_date}
+                                onChange={(e) => setEnd_date(e.target.value)}
+                                required
+                            />
+                        </label>
+                        
+                        <label>
+                            Point de réception
+                            <select
+                                value={receptionPoint}
+                                onChange={(e) => setReceptionPoint(e.target.value)}
+                                required
+                            >
+                                <option value="">Sélectionner un point de réception</option>
+                                {receptionPoints && receptionPoints.length > 0 ? (
+                                    receptionPoints.map(point => (
+                                        <option key={point.id} value={point.id}>
+                                            {point.location}
+                                        </option>
+                                    ))
+                                ) : (
+                                    <option value="" disabled>Chargement des points de réception...</option>
+                                )}
+                            </select>
+                            <button type="button" onClick={() => setShowPopup(true)}>
+                                Gérer les points de réception
+                            </button>
+                        </label>
 
-            <form onSubmit={onSubmitForm}>
-                <label>
-                    Titre
-                    <input
-                        type="text"
-                        value={title}
-                        onChange={(e) => setTitle(e.target.value)}
-                        required
-                    />
-                </label>
-                <label>
-                    Description
-                    <textarea
-                        value={description}
-                        onChange={(e) => setDescription(e.target.value)}
-                        required
-                    />
-                </label>
-                <label>
-                    Localisation
-                    <input
-                        type="text"
-                        value={location}
-                        onChange={(e) => setLocation(e.target.value)}
-                        required
-                    />
-                </label>
-                <label>
-                    Prix
-                    <input
-                        type="number"
-                        value={price}
-                        onChange={(e) => setPrice(e.target.value)}
-                        required
-                    />
-                </label>
-                <label>
-                    Niveau technique
-                    <select
-                        value={technical_level}
-                        onChange={(e) => setTechnical_level(e.target.value)}
-                        required
-                    >
-                        <option value="">Sélectionner un niveau</option>
-                        <option value="facile">Facile</option>
-                        <option value="modéré">Modéré</option>
-                        <option value="sportif">Sportif</option>
-                        <option value="difficile">Difficile</option>
-                        <option value="extreme">Extrême</option>
-                    </select>
-                </label>
-                <label>
-                    Niveau physique
-                    <select
-                        value={physical_level}
-                        onChange={(e) => setPhysical_level(e.target.value)}
-                        required
-                    >
-                        <option value="">Sélectionner un niveau</option>
-                        <option value="facile">Facile</option>
-                        <option value="modéré">Modéré</option>
-                        <option value="sportif">Sportif</option>
-                        <option value="difficile">Difficile</option>
-                        <option value="extreme">Extrême</option>
-                    </select>
-                </label>
-                <label>
-                    Participants min.
-                    <input
-                        type="number"
-                        value={min_participant}
-                        onChange={(e) => setMin_participant(e.target.value)}
-                        required
-                    />
-                </label>
-                <label>
-                    Participants max.
-                    <input
-                        type="number"
-                        value={max_participant}
-                        onChange={(e) => setMax_participant(e.target.value)}
-                        required
-                    />
-                </label>
-                <label>
-                    Date de début
-                    <input
-                        type="datetime-local"
-                        value={start_date}
-                        onChange={(e) => setStart_date(e.target.value)}
-                        required
-                    />
-                </label>
-                <label>
-                    Date de fin
-                    <input
-                        type="datetime-local"
-                        value={end_date}
-                        onChange={(e) => setEnd_date(e.target.value)}
-                        required
-                    />
-                </label>
-                
-                <button type="submit">Créer le séjour</button>
-            </form>
+                        <button type="submit">Créer le séjour</button>
+                    </form>
 
-            {message.text && (
-                <div className={`message ${message.type}`}>
-                    {typeof message.text === 'string' ? message.text : JSON.stringify(message.text)}
-                </div>
-            )}
-        </article>
+                    {message.text && (
+                        <div className={`message ${message.type}`}>
+                            {typeof message.text === 'string' ? message.text : JSON.stringify(message.text)}
+                        </div>
+                    )}
+
+                    {/* Bouton de fermeture du popup principal */}
+                    <div className="actions center">
+                        <button 
+                            className="close-btn" 
+                            onClick={onClose}
+                            type="button"
+                        >
+                            Fermer
+                        </button>
+                    </div>
+
+                    {/* Popup pour les points de réception */}
+                    {showPopup && (
+                        <div className="popup">
+                            <div className="popup-content">
+                                <h2>Gérer les points de réception</h2>
+                                <ReceptionPointTest 
+                                    stayId={null}  
+                                    currentReceptionPointId={receptionPoint || null}
+                                    onPointChange={handlePointChange}
+                                />
+                                <button onClick={() => setShowPopup(false)}>Fermer</button>
+                            </div>
+                        </div>
+                    )}
+                </article>
+            </div>
+        </div>
     );
 };
 
