@@ -1,7 +1,6 @@
 const express = require('express');
 const router = express.Router();
 const articleController = require('../controllers/articleController');
-const articleImageController = require('../controllers/articleImageController');
 const { validateArticle, validateImages } = require('../validators/articleValidator');
 const validate = require('../middlewares/validationMiddleware');
 const withAuth = require('../middlewares/withAuth');
@@ -15,7 +14,7 @@ router.get('/:id', articleController.getArticleById);
 router.post('/', 
     withAuth, 
     withAdminAuth, 
-    validateArticle, 
+    [validateArticle, validateImages],
     validate, 
     articleController.createArticle
 );
@@ -23,7 +22,7 @@ router.post('/',
 router.put('/:id', 
     withAuth, 
     withAdminAuth, 
-    validateArticle, 
+    [validateArticle, validateImages],
     validate, 
     articleController.updateArticle
 );

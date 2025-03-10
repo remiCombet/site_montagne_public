@@ -25,10 +25,10 @@ exports.validateArticle = [
 
     // Validation de la description courte
     body('shortDescription')
-        .optional()
         .trim()
-        .isLength({ max: 500 })
-        .withMessage('La description courte ne doit pas dépasser 500 caractères.')
+        .notEmpty().withMessage('La description courte est requise.')
+        .isLength({ min: 10, max: 500 })
+        .withMessage('La description courte doit contenir entre 10 et 500 caractères.')
         .escape(),
 
     // Validation du contenu
@@ -49,20 +49,25 @@ exports.validateArticle = [
 
     // Validation des dates
     body('startDate')
-        .optional()
-        .isISO8601().withMessage('La date de début doit être une date valide.')
+        .notEmpty().withMessage('La date de début est requise.')
+        .isISO8601().withMessage('La date de début doit être une date valide (YYYY-MM-DD).')
         .custom((value) => {
-            if (value && new Date(value) < new Date()) {
-                throw new Error('La date de début ne peut pas être dans le passé.');
-            }
+            if (!value) return true;
+            const startDate = new Date(value);
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
             return true;
         }),
 
     body('endDate')
-        .optional()
-        .isISO8601().withMessage('La date de fin doit être une date valide.')
+        .notEmpty().withMessage('La date de fin est requise.')
+        .isISO8601().withMessage('La date de fin doit être une date valide (YYYY-MM-DD).')
         .custom((value, { req }) => {
-            if (value && req.body.startDate && new Date(value) < new Date(req.body.startDate)) {
+            if (!value) return true;
+            const endDate = new Date(value);
+            const startDate = new Date(req.body.startDate);
+            
+            if (endDate < startDate) {
                 throw new Error('La date de fin doit être postérieure à la date de début.');
             }
             return true;
@@ -72,6 +77,7 @@ exports.validateArticle = [
     body('userId')
         .notEmpty().withMessage('L\'ID utilisateur est requis.')
         .isInt().withMessage('L\'ID utilisateur doit être un nombre entier.')
+        .toInt(), // Convertir en nombre
 ];
 
 // Validation spécifique pour les images
@@ -81,9 +87,10 @@ exports.validateImages = [
         .isInt().withMessage('L\'ID de l\'image doit être un nombre entier.'),
 
     body('image_alt')
-        .optional()
         .trim()
+        .escape()
         .isLength({ min: 3, max: 255 })
         .withMessage('La description de l\'image doit contenir entre 3 et 255 caractères.')
-        .escape()
+        .matches(/^[a-zA-Z0-9àáâãäçèéêëìíîïñòóôõöùúûüýÿÀÁÂÃÄÇÈÉÊËÌÍÎÏÑÒÓÔÕÖÙÚÛÜÝ\s.,!?-]+$/)
+        .withMessage('La description ne peut contenir que des lettres, chiffres et caractères spéciaux basiques.')
 ];

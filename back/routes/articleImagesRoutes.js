@@ -7,7 +7,7 @@ const validate = require('../middlewares/validationMiddleware');
 const withAuth = require('../middlewares/withAuth');
 const withAdminAuth = require('../middlewares/withAuthAdmin');
 
-// Routes pour les images avec validation
+// Routes pour ajouter des images
 router.post('/', 
     withAuth, 
     withAdminAuth,

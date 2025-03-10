@@ -6,7 +6,7 @@ const fs = require('fs').promises;
 // image par défaut
 const DEFAULT_IMAGE = 'https://res.cloudinary.com/dpa2kakxx/image/upload/v1741274688/site_montagne_v3/montagneDessin_vcxgkc.png';
 
-// Ajoutez cette fonction d'aide en haut du fichier
+// check pour vérifier si l'image existe déja dans cloudinary
 const checkImageExists = async (imageUrl) => {
     if (!imageUrl) return false;
     try {
@@ -18,9 +18,27 @@ const checkImageExists = async (imageUrl) => {
     }
 };
 
+// check pour vérivier que l'image que l'on ajoute n'est pas déjà utilisée dnas l'article
+const checkImageExistsInArticle = async (articleId, fileName) => {
+    try {
+        const existingImage = await ArticleImage.findOne({
+            where: {
+                article_id: articleId,
+                image_url: {
+                    [Op.like]: `%${fileName}%`
+                }
+            }
+        });
+        return existingImage ? true : false;
+    } catch (error) {
+        console.error('Erreur vérification image dans article:', error);
+        return false;
+    }
+};
+
 exports.createArticle = async (req, res) => {
     const { title, shortDescription, content, location, startDate, endDate, userId } = req.body;
-
+    console.log(req.body)
     try {
         // 1 - Vérifier si l'article existe déjà
         const existingArticle = await Article.findOne({
@@ -57,28 +75,33 @@ exports.createArticle = async (req, res) => {
                 try {
                     const safeName = CloudinaryService.generateSafeFileName(file.name);
                     
-                    // Vérifier le type de fichier
+                    // 1. Vérifier le type de fichier
                     if (!CloudinaryService.isAllowedImageType(file.mimetype)) {
                         throw new Error(`Type de fichier non autorisé: ${file.name}`);
                     }
 
-                    // Construire l'URL potentielle
+                    // 2. Vérifier si l'image existe déjà dans cet article
+                    const imageExistsInArticle = await checkImageExistsInArticle(article.id, safeName);
+                    if (imageExistsInArticle) {
+                        console.log(`L'image ${safeName} existe déjà dans cet article, on la saute`);
+                        continue;
+                    }
+
+                    // 3. Vérifier si l'image existe dans Cloudinary
                     const potentialUrl = `https://res.cloudinary.com/dpa2kakxx/image/upload/site_montagne_v3/articles/${safeName}`;
-                    
-                    // Vérifier si l'image existe déjà
                     const imageExists = await checkImageExists(potentialUrl);
                     let uploadResult;
 
                     if (imageExists) {
-                        // Utiliser l'URL existante
-                        console.log('Image déjà existante, réutilisation...');
+                        // Utiliser l'URL existante (réutilisation de l'image)
+                        console.log('Image déjà existante dans Cloudinary, réutilisation...');
                         uploadResult = { url: potentialUrl };
                     } else {
-                        // Upload nouvelle image
+                        // Upload nouvelle image dans Cloudinary
                         uploadResult = await CloudinaryService.uploadImage(file, 'articles', safeName);
                     }
 
-                    // Création de l'entrée en base de données
+                    // 4. Création de l'entrée en base de données
                     await ArticleImage.create({
                         article_id: article.id,
                         image_url: uploadResult.url,
@@ -91,11 +114,7 @@ exports.createArticle = async (req, res) => {
 
                     // Nettoyage du fichier temporaire
                     if (file.tempFilePath) {
-                        try {
-                            await fs.unlink(file.tempFilePath);
-                        } catch (unlinkError) {
-                            console.error('Erreur nettoyage fichier temporaire:', unlinkError);
-                        }
+                        await fs.unlink(file.tempFilePath);
                     }
                 } catch (error) {
                     console.error('Erreur traitement image:', error);
@@ -163,24 +182,26 @@ exports.getAllArticles = async (req, res) => {
         const formattedArticles = articles.map(article => {
             // trouver la miniature
             const thumbnail = article.images.find(img => img.thumbnail) || 
-            article.images[0] || 
-            { image_url: process.env.DEFAULT_IMAGE_URL };
-
-            // Préparation de la description
-            const description = article.short_description || 
-                        (article.content.length > 150 ? 
-                        `${article.content.slice(0, 150)}...` : 
-                        article.content);
+                article.images[0] || 
+                { image_url: process.env.DEFAULT_IMAGE_URL, image_alt: 'Image par défaut' };
 
             return {
                 id: article.id,
                 title: article.title,
-                description,
+                shortDescription: article.short_description,
+                content: article.content,
                 thumbnail: thumbnail.image_url,
+                thumbnailAlt: thumbnail.image_alt,
                 location: article.location,
                 startDate: article.start_date,
                 endDate: article.end_date,
-                createdAt: article.createdAt
+                createdAt: article.createdAt,
+                images: article.images.map(img => ({
+                    id: img.id,
+                    url: img.image_url,
+                    alt: img.image_alt,
+                    thumbnail: img.thumbnail
+                }))
             };
         });
 
@@ -192,7 +213,6 @@ exports.getAllArticles = async (req, res) => {
 
     } catch (error) {
         console.error('Erreur récupération articles:', error);
-
         return res.json({
             status: 500,
             message: 'Erreur lors de la récupération des articles',

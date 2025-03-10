@@ -157,3 +157,21 @@ export function getCategoryById(categoryId) {
         .then(res => res.data)
         .catch(err => err.response?.data || { status: 500, msg: "Erreur serveur" });
 }
+
+// articles
+// récupérer un article par son ID
+export function getArticleById(id) {
+    return axios.get(`${config.api_url}/api/articles/${id}`)
+        .then(res => res.data)
+        .catch(err => err.response?.data || { status: 500, msg: "Erreur serveur" });
+}
+
+// récupérer tous les articles
+export function getAllArticles() {
+    return axios.get(`${config.api_url}/api/articles`)
+        .then((res) => {
+            console.log(res.data)
+            return res.data
+    })
+        .catch(err => err.response?.data || { status: 500, msg: "Erreur serveur" });
+}

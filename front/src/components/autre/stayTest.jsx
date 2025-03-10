@@ -6,6 +6,9 @@ import StayFormTest from '../autre/StayFormTest';
 import ThemeManagement from '../autre/themeManagement';
 import HighlightManagement from '../autre/highlightManagment'; 
 
+// test a supprimer apres
+import CreateTest from './test/createTest';
+
 const StayTest = () => {
   const dispatch = useDispatch();
   const stays = useSelector((state) => state.stay.stays);
@@ -49,7 +52,10 @@ const StayTest = () => {
           <p>Aucun séjour disponible pour le moment.</p>
         )}
       </article>
-      
+
+      {/* test */}
+      {/* <CreateTest /> */}
+
     </section>
   );
 };
