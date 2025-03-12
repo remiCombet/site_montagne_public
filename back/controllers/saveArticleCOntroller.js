@@ -1,21 +1,44 @@
 const { Article, ArticleImage } = require('../models');
-const { Op } = require('sequelize');
 const CloudinaryService = require('../utils/upload');
-const ImageHelpers = require('../utils/imageHelpers');
 const { validationResult } = require('express-validator');
 const fs = require('fs').promises;
 
 // image par défaut
 const DEFAULT_IMAGE = 'https://res.cloudinary.com/dpa2kakxx/image/upload/v1741274688/site_montagne_v3/montagneDessin_vcxgkc.png';
 
+// check pour vérifier si l'image existe déja dans cloudinary
+const checkImageExists = async (imageUrl) => {
+    if (!imageUrl) return false;
+    try {
+        const publicId = CloudinaryService.getPublicIdFromUrl(imageUrl);
+        const result = await CloudinaryService.getImageInfo(publicId);
+        return !!result;
+    } catch (error) {
+        return false;
+    }
+};
+
+// check pour vérivier que l'image que l'on ajoute n'est pas déjà utilisée dnas l'article
+const checkImageExistsInArticle = async (articleId, fileName) => {
+    try {
+        const existingImage = await ArticleImage.findOne({
+            where: {
+                article_id: articleId,
+                image_url: {
+                    [Op.like]: `%${fileName}%`
+                }
+            }
+        });
+        return existingImage ? true : false;
+    } catch (error) {
+        console.error('Erreur vérification image dans article:', error);
+        return false;
+    }
+};
+
 exports.createArticle = async (req, res) => {
     const { title, shortDescription, content, location, startDate, endDate, userId } = req.body;
-    console.log(req.body);
-    let imageAlts = [];
-    if (req.body.imageAlts) {
-        imageAlts = Array.isArray(req.body.imageAlts) ? req.body.imageAlts : [req.body.imageAlts];
-    }
-    
+    console.log(req.body)
     try {
         // 1 - Vérifier si l'article existe déjà
         const existingArticle = await Article.findOne({
@@ -44,32 +67,11 @@ exports.createArticle = async (req, res) => {
         let isThumbnailSet = false;
         const imageUrls = [];
 
-        // Validation manuelle des descriptions d'images
-        if (imageAlts && imageAlts.length > 0) {
-            for (const alt of imageAlts) {
-                if (typeof alt !== 'string' || alt.trim().length < 3 || alt.trim().length > 255) {
-                    return res.status(400).json({
-                        status: 400,
-                        message: "Chaque description d'image doit contenir entre 3 et 255 caractères"
-                    });
-                }
-                
-                const regex = /^[a-zA-Z0-9àáâãäçèéêëìíîïñòóôõöùúûüýÿÀÁÂÃÄÇÈÉÊËÌÍÎÏÑÒÓÔÕÖÙÚÛÜÝ\s.,!?-]+$/;
-                if (!regex.test(alt.trim())) {
-                    return res.status(400).json({
-                        status: 400,
-                        message: "Les descriptions ne peuvent contenir que des lettres, chiffres et caractères spéciaux basiques"
-                    });
-                }
-            }
-        }
-
         // 3 - Traiter les images
         if (req.files?.images) {
             const images = Array.isArray(req.files.images) ? req.files.images : [req.files.images];
             
-            for (let index = 0; index < images.length; index++) {
-                const file = images[index];
+            for (const file of images) {
                 try {
                     const safeName = CloudinaryService.generateSafeFileName(file.name);
                     
@@ -78,20 +80,22 @@ exports.createArticle = async (req, res) => {
                         throw new Error(`Type de fichier non autorisé: ${file.name}`);
                     }
 
-                    // 2. Utiliser ImageHelpers pour vérifier si l'image existe déjà
-                    const imageResult = await ImageHelpers.checkAndGetExistingImage(article.id, safeName);
-                    
-                    if (imageResult.exists && imageResult.inArticle) {
+                    // 2. Vérifier si l'image existe déjà dans cet article
+                    const imageExistsInArticle = await checkImageExistsInArticle(article.id, safeName);
+                    if (imageExistsInArticle) {
                         console.log(`L'image ${safeName} existe déjà dans cet article, on la saute`);
                         continue;
                     }
 
+                    // 3. Vérifier si l'image existe dans Cloudinary
+                    const potentialUrl = `https://res.cloudinary.com/dpa2kakxx/image/upload/site_montagne_v3/articles/${safeName}`;
+                    const imageExists = await checkImageExists(potentialUrl);
                     let uploadResult;
-                    
-                    // Si l'image existe dans Cloudinary mais pas dans cet article
-                    if (imageResult.exists && !imageResult.inArticle && imageResult.url) {
+
+                    if (imageExists) {
+                        // Utiliser l'URL existante (réutilisation de l'image)
                         console.log('Image déjà existante dans Cloudinary, réutilisation...');
-                        uploadResult = { url: imageResult.url };
+                        uploadResult = { url: potentialUrl };
                     } else {
                         // Upload nouvelle image dans Cloudinary
                         uploadResult = await CloudinaryService.uploadImage(file, 'articles', safeName);
@@ -101,7 +105,7 @@ exports.createArticle = async (req, res) => {
                     await ArticleImage.create({
                         article_id: article.id,
                         image_url: uploadResult.url,
-                        image_alt: imageAlts[index] || safeName,
+                        image_alt: req.body.image_alt || safeName,
                         thumbnail: !isThumbnailSet ? 1 : 0,
                     });
 
@@ -119,14 +123,16 @@ exports.createArticle = async (req, res) => {
             }
         } else {
             // image par défaut si aucune n'est fournie
+            const defaultImage = 'https://res.cloudinary.com/dpa2kakxx/image/upload/v1741274688/site_montagne_v3/montagneDessin_vcxgkc.png';
+
             await ArticleImage.create({
                 article_id: article.id,
-                image_url: DEFAULT_IMAGE,
+                image_url: defaultImage,
                 image_alt: 'image par défaut',
                 thumbnail: 1
             });
 
-            imageUrls.push(DEFAULT_IMAGE);
+            imageUrls.push(defaultImage);
         }
 
         return res.json ({ 
@@ -274,7 +280,7 @@ exports.getArticleById = async (req, res) => {
 // Mise à jour d'un article
 exports.updateArticle = async (req, res) => {
     const { id } = req.params;
-    const { title, shortDescription, content, location, startDate, endDate } = req.body;
+    const { title, shortDescription, content, location, startDate, endDate, image_id } = req.body;
 
     try {
         const article = await Article.findByPk(id);
@@ -286,7 +292,7 @@ exports.updateArticle = async (req, res) => {
             });
         }
 
-        // Mise à jour des données textuelles uniquement
+        // Mise à jour de l'article
         await article.update({
             title,
             short_description: shortDescription,
@@ -295,6 +301,72 @@ exports.updateArticle = async (req, res) => {
             start_date: startDate,
             end_date: endDate
         });
+
+        // Traitement de la mise à jour d'image si présente
+        if (req.files?.images && image_id) {
+            const file = Array.isArray(req.files.images) ? req.files.images[0] : req.files.images;
+            
+            try {
+                // Récupérer l'image existante à modifier
+                const existingImage = await ArticleImage.findOne({
+                    where: { 
+                        id: image_id,
+                        article_id: article.id 
+                    }
+                });
+
+                if (!existingImage) {
+                    throw new Error("Image non trouvée");
+                }
+
+                // Vérifier si l'ancienne image est utilisée ailleurs
+                const oldImageUrl = existingImage.image_url;
+                const imageUsageCount = await ArticleImage.count({
+                    where: {
+                        image_url: oldImageUrl
+                    }
+                });
+
+                const safeName = CloudinaryService.generateSafeFileName(file.name);
+                
+                // Vérifier le type de fichier
+                if (!CloudinaryService.isAllowedImageType(file.mimetype)) {
+                    throw new Error(`Type de fichier non autorisé: ${file.name}`);
+                }
+
+                // Upload la nouvelle image
+                const uploadResult = await CloudinaryService.uploadImage(file, 'articles', safeName);
+
+                // Mise à jour de l'URL dans la base de données
+                await existingImage.update({
+                    image_url: uploadResult.url,
+                    image_alt: req.body.image_alt || safeName
+                });
+
+                // Si l'ancienne image n'est utilisée nulle part ailleurs, la supprimer de Cloudinary
+                if (imageUsageCount === 1 && oldImageUrl !== DEFAULT_IMAGE) {
+                    const oldPublicId = CloudinaryService.getPublicIdFromUrl(oldImageUrl);
+                    if (oldPublicId) {
+                        try {
+                            await CloudinaryService.deleteImage(oldPublicId);
+                            console.log(`Ancienne image supprimée de Cloudinary: ${oldPublicId}`);
+                        } catch (error) {
+                            console.error(`Erreur lors de la suppression de l'ancienne image ${oldPublicId}:`, error);
+                        }
+                    }
+                } else {
+                    console.log(`Image conservée dans Cloudinary (par défaut ou utilisée ailleurs)`);
+                }
+
+                // Nettoyage du fichier temporaire
+                if (file.tempFilePath) {
+                    await fs.unlink(file.tempFilePath);
+                }
+            } catch (error) {
+                console.error('Erreur traitement image:', error);
+                throw error;
+            }
+        }
 
         // Récupération de l'article mis à jour
         const updatedArticle = await Article.findOne({
@@ -306,9 +378,10 @@ exports.updateArticle = async (req, res) => {
             }]
         });
 
-        // Formatage de la réponse
+        // Séparation des images normales et de la miniature
         const thumbnail = updatedArticle.images.find(img => img.thumbnail);
-        
+        const otherImages = updatedArticle.images.filter(img => !img.thumbnail);
+
         return res.status(200).json({
             status: 200,
             message: "Article mis à jour avec succès",
@@ -321,11 +394,10 @@ exports.updateArticle = async (req, res) => {
                 start_date: updatedArticle.start_date,
                 end_date: updatedArticle.end_date,
                 thumbnail: thumbnail?.image_url || process.env.DEFAULT_IMAGE_URL,
-                images: updatedArticle.images.map(img => ({
+                images: otherImages.map(img => ({
                     id: img.id,
                     url: img.image_url,
-                    alt: img.image_alt,
-                    thumbnail: img.thumbnail
+                    alt: img.image_alt
                 }))
             }
         });
@@ -370,8 +442,12 @@ exports.deleteArticle = async (req, res) => {
                 continue;
             }
         
-            // Utiliser ImageHelpers pour vérifier l'utilisation de l'image
-            const imageUsageCount = await ImageHelpers.countImageUsage(image.image_url);
+            // Compter combien d'articles utilisent cette image
+            const imageUsageCount = await ArticleImage.count({
+                where: {
+                    image_url: image.image_url
+                }
+            });
         
             // Si l'image n'est utilisée que dans cet article, la supprimer de Cloudinary
             if (imageUsageCount === 1) {

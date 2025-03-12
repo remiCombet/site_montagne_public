@@ -62,6 +62,7 @@ const ArticleForm = ({ article, onClose, onSuccess }) => {
         });
     };
 
+    // Modifier la fonction handleSubmit pour ne pas envoyer d'images lors d'une mise à jour
     const handleSubmit = (e) => {
         e.preventDefault();
         setMessage({ type: "", text: "" });
@@ -76,19 +77,33 @@ const ArticleForm = ({ article, onClose, onSuccess }) => {
             { name: "endDate", value: formData.endDate }
         ];
     
-        const errors = validateArticle(articleFields, images, imageAlts);
-        if (errors.length > 0) {
-            setMessage({ type: "error", text: errors.join(", ") });
-            return;
+        // Si c'est une création, valider les images
+        if (!article) {
+            const errors = validateArticle(articleFields, images, imageAlts);
+            if (errors.length > 0) {
+                setMessage({ type: "error", text: errors.join(", ") });
+                return;
+            }
+        } else {
+            // En mode modification, valider uniquement les champs obligatoires
+            const errors = validateArticle(articleFields, [], []);
+            if (errors.length > 0) {
+                setMessage({ type: "error", text: errors.join(", ") });
+                return;
+            }
         }
     
         // Préparation des données pour l'API
         const articleData = {
             ...formData,
-            images,
-            imageAlts,
             userId: user.id
         };
+    
+        // N'ajouter les images que pour un nouvel article
+        if (!article) {
+            articleData.images = images;
+            articleData.imageAlts = imageAlts;
+        }
     
         // Appel API avec then/catch
         const apiCall = article
@@ -211,38 +226,48 @@ const ArticleForm = ({ article, onClose, onSuccess }) => {
                             </label>
                         </div>
 
-                        <div className="image-inputs">
-                            <label>
-                                Images
-                                <input
-                                    type="file"
-                                    multiple
-                                    accept="image/*"
-                                    onChange={handleImageChange}
-                                />
-                            </label>
-                            
-                            {/* Champs pour les descriptions d'images */}
-                            {images.length > 0 && (
-                                <div className="image-alts">
-                                    <h4>Descriptions des images</h4>
-                                    {images.map((file, index) => (
-                                        <div key={index} className="image-alt-input">
-                                            <label>
-                                                Description pour : {file.name}
-                                                <br />
-                                                <input
-                                                    type="text"
-                                                    value={imageAlts[index]}
-                                                    onChange={(e) => handleAltChange(index, e.target.value)}
-                                                    placeholder="Description de l'image pour l'accessibilité"
-                                                />
-                                            </label>
-                                        </div>
-                                    ))}
-                                </div>
-                            )}
-                        </div>
+                        {/* Section d'ajout d'images uniquement visible lors de la création */}
+                        {!article && (
+                            <div className="image-inputs">
+                                <label>
+                                    Images
+                                    <input
+                                        type="file"
+                                        multiple
+                                        accept="image/*"
+                                        onChange={handleImageChange}
+                                    />
+                                </label>
+                                
+                                {/* Champs pour les descriptions d'images */}
+                                {images.length > 0 && (
+                                    <div className="image-alts">
+                                        <h4>Descriptions des images</h4>
+                                        {images.map((file, index) => (
+                                            <div key={index} className="image-alt-input">
+                                                <label>
+                                                    Description pour : {file.name}
+                                                    <br />
+                                                    <input
+                                                        type="text"
+                                                        value={imageAlts[index]}
+                                                        onChange={(e) => handleAltChange(index, e.target.value)}
+                                                        placeholder="Description de l'image pour l'accessibilité"
+                                                    />
+                                                </label>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+                        )}
+
+                        {/* Vous pourriez aussi ajouter ici un message informatif en mode mise à jour */}
+                        {article && (
+                            <div className="info-message">
+                                <p>Pour gérer les images de cet article, utilisez l'option "Gérer les images" après la sauvegarde.</p>
+                            </div>
+                        )}
 
                         <div className="actions center">
                             <button 

@@ -1,7 +1,5 @@
 const { Article, ArticleImage } = require('../models');
-const { Op } = require('sequelize');
 const CloudinaryService = require('../utils/upload');
-const ImageHelpers = require('../utils/imageHelpers');
 const fs = require('fs').promises;
 
 const DEFAULT_IMAGE = 'https://res.cloudinary.com/dpa2kakxx/image/upload/v1741274688/site_montagne_v3/montagneDessin_vcxgkc.png';
@@ -28,28 +26,7 @@ exports.addImages = async (req, res) => {
 
         const images = Array.isArray(req.files.images) ? req.files.images : [req.files.images];
         const uploadedImages = [];
-        
-        // Récupérer les descriptions d'images (compatibilité multiple)
-        // Cette approche permet de recevoir soit un tableau, soit une valeur unique
-        let imageAlts = [];
-        
-        // Si on reçoit un tableau d'alt texts
-        if (Array.isArray(req.body.image_alt)) {
-            imageAlts = req.body.image_alt;
-        } 
-        // Si on reçoit un tableau mais sous forme de string JSON
-        else if (typeof req.body.image_alt === 'string' && req.body.image_alt.startsWith('[')) {
-            try {
-                imageAlts = JSON.parse(req.body.image_alt);
-            } catch(e) {
-                imageAlts = [req.body.image_alt];
-            }
-        } 
-        // Si on reçoit une seule description
-        else if (req.body.image_alt) {
-            imageAlts = [req.body.image_alt];
-        }
-        
+
         // Vérifier s'il existe déjà une miniature
         const existingThumbnail = await ArticleImage.findOne({
             where: { 
@@ -58,8 +35,7 @@ exports.addImages = async (req, res) => {
             }
         });
 
-        for (let i = 0; i < images.length; i++) {
-            const file = images[i];
+        for (const file of images) {
             try {
                 // Vérification du type de fichier
                 if (!CloudinaryService.isAllowedImageType(file.mimetype)) {
@@ -69,34 +45,15 @@ exports.addImages = async (req, res) => {
 
                 const safeName = CloudinaryService.generateSafeFileName(file.name);
                 
-                // Vérifier si l'image existe déjà
-                const imageResult = await ImageHelpers.checkAndGetExistingImage(articleId, safeName);
-                
-                if (imageResult.exists && imageResult.inArticle) {
-                    console.warn(`L'image ${safeName} existe déjà dans cet article, on la saute`);
-                    continue;
-                }
-                
-                let uploadResult;
-                
-                // Si l'image existe dans Cloudinary mais pas dans cet article
-                if (imageResult.exists && !imageResult.inArticle && imageResult.url) {
-                    console.log('Image déjà existante dans Cloudinary, réutilisation...');
-                    uploadResult = { url: imageResult.url };
-                } else {
-                    // Upload nouvelle image dans Cloudinary
-                    uploadResult = await CloudinaryService.uploadImage(file, 'articles', safeName);
-                    console.log('Upload réussi:', uploadResult);
-                }
-
-                // Description de l'image - utiliser l'index correspondant ou un fallback
-                const imageAlt = i < imageAlts.length ? imageAlts[i] : safeName;
+                // Upload direct de l'image
+                const uploadResult = await CloudinaryService.uploadImage(file, 'articles', safeName);
+                console.log('Upload réussi:', uploadResult);
 
                 // Création de l'entrée dans la base de données
                 const newImage = await ArticleImage.create({
                     article_id: articleId,
                     image_url: uploadResult.url,
-                    image_alt: imageAlt,
+                    image_alt: req.body.image_alt || safeName,
                     thumbnail: !existingThumbnail && uploadedImages.length === 0
                 });
 
@@ -161,8 +118,12 @@ exports.deleteImage = async (req, res) => {
             });
         }
 
-        // Utiliser la fonction du module ImageHelpers pour vérifier l'usage
-        const imageUsageCount = await ImageHelpers.countImageUsage(image.image_url);
+        // Vérifier si l'image est utilisée ailleurs
+        const imageUsageCount = await ArticleImage.count({
+            where: {
+                image_url: image.image_url
+            }
+        });
 
         // Si l'image n'est utilisée que dans cet article, la supprimer de Cloudinary
         if (imageUsageCount === 1) {
@@ -208,7 +169,7 @@ exports.deleteImage = async (req, res) => {
 
 exports.updateImage = async (req, res) => {
     const { id: articleId, imageId } = req.params;
-    const { image_alt, thumbnail } = req.body;
+    const { image_alt } = req.body;
 
     try {
         const image = await ArticleImage.findOne({
@@ -232,42 +193,6 @@ exports.updateImage = async (req, res) => {
             updates.image_alt = image_alt;
         }
 
-        // Gestion du paramètre thumbnail
-        if (thumbnail !== undefined) {
-            // Si on définit cette image comme miniature
-            if (thumbnail === true || thumbnail === '1' || thumbnail === 1) {
-                // D'abord, réinitialiser toutes les autres miniatures de cet article
-                await ArticleImage.update(
-                    { thumbnail: false },
-                    { 
-                        where: { 
-                            article_id: articleId,
-                            id: { [Op.ne]: imageId }
-                        } 
-                    }
-                );
-                updates.thumbnail = true;
-            } else {
-                // Si on retire le statut de miniature, vérifier qu'il en reste une
-                const miniatureCount = await ArticleImage.count({
-                    where: { 
-                        article_id: articleId,
-                        thumbnail: true
-                    }
-                });
-                
-                // Ne pas permettre de retirer la dernière miniature
-                if (miniatureCount <= 1 && image.thumbnail) {
-                    return res.status(400).json({
-                        status: 400,
-                        message: "Impossible de retirer le statut d'image principale de la dernière miniature"
-                    });
-                }
-                
-                updates.thumbnail = false;
-            }
-        }
-
         // Mise à jour de l'image si fournie
         if (req.files?.image) {
             const file = req.files.image;
@@ -279,31 +204,20 @@ exports.updateImage = async (req, res) => {
                 });
             }
 
-            const safeName = CloudinaryService.generateSafeFileName(file.name);
-            
-            // Vérifier si l'image existe déjà (en excluant l'image en cours de modification)
-            const imageExistsInArticle = await ImageHelpers.checkImageExistsInArticle(
-                articleId, 
-                safeName, 
-                imageId // Exclure cette image de la vérification
-            );
-            
-            if (imageExistsInArticle) {
-                return res.status(400).json({
-                    status: 400,
-                    message: "Une image similaire existe déjà dans cet article"
-                });
-            }
-
             // Vérifier si l'ancienne image est utilisée ailleurs
             const oldImageUrl = image.image_url;
-            const imageUsageCount = await ImageHelpers.countImageUsage(oldImageUrl, imageId);
+            const imageUsageCount = await ArticleImage.count({
+                where: {
+                    image_url: oldImageUrl
+                }
+            });
 
+            const safeName = CloudinaryService.generateSafeFileName(file.name);
             const uploadResult = await CloudinaryService.uploadImage(file, 'articles', safeName);
             updates.image_url = uploadResult.url;
 
             // Supprimer l'ancienne image si elle n'est pas utilisée ailleurs et n'est pas l'image par défaut
-            if (imageUsageCount === 0 && oldImageUrl !== DEFAULT_IMAGE) {
+            if (imageUsageCount === 1 && oldImageUrl !== DEFAULT_IMAGE) {
                 const oldPublicId = CloudinaryService.getPublicIdFromUrl(oldImageUrl);
                 if (oldPublicId) {
                     try {

@@ -14,7 +14,7 @@ router.get('/:id', articleController.getArticleById);
 router.post('/', 
     withAuth, 
     withAdminAuth, 
-    [validateArticle, validateImages],
+    validateArticle,
     validate, 
     articleController.createArticle
 );
@@ -22,7 +22,7 @@ router.post('/',
 router.put('/:id', 
     withAuth, 
     withAdminAuth, 
-    [validateArticle, validateImages],
+    validateArticle,
     validate, 
     articleController.updateArticle
 );

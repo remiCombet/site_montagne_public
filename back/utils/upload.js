@@ -9,16 +9,14 @@ class CloudinaryService {
     // fonction d'upload sur cloudinary
     static async uploadImage(file, folder, filename) {
         try {
-            // S'assurer que le dossier est correct pour les articles
             const uploadFolder = folder === 'articles' ? 'articles' : 'stays';
             
             const result = await cloudinary.uploader.upload(file.tempFilePath, {
                 folder: `site_montagne_v3/${uploadFolder}`,
-                public_id: filename.replace(/\.[^/.]+$/, ""), // Retire l'extension
+                public_id: filename.replace(/\.[^/.]+$/, ""),
                 resource_type: 'auto'
             });
 
-            console.log('Upload effectué dans:', uploadFolder); // Pour debug
             return { url: result.secure_url };
         } catch (error) {
             throw new Error(`Erreur upload Cloudinary: ${error.message}`);
@@ -52,12 +50,12 @@ class CloudinaryService {
     // fonction de récupération de l'url d'une image sur cloudinary
     static getPublicIdFromUrl(url) {
         try {
-            // Regex améliorée pour gérer les deux types de dossiers
+            // Regex pour gérer les deux types de dossiers
             const regex = /site_montagne_v3\/(articles|stays)\/([^/]+)\.(?:jpg|jpeg|png|gif|webp)$/i;
             const match = url.match(regex);
             if (!match) return null;
             
-            // Retourner le chemin complet incluant le dossier
+            // On retourne le chemin complet incluant le dossier
             return `site_montagne_v3/${match[1]}/${match[2]}`;
         } catch (error) {
             console.error('Erreur extraction publicId:', error);

@@ -80,10 +80,43 @@ exports.validateArticle = [
         .toInt(), // Convertir en nombre
 ];
 
-// Validation spécifique pour les images
+// Validation spécifique pour les images (ajout multiple)
 exports.validateImages = [
+    param('id')
+        .isInt().withMessage('L\'ID de l\'article doit être un nombre entier.'),
+
+    // Adapté pour gérer à la fois une seule valeur et un tableau
+    body('image_alt')
+        .custom((value) => {
+            // Si c'est un tableau, chaque élément doit être valide
+            if (Array.isArray(value)) {
+                const invalidAlts = value.filter(alt => 
+                    !alt || typeof alt !== 'string' || alt.trim().length < 3 || alt.trim().length > 255);
+                
+                if (invalidAlts.length > 0) {
+                    throw new Error('Toutes les descriptions d\'images doivent contenir entre 3 et 255 caractères.');
+                }
+                return true;
+            }
+            
+            // Si c'est une string, elle doit être valide
+            if (typeof value === 'string') {
+                if (value.trim().length < 3 || value.trim().length > 255) {
+                    throw new Error('La description de l\'image doit contenir entre 3 et 255 caractères.');
+                }
+                return true;
+            }
+            
+            // Si aucun alt n'est fourni, c'est OK (on utilisera le nom de fichier)
+            if (value === undefined) return true;
+            
+            throw new Error('Format invalide pour les descriptions d\'images.');
+        })
+];
+
+// Validation pour la mise à jour du alt text
+exports.validateImageAlt = [
     param('imageId')
-        .optional({ checkFalsy: true })
         .isInt().withMessage('L\'ID de l\'image doit être un nombre entier.'),
 
     body('image_alt')
@@ -93,4 +126,14 @@ exports.validateImages = [
         .withMessage('La description de l\'image doit contenir entre 3 et 255 caractères.')
         .matches(/^[a-zA-Z0-9àáâãäçèéêëìíîïñòóôõöùúûüýÿÀÁÂÃÄÇÈÉÊËÌÍÎÏÑÒÓÔÕÖÙÚÛÜÝ\s.,!?-]+$/)
         .withMessage('La description ne peut contenir que des lettres, chiffres et caractères spéciaux basiques.')
+];
+
+// Validation pour la mise à jour du statut de miniature
+exports.validateThumbnail = [
+    param('imageId')
+        .isInt().withMessage('L\'ID de l\'image doit être un nombre entier.'),
+
+    body('thumbnail')
+        .isIn(['0', '1', 0, 1, true, false, 'true', 'false'])
+        .withMessage('La valeur de thumbnail doit être 0, 1, true ou false.')
 ];

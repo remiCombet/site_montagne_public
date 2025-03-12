@@ -32,7 +32,7 @@ const createArticleFormData = (articleData) => {
     if (articleData.images) {
         articleData.images.forEach((image, index) => {
             formData.append('images', image);
-            formData.append('image_alt', articleData.imageAlts[index] || '');
+            formData.append('imageAlts', articleData.imageAlts[index] || '');
         });
     }
 

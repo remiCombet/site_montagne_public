@@ -1,14 +1,20 @@
 import { useState, useEffect } from 'react';
-import { updateImage, deleteImage, addImages } from '../../../api/admin/articleImage';
+import { addImages, deleteImage, updateImage } from '../../../api/admin/articleImage';
 import { extractFileNameFromCloudinaryUrl } from '../../../utils/extractImageName';
 
 const ArticleImageManager = ({ article, onClose, onUpdate }) => {
-    // États initiaux
-    const [images, setImages] = useState(article.images || []);
+    // États existants
+    const [images, setImages] = useState(article?.images || []);
     const [newImages, setNewImages] = useState([]);
     const [newImageAlts, setNewImageAlts] = useState([]);
     const [message, setMessage] = useState({ type: '', text: '' });
     const [loading, setLoading] = useState(false);
+    
+    // Nouveaux états pour l'édition d'image
+    const [editMode, setEditMode] = useState(false);
+    const [selectedImage, setSelectedImage] = useState(null);
+    const [editingImageFile, setEditingImageFile] = useState(null);
+    const [editingAlt, setEditingAlt] = useState('');
 
     // Gestion de l'ajout de nouvelles images
     const handleImageChange = (e) => {
@@ -26,35 +32,27 @@ const ArticleImageManager = ({ article, onClose, onUpdate }) => {
         });
     };
 
-    // Modification d'une image existante
-    const handleUpdateImage = (imageId, newAlt) => {
-        setLoading(true);
-        updateImage(article.id, imageId, { image_alt: newAlt })
-            .then(response => {
-                if (response.status === 200) {
-                    setImages(prev => prev.map(img => 
-                        img.id === imageId ? { ...img, alt: newAlt } : img
-                    ));
-                    setMessage({ type: 'success', text: 'Image mise à jour avec succès' });
-                    onUpdate && onUpdate();
-                }
-            })
-            .catch(err => {
-                setMessage({ type: 'error', text: 'Erreur lors de la mise à jour de l\'image' });
-                console.error('Erreur mise à jour:', err);
-            })
-            .then(() => setLoading(false));
-    };
-
     // Suppression d'une image
     const handleDeleteImage = (imageId) => {
+        console.log("ID de l'image à supprimer:", imageId);
         if (!window.confirm('Êtes-vous sûr de vouloir supprimer cette image ?')) return;
+
+        // Vérifier si l'image à supprimer était une miniature
+        const isImageThumbnail = images.find(img => img.id === imageId)?.thumbnail === 1;
 
         setLoading(true);
         deleteImage(article.id, imageId)
             .then(response => {
                 if (response.status === 200) {
-                    setImages(prev => prev.filter(img => img.id !== imageId));
+                    // Filtrer l'image supprimée
+                    const updatedImages = images.filter(img => img.id !== imageId);
+                    
+                    // Si c'était une miniature et qu'il reste des images, définir la première comme nouvelle miniature
+                    if (isImageThumbnail && updatedImages.length > 0) {
+                        updatedImages[0].thumbnail = 1;
+                    }
+                    
+                    setImages(updatedImages);
                     setMessage({ type: 'success', text: 'Image supprimée avec succès' });
                     onUpdate && onUpdate();
                 }
@@ -63,7 +61,7 @@ const ArticleImageManager = ({ article, onClose, onUpdate }) => {
                 setMessage({ type: 'error', text: 'Erreur lors de la suppression de l\'image' });
                 console.error('Erreur suppression:', err);
             })
-            .then(() => setLoading(false));
+            .finally(() => setLoading(false));
     };
 
     // Ajout de nouvelles images
@@ -112,8 +110,8 @@ const ArticleImageManager = ({ article, onClose, onUpdate }) => {
         const formData = new FormData();
         
         newImages.forEach((image, index) => {
-            formData.append('images', image);
-            formData.append('imageAlts', newImageAlts[index].trim());
+            formData.append('fichierImage', image);
+            formData.append('descriptionImage', newImageAlts[index].trim());
         });
 
         addImages(article.id, formData)
@@ -156,6 +154,136 @@ const ArticleImageManager = ({ article, onClose, onUpdate }) => {
             .finally(() => setLoading(false));
     };
 
+    // Nouvelle fonction : définir une image comme miniature principale
+    const handleSetAsThumbnail = (imageId) => {
+        setLoading(true);
+        
+        updateImage(article.id, imageId, { estPrincipale: true })
+            .then(response => {
+                if (response.status === 200) {
+                    // Mettre à jour les images (une seule peut être miniature)
+                    setImages(prev => prev.map(img => ({
+                        ...img,
+                        thumbnail: img.id === imageId ? 1 : 0
+                    })));
+                    
+                    setMessage({ type: 'success', text: 'Image définie comme principale' });
+                    onUpdate && onUpdate();
+                }
+            })
+            .catch(err => {
+                console.error('Erreur définition miniature:', err);
+                setMessage({ 
+                    type: 'error', 
+                    text: 'Erreur lors de la définition de l\'image principale'
+                });
+            })
+            .finally(() => setLoading(false));
+    };
+
+    // Nouvelle fonction : sélectionner une image pour modification
+    const handleSelectImageForEdit = (image) => {
+        setSelectedImage(image);
+        setEditingAlt(image.alt);
+        setEditingImageFile(null);
+        setEditMode(true);
+    };
+
+    // Nouvelle fonction : annuler l'édition
+    const handleCancelEdit = () => {
+        setEditMode(false);
+        setSelectedImage(null);
+        setEditingAlt('');
+        setEditingImageFile(null);
+    };
+
+    // Nouvelle fonction : gérer le changement de fichier image pendant l'édition
+    const handleEditImageChange = (e) => {
+        if (e.target.files && e.target.files[0]) {
+            setEditingImageFile(e.target.files[0]);
+        }
+    };
+
+    // Nouvelle fonction : soumettre les modifications de l'image
+    const handleSubmitImageEdit = (e) => {
+        e.preventDefault();
+        
+        if (!selectedImage) return;
+        
+        // Vérifier que le texte alt a au moins 3 caractères
+        if (editingAlt.trim().length < 3) {
+            setMessage({ type: 'error', text: 'La description doit contenir au moins 3 caractères' });
+            return;
+        }
+
+        if (editingImageFile) {
+            // Vérifier les doublons (sauf avec l'image actuelle)
+            const newFileName = editingImageFile.name
+                .split('.')[0]
+                .replace(/[-_]/g, '')
+                .toLowerCase();
+            
+            const duplicateImage = images.find(existingImage => {
+                // Ne pas comparer avec l'image en cours d'édition
+                if (existingImage.id === selectedImage.id) return false;
+                
+                const existingFileName = extractFileNameFromCloudinaryUrl(existingImage.url)
+                    .replace(/[-_]/g, '')
+                    .toLowerCase();
+                
+                return existingFileName.includes(newFileName) || newFileName.includes(existingFileName);
+            });
+            
+            if (duplicateImage) {
+                setMessage({
+                    type: 'error',
+                    text: `Cette image semble déjà présente dans l'article`
+                });
+                return;
+            }
+        }
+
+        setLoading(true);
+        
+        // Préparation des données
+        const updates = {};
+        if (editingImageFile) {
+            updates.fichierImage = editingImageFile;
+        }
+        updates.descriptionImage = editingAlt.trim();
+
+        updateImage(article.id, selectedImage.id, updates)
+            .then(response => {
+                if (response.status === 200) {
+                    // Mettre à jour l'image dans l'état local
+                    setImages(prevImages => 
+                        prevImages.map(img => 
+                            img.id === selectedImage.id 
+                                ? { 
+                                    ...img, 
+                                    url: response.image?.url || img.url,
+                                    alt: response.image?.alt || editingAlt
+                                } 
+                                : img
+                        )
+                    );
+                    
+                    setMessage({ type: 'success', text: 'Image mise à jour avec succès' });
+                    handleCancelEdit();
+                    onUpdate && onUpdate();
+                } else {
+                    setMessage({ type: 'error', text: response.message || 'Erreur lors de la mise à jour' });
+                }
+            })
+            .catch(error => {
+                console.error("Erreur lors de la mise à jour de l'image:", error);
+                setMessage({ type: 'error', text: 'Erreur lors de la mise à jour de l\'image' });
+            })
+            .finally(() => {
+                setLoading(false);
+            });
+    };
+
     // Effet pour gérer l'affichage temporaire des messages
     useEffect(() => {
         let timeoutId;
@@ -168,114 +296,198 @@ const ArticleImageManager = ({ article, onClose, onUpdate }) => {
     }, [message.text]);
 
     return (
-        <div className="article-image-manager fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
-            <div className="bg-white rounded-lg p-6 w-full max-w-3xl max-h-[90vh] overflow-y-auto">
-                <h3 className="text-xl font-bold mb-4">Gestion des images</h3>
+        <div className="article-image-manager">
+            <div className="article-image-manager__content">
+                <h3 className="article-image-manager__title">Gestion des images</h3>
 
                 {message.text && (
-                    <div className={`p-3 mb-4 rounded ${
-                        message.type === 'error' ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'
+                    <div className={`article-image-manager__message ${
+                        message.type === 'error' ? 'article-image-manager__message--error' : 'article-image-manager__message--success'
                     }`}>
                         {message.text}
                     </div>
                 )}
 
-                {/* Images existantes */}
-                <div className="mb-6">
-                    <h4 className="font-semibold mb-2">
-                        Images actuelles ({images.length})
-                        {images.find(img => img.thumbnail) && " (✓ miniature)"}
-                    </h4>
-                    <div className="article-image-manager__grid">
-                        {images.map((image, index) => (
-                            <div 
-                                key={`${image.id}-${index}`}
-                                className="article-image-manager__preview"
-                            >
-                                <div className="article-image-manager__image-container">
+                {/* Mode édition */}
+                {editMode && selectedImage && (
+                    <div className="article-image-manager__edit-panel">
+                        <h4 className="article-image-manager__subtitle">Modifier l'image</h4>
+                        <form onSubmit={handleSubmitImageEdit} className="article-image-manager__edit-form">
+                            <div className="article-image-manager__edit-layout">
+                                <div className="article-image-manager__edit-image-container">
                                     <img 
-                                        src={image.url} 
-                                        alt={image.alt} 
-                                        className={`article-image-manager__image ${
-                                            image.thumbnail ? 'border-2 border-green-500' : ''
-                                        }`}
+                                        src={editingImageFile ? URL.createObjectURL(editingImageFile) : selectedImage.url} 
+                                        alt={editingAlt} 
+                                        className="article-image-manager__edit-image"
                                     />
-                                    {image.thumbnail && (
-                                        <span className="absolute top-0 right-0 bg-green-500 text-white px-2 py-1 text-xs rounded">
-                                            Miniature
-                                        </span>
-                                    )}
+                                    <input
+                                        type="file"
+                                        accept="image/jpeg,image/png,image/webp"
+                                        onChange={handleEditImageChange}
+                                        className="article-image-manager__file-input"
+                                    />
                                 </div>
-                                <input
-                                    type="text"
-                                    value={image.alt}
-                                    onChange={(e) => handleUpdateImage(image.id, e.target.value)}
-                                    className="w-full p-2 border rounded mb-2"
-                                    placeholder="Description de l'image"
-                                />
+                                
+                                <div className="article-image-manager__edit-details">
+                                    <div className="article-image-manager__form-group">
+                                        <label className="article-image-manager__label">Description de l'image : </label>
+                                        <input
+                                            type="text"
+                                            value={editingAlt}
+                                            onChange={(e) => setEditingAlt(e.target.value)}
+                                            className={`article-image-manager__input ${
+                                                editingAlt.trim().length < 3 ? 'article-image-manager__input--error' : ''
+                                            }`}
+                                            placeholder="Description de l'image (minimum 3 caractères)"
+                                            minLength={3}
+                                        />
+                                        {editingAlt.trim().length < 3 && (
+                                            <p className="article-image-manager__error-text">
+                                                La description doit contenir au moins 3 caractères
+                                            </p>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div className="article-image-manager__actions">
                                 <button
-                                    onClick={() => handleDeleteImage(image.id)}
-                                    disabled={loading}
-                                    className="bg-red-500 text-white px-3 py-1 rounded w-full disabled:opacity-50"
+                                    type="button"
+                                    onClick={handleCancelEdit}
+                                    className="article-image-manager__button article-image-manager__button--cancel"
                                 >
-                                    Supprimer
+                                    Annuler
+                                </button>
+                                <button
+                                    type="submit"
+                                    disabled={loading || (editingAlt.trim().length < 3)}
+                                    className="article-image-manager__button article-image-manager__button--save"
+                                >
+                                    {loading ? 'Mise à jour...' : 'Enregistrer les modifications'}
                                 </button>
                             </div>
-                        ))}
+                        </form>
                     </div>
-                </div>
+                )}
 
-                {/* Ajout de nouvelles images */}
-                <div className="mb-6">
-                    <h4 className="font-semibold mb-2">Ajouter des images</h4>
-                    <input
-                        type="file"
-                        multiple
-                        accept="image/jpeg,image/png,image/webp"
-                        onChange={handleImageChange}
-                        className="mb-4"
-                    />
-                    
-                    {newImages.length > 0 && (
+                {/* Images existantes (visibles uniquement hors mode édition) */}
+                {!editMode && (
+                    <div className="article-image-manager__section">
+                        <h4 className="article-image-manager__subtitle">
+                            Images actuelles ({images.length})
+                            {images.find(img => img.thumbnail === 1) && " (✓ miniature définie)"}
+                        </h4>
                         <div className="article-image-manager__grid">
-                            {newImages.map((image, index) => (
-                                <div key={index} className="article-image-manager__preview">
+                            {images.map((image, index) => (
+                                <div 
+                                    key={`${image.id}-${index}`}
+                                    className="article-image-manager__preview"
+                                >
                                     <div className="article-image-manager__image-container">
-                                        <img
-                                            src={URL.createObjectURL(image)}
-                                            alt=""
-                                            className="article-image-manager__image"
+                                        <img 
+                                            src={image.url} 
+                                            alt={image.alt} 
+                                            className={`article-image-manager__image ${
+                                                image.thumbnail === 1 ? 'article-image-manager__image--thumbnail' : ''
+                                            }`}
                                         />
+                                        
+                                        {image.thumbnail === 1 && (
+                                            <div className="article-image-manager__badge">
+                                                Image principale
+                                            </div>
+                                        )}
                                     </div>
-                                    <input
-                                        type="text"
-                                        value={newImageAlts[index]}
-                                        onChange={(e) => handleNewAltChange(index, e.target.value)}
-                                        className={`w-full p-2 border rounded ${
-                                            newImageAlts[index]?.length < 3 ? 'border-red-500' : 'border-gray-300'
-                                        }`}
-                                        placeholder="Description de l'image (minimum 3 caractères)"
-                                        minLength={3}
-                                    />
+                                    
+                                    <div className="article-image-manager__details">
+                                        <p className="article-image-manager__alt-text">description de l'image : {image.alt}</p>
+                                        <div className="article-image-manager__buttons">
+                                            <button
+                                                onClick={() => handleSelectImageForEdit(image)}
+                                                disabled={loading}
+                                                className="article-image-manager__button article-image-manager__button--edit"
+                                            >
+                                                Modifier
+                                            </button>
+
+                                            {image.thumbnail !== 1 && (
+                                                <button
+                                                    onClick={() => handleSetAsThumbnail(image.id)}
+                                                    disabled={loading}
+                                                    className="article-image-manager__button article-image-manager__button--thumbnail"
+                                                >
+                                                    Définir comme principale
+                                                </button>
+                                            )}
+
+                                            <button
+                                                onClick={() => handleDeleteImage(image.id)}
+                                                disabled={loading}
+                                                className="article-image-manager__button article-image-manager__button--delete"
+                                            >
+                                                Supprimer
+                                            </button>
+                                        </div>
+                                    </div>
                                 </div>
                             ))}
                         </div>
-                    )}
-                    {newImages.length > 0 && (
-                        <button
-                            onClick={handleAddImages}
-                            disabled={loading}
-                            className="mt-4 bg-green-500 text-white px-4 py-2 rounded disabled:opacity-50"
-                        >
-                            Ajouter les images
-                        </button>
-                    )}
-                </div>
+                    </div>
+                )}
 
-                <div className="flex justify-end">
+                {/* Ajout de nouvelles images (visible uniquement hors mode édition) */}
+                {!editMode && (
+                    <div className="article-image-manager__section">
+                        <h4 className="article-image-manager__subtitle">Ajouter des images</h4>
+                        <input
+                            type="file"
+                            multiple
+                            accept="image/jpeg,image/png,image/webp"
+                            onChange={handleImageChange}
+                            className="article-image-manager__file-input"
+                        />
+                        
+                        {newImages.length > 0 && (
+                            <div className="article-image-manager__grid">
+                                {newImages.map((image, index) => (
+                                    <div key={index} className="article-image-manager__preview">
+                                        <div className="article-image-manager__image-container">
+                                            <img
+                                                src={URL.createObjectURL(image)}
+                                                alt=""
+                                                className="article-image-manager__image"
+                                            />
+                                        </div>
+                                        <input
+                                            type="text"
+                                            value={newImageAlts[index]}
+                                            onChange={(e) => handleNewAltChange(index, e.target.value)}
+                                            className={`article-image-manager__input ${
+                                                newImageAlts[index]?.length < 3 ? 'article-image-manager__input--error' : ''
+                                            }`}
+                                            placeholder="Description de l'image (minimum 3 caractères)"
+                                            minLength={3}
+                                        />
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                        {newImages.length > 0 && (
+                            <button
+                                onClick={handleAddImages}
+                                disabled={loading}
+                                className="article-image-manager__button article-image-manager__button--add"
+                            >
+                                {loading ? 'Ajout en cours...' : 'Ajouter les images'}
+                            </button>
+                        )}
+                    </div>
+                )}
+
+                <div className="article-image-manager__footer">
                     <button
                         onClick={onClose}
-                        className="bg-gray-500 text-white px-4 py-2 rounded"
+                        className="article-image-manager__button article-image-manager__button--close"
                     >
                         Fermer
                     </button>

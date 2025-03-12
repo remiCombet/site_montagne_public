@@ -17,13 +17,6 @@ const ArticleCard = ({ article, onUpdateList }) => {
     // Compteur d'images total
     const imagesCount = article.images?.length || 0;
 
-    // Debug pour voir les données
-    console.log('Article data:', {
-        thumbnail: article.thumbnail,
-        images: article.images,
-        totalImages: article.images?.length
-    });
-
     // Gestions des mises à jour
     const handleUpdateSuccess = () => {
         if (typeof onUpdateList === 'function') {
@@ -51,10 +44,26 @@ const ArticleCard = ({ article, onUpdateList }) => {
     };
 
     return (
-        <article className="article-card border p-4 mb-4 rounded shadow-sm hover:shadow-md transition-shadow">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <article className="article-card">
+            <div className="article-card__content">
+                {/* Informations de l'article */}
+                <div className="article-card__info">
+                    <div className="article-card__header">
+                        <h4 className="article-card__title">{deepDecodeHTML(article.title)}</h4>
+                    </div>
+
+                    <p className="article-card__description">Description : {deepDecodeHTML(article.shortDescription)}</p>
+
+                    <div className="article-card__meta">
+                        {article.location && (
+                            <p className="article-card__location">📍 Lieu : {deepDecodeHTML(article.location)}</p>
+                        )}
+                        <p className="article-card__date">📅 Date : {format(new Date(article.startDate), 'dd MMMM yyyy', { locale: fr })}</p>
+                    </div>
+                </div>
+
                 {/* Image principale */}
-                <div className="article-card__image-container md:col-span-1">
+                <div className="article-card__image-container">
                     {thumbnailImage ? (
                         <img
                             src={thumbnailImage.url}
@@ -63,44 +72,28 @@ const ArticleCard = ({ article, onUpdateList }) => {
                         />
                     ) : (
                         <div className="article-card__image-placeholder">
-                            <span className="text-gray-500">Aucune image</span>
+                            <span>Aucune image</span>
                         </div>
                     )}
                 </div>
 
-                {/* Informations de l'article */}
-                <div className="md:col-span-2 space-y-4">
-                    <div className="flex justify-between items-start">
-                        <h4 className="text-lg font-semibold">{deepDecodeHTML(article.title)}</h4>
-                    </div>
-
-                    <p className="text-gray-600">{deepDecodeHTML(article.shortDescription)}</p>
-
-                    <div className="grid grid-cols-2 gap-2 text-sm text-gray-500">
-                        {article.location && (
-                            <p>📍 {deepDecodeHTML(article.location)}</p>
-                        )}
-                        <p>📅 {format(new Date(article.startDate), 'dd MMMM yyyy', { locale: fr })}</p>
-                    </div>
-                </div>
-
-                <div className="flex gap-2">
+                <div className="article-card__actions">
                     <button 
                         onClick={() => setShowDetails(true)}
-                        className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600"
+                        className="article-card__button article-card__button--edit"
                     >
                         Voir/Modifier
                     </button>
                     <button 
                         onClick={() => setShowImageManager(true)}
-                        className="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600"
+                        className="article-card__button article-card__button--images"
                     >
                         Gérer les images ({imagesCount})
                     </button>
                     <button 
                         onClick={handleDelete}
                         disabled={isDeleting}
-                        className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 disabled:opacity-50"
+                        className="article-card__button article-card__button--delete"
                     >
                         {isDeleting ? 'Suppression...' : 'Supprimer'}
                     </button>
