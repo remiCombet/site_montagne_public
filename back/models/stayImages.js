@@ -49,8 +49,10 @@ module.exports = (sequelize) => {
     );
   
     StayImage.associate = (models) => {
-      // Define the relationship between StayImage and Stay
-      StayImage.belongsTo(models.Stay, { foreignKey: 'stay_id' });
+      StayImage.belongsTo(models.Stay, { 
+        foreignKey: 'stay_id',
+        onDelete: 'CASCADE'
+      });
     };
   
     return StayImage;

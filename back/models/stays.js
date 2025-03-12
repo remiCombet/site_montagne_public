@@ -149,7 +149,13 @@ module.exports = (sequelize, DataTypes) => {
     // Association avec StayParticipant (et non StayRequest)
     Stay.hasMany(models.StayParticipant, {
       foreignKey: 'stay_id',
-      as: 'stayParticipants',  // Adapter l'alias pour correspondre au nom du modèle
+      as: 'stayParticipants',
+    });
+
+    Stay.hasMany(models.StayImage, {
+      foreignKey: 'stay_id',
+      as: 'images',
+      onDelete: 'CASCADE' 
     });
 
     // Déplacer la méthode statique ici pour avoir accès aux modèles

@@ -1,7 +1,7 @@
 const { Stay, StayParticipant, User, StayImage } = require('../models');
 const { Op } = require('sequelize');
 const CloudinaryService = require('../utils/upload');
-const StayImageHelpers = require('../utils/imageHelpers');
+const StayImageHelpers = require('../utils/stayImageHelpers');
 const fs = require('fs').promises;
 
 // attention supprimer les reponse dans les catch error: error.message en prod
