@@ -21,6 +21,7 @@ const stayThemeRoutes = require('./routes/stayThemeRoutes');
 const accommodationRoutes = require('./routes/accommodationRoutes');
 const stayStepRoutes = require('./routes/stayStepRoutes');
 const stayToPrepareRoutes = require('./routes/stayToPrepareRoutes');
+const stayImagesRoutes = require('./routes/stayImagesRoutes');
 const receptionPointRoutes = require('./routes/receptionPointRoutes');
 const stayParticipantsRoutes = require('./routes/stayParticipantsRoutes');
 const articleRoutes = require('./routes/articleRoutes');
@@ -87,6 +88,9 @@ app.use('/api/articles', articleRoutes);
 
 // routes images articles
 app.use('/api/articles', articleImagesRoutes);
+
+// routes images séjours
+app.use('/api/stays', stayImagesRoutes);
 
 const testRoutes = require('./routes/testRoutes');
 app.use ('/api', testRoutes);

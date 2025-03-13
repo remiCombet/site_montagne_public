@@ -152,9 +152,9 @@ module.exports = (sequelize, DataTypes) => {
       as: 'stayParticipants',
     });
 
-    Stay.hasMany(models.StayImage, {
+    Stay.hasOne(models.StayImage, {
       foreignKey: 'stay_id',
-      as: 'images',
+      as: 'image',
       onDelete: 'CASCADE' 
     });
 

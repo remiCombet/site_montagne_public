@@ -39,7 +39,13 @@ const validateStay = [
     .isInt({ min: 1 }).withMessage('Le nombre minimum de participants doit être supérieur à 0'),
 
   body('max_participant')
-    .isInt({ min: 1 }).withMessage('Le nombre maximum de participants doit être supérieur à 0'),
+    .isInt({ min: 1 }).withMessage('Le nombre maximum de participants doit être supérieur à 0')
+    .custom((value, { req }) => {
+      if (parseInt(value) < parseInt(req.body.min_participant)) {
+        throw new Error('Le nombre maximum de participants doit être supérieur ou égal au nombre minimum');
+      }
+      return true;
+    }),
 
   body('start_date')
     .isISO8601().withMessage('La date de début est invalide')
@@ -47,17 +53,35 @@ const validateStay = [
 
   body('end_date')
     .isISO8601().withMessage('La date de fin est invalide')
-    .toDate(),
+    .toDate()
+    .custom((value, { req }) => {
+      if (value < req.body.start_date) {
+        throw new Error('La date de fin doit être postérieure à la date de début');
+      }
+      return true;
+    }),
 
   body('reception_point_id')
     .isInt().withMessage('L\'ID du point de réception est invalide'),
 
-  // body('status')
-  //   .isIn(['participants_insuffisants', 'en_attente_validation', 'programmé', 'validé', 'complet', 'supprimé'])
-  //   .withMessage('Le statut doit être parmi "participants_insuffisants",  "en_attente_validation", "programmé", "validé", "complet" ou "supprimé"'),
-
   body('user_id')
     .isInt().withMessage('L\'ID de l\'utilisateur est invalide'),
+    
+  // Valider les champs d'image de manière optionnelle
+  body('imageAlts')
+    .optional()
+    .custom(value => {
+      // Si présent, doit être une chaîne ou un tableau
+      if (value !== undefined) {
+        const isArray = Array.isArray(value);
+        const isString = typeof value === 'string';
+        
+        if (!isArray && !isString) {
+          throw new Error('imageAlts doit être une chaîne ou un tableau');
+        }
+      }
+      return true;
+    })
 ];
 
 // Validation pour les images (ajout multiple)

@@ -7,9 +7,11 @@ import HighlightTest from './highlightTest';
 import StayStepTest from './stayStepTest';
 import AccessTest from './accessTest';
 import EquipmentsTest from './equipmentsTest';
+import StayImageTest from './stayImageTest';
 import { decodeHTML } from '../../utils/decodeHtml';
 
 const StayCardTest = ({ stay, onSelect, selectedStay, onDeselect }) => {
+
     // popup pour la modification d'un séjour
     const [isPopupOpen, setIsPopupOpen] = useState(false);
 
@@ -27,6 +29,9 @@ const StayCardTest = ({ stay, onSelect, selectedStay, onDeselect }) => {
 
     // popup pour la gestion des equipements fournis d'un séjour
     const [isPopupEquipmentOpen, setIsPopupEquipmentOpen] = useState(false);
+
+    // popup pour la gestion de l'image d'un séjour
+    const [isPopupImageOpen, setIsPopupImageOpen] = useState(false);
 
     // Gestion des erreurs/validation
     const [message, setMessage] = useState({ type: "", text: "" });
@@ -63,7 +68,25 @@ const StayCardTest = ({ stay, onSelect, selectedStay, onDeselect }) => {
     return (
         <article className={isSelected ? 'selected' : ''}>
             <section>
-                <p>ta</p>
+                {/* Afficher l'image miniature si elle existe */}
+                {stay.image && (Object.keys(stay.image).length > 0 ? (
+                    <div className="stay-thumbnail">
+                        <img 
+                            src={stay.image.url} 
+                            alt={stay.image.alt || stay.title} 
+                            style={{ maxWidth: '100px', height: 'auto' }}
+                        />
+                    </div>
+                ) : (
+                    <div className="stay-thumbnail">
+                        <img 
+                            src="https://res.cloudinary.com/dpa2kakxx/image/upload/v1741274688/site_montagne_v3/montagneDessin_vcxgkc.png" 
+                            alt="Image par défaut"
+                            style={{ maxWidth: '100px', height: 'auto' }}
+                        />
+                    </div>
+                ))}
+
                 {decodeHTML(stay.title)}
                 <br />
                 {/* Bouton pour ouvrir/fermer le popup */}
@@ -77,6 +100,28 @@ const StayCardTest = ({ stay, onSelect, selectedStay, onDeselect }) => {
                 <StayEditPopupTest 
                     stay={stay}
                     onClose={handleDeselectStay}
+                />
+            )}
+
+            {/* Gestion de l'image du séjour */}
+            <section>
+                <button onClick={() => {
+                    onSelect(stay);  // Informer le parent que ce séjour est sélectionné
+                    setIsPopupImageOpen(true);  // Ouvrir le popup d'image
+                }}>
+                    Gérer l'image
+                </button>
+            </section>
+
+            {/* Affichage du popup de gestion d'image */}
+            {isPopupImageOpen && (
+                <StayImageTest 
+                    stay={selectedStay || stay}
+                    onClose={() => {
+                        setIsPopupImageOpen(false);
+                        onDeselect();
+                    }}
+                    onUpdate={onSelect}
                 />
             )}
 

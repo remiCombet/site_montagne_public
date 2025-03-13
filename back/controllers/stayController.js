@@ -9,30 +9,62 @@ const fs = require('fs').promises;
 // Image par défaut
 const DEFAULT_IMAGE = 'https://res.cloudinary.com/dpa2kakxx/image/upload/v1741274688/site_montagne_v3/montagneDessin_vcxgkc.png';
 
-// Fonction utilitaire pour formater les images d'un séjour
+/**
+ * Normalise les données d'image d'un séjour pour le frontend
+ * @param {Object} stay - Objet séjour avec potentiellement une propriété image
+ * @returns {Object} Le séjour avec l'image normalisée
+ */
 const formatStayImages = (stay) => {
-    // Si aucune image n'est trouvée
-    if (!stay.images || stay.images.length === 0) {
-        stay.dataValues.thumbnail = DEFAULT_IMAGE;
-        stay.dataValues.thumbnailAlt = 'Image par défaut';
-        stay.dataValues.formattedImages = [];
+    
+    // Cas 1: Aucune image n'est trouvée
+    if (!stay.image) {
+        console.log("Aucune image trouvée pour le séjour ID:", stay.id);
+        stay.dataValues.image = {
+            id: null,
+            url: DEFAULT_IMAGE,
+            alt: 'Image par défaut'
+        };
         return stay;
     }
-    
-    // Trouver l'image principale (thumbnail ou première image)
-    const thumbnail = stay.images.find(img => img.thumbnail) || stay.images[0];
-    
-    // Ajouter les propriétés d'image au séjour
-    stay.dataValues.thumbnail = thumbnail.image_url;
-    stay.dataValues.thumbnailAlt = thumbnail.image_alt;
-    
-    // Formater toutes les images
-    stay.dataValues.formattedImages = stay.images.map(img => ({
-        id: img.id,
-        url: img.image_url,
-        alt: img.image_alt,
-        thumbnail: img.thumbnail
-    }));
+      
+    // Cas 2: image est un tableau (structure actuelle)
+    if (Array.isArray(stay.image)) {
+        // Si le tableau est vide ou l'image n'a pas d'ID
+        if (stay.image.length === 0 || !stay.image[0]?.dataValues?.id) {
+            console.log("Image incorrecte pour le séjour ID:", stay.id);
+            stay.dataValues.image = {
+                id: null,
+                url: DEFAULT_IMAGE,
+                alt: 'Image par défaut'
+            };
+        } else {
+            // Utiliser la première image du tableau
+            const firstImage = stay.image[0];
+            stay.dataValues.image = {
+                id: firstImage.dataValues.id,
+                url: firstImage.dataValues.image_url,
+                alt: firstImage.dataValues.image_alt
+            };
+            console.log("Image formatée avec succès pour le séjour", stay.id);
+        }
+        return stay;
+    }
+
+     // Cas 3: image est un objet (comme attendu normalement)
+     if (!stay.image.id) {
+        console.log("Image incomplète pour le séjour ID:", stay.id);
+        stay.dataValues.image = {
+            id: null,
+            url: DEFAULT_IMAGE,
+            alt: 'Image par défaut'
+        };
+    } else {
+        stay.dataValues.image = {
+            id: stay.image.id,
+            url: stay.image.image_url,
+            alt: stay.image.image_alt
+        };
+    }
     
     return stay;
 };
@@ -117,8 +149,6 @@ exports.createStay = async (req, res) => {
     const { title, description, location, price, physical_level, technical_level, 
             min_participant, max_participant, start_date, end_date, reception_point_id, 
             status, user_id } = req.body;
-
-    console.log('Données reçues :', req.body);
     
     // Gestion des descriptions d'images
     let imageAlts = [];
@@ -156,15 +186,17 @@ exports.createStay = async (req, res) => {
             user_id
         });
 
-        // 3. Traiter les images
-        let isThumbnailSet = false;
-        const imageUrls = [];
+        // 3. Traiter l'image (une seule)
+        let imageUrl = DEFAULT_IMAGE;
+        let imageAlt = 'Image par défaut';
+        let imageId = null;
 
         if (req.files?.images) {
             const images = Array.isArray(req.files.images) ? req.files.images : [req.files.images];
             
-            for (let index = 0; index < images.length; index++) {
-                const file = images[index];
+            // Ne traiter que la première image
+            if (images.length > 0) {
+                const file = images[0];
                 try {
                     const safeName = CloudinaryService.generateSafeFileName(file.name);
                     
@@ -176,32 +208,27 @@ exports.createStay = async (req, res) => {
                     // Utiliser StayImageHelpers pour vérifier si l'image existe déjà
                     const imageResult = await StayImageHelpers.checkAndGetExistingImage(newStay.id, safeName);
                     
-                    if (imageResult.exists && imageResult.inStay) {
-                        console.log(`L'image ${safeName} existe déjà dans ce séjour, on la saute`);
-                        continue;
-                    }
-
                     let uploadResult;
                     
                     // Si l'image existe dans Cloudinary mais pas dans ce séjour
                     if (imageResult.exists && !imageResult.inStay && imageResult.url) {
-                        console.log('Image déjà existante dans Cloudinary, réutilisation...');
                         uploadResult = { url: imageResult.url };
-                    } else {
+                    } else if (!imageResult.exists || !imageResult.inStay) {
                         // Upload nouvelle image dans Cloudinary
                         uploadResult = await CloudinaryService.uploadImage(file, 'stays', safeName);
                     }
 
                     // Création de l'entrée en base de données
-                    await StayImage.create({
+                    const createdImage = await StayImage.create({
                         stay_id: newStay.id,
                         image_url: uploadResult.url,
-                        image_alt: imageAlts[index] || safeName,
-                        thumbnail: !isThumbnailSet ? 1 : 0,
+                        image_alt: imageAlts[0] || safeName,
+                        thumbnail: 1,  // Toujours thumbnail car c'est la seule image
                     });
 
-                    isThumbnailSet = true;
-                    imageUrls.push(uploadResult.url);
+                    imageUrl = uploadResult.url;
+                    imageAlt = imageAlts[0] || safeName;
+                    imageId = createdImage.id;
 
                     // Nettoyage du fichier temporaire
                     if (file.tempFilePath) {
@@ -209,7 +236,14 @@ exports.createStay = async (req, res) => {
                     }
                 } catch (error) {
                     console.error('Erreur traitement image:', error);
-                    continue;
+                    
+                    // Créer l'image par défaut en cas d'erreur
+                    await StayImage.create({
+                        stay_id: newStay.id,
+                        image_url: DEFAULT_IMAGE,
+                        image_alt: 'Image par défaut',
+                        thumbnail: 1
+                    });
                 }
             }
         } else {
@@ -220,12 +254,10 @@ exports.createStay = async (req, res) => {
                 image_alt: 'Image par défaut',
                 thumbnail: 1
             });
-
-            imageUrls.push(DEFAULT_IMAGE);
         }
 
-        // Récupérer le séjour avec les images ajoutées
-        const stayWithImages = await Stay.findByPk(newStay.id, {
+        // Récupérer le séjour avec l'image ajoutée
+        const stayWithImage = await Stay.findByPk(newStay.id, {
             include: [{
                 model: StayImage,
                 as: 'images'
@@ -233,9 +265,9 @@ exports.createStay = async (req, res) => {
         });
         
         // Ajouter le fill_status calculé
-        const stayWithFillStatus = await addFillStatusInfo(stayWithImages);
+        const stayWithFillStatus = await addFillStatusInfo(stayWithImage);
         
-        // Formater les images pour la réponse
+        // Formater l'image pour la réponse
         const formattedStay = formatStayImages(stayWithFillStatus);
 
         // Réponse
@@ -270,8 +302,8 @@ exports.getAllStays = async (req, res) => {
                 },
                 {
                     model: StayImage,
-                    as: 'images',
-                    attributes: ['id', 'image_url', 'image_alt', 'thumbnail']
+                    as: 'image',
+                    attributes: ['id', 'image_url', 'image_alt']
                 }
             ]
         });
@@ -325,8 +357,8 @@ exports.getStayById = async (req, res) => {
                 },
                 {
                     model: StayImage,
-                    as: 'images',
-                    attributes: ['id', 'image_url', 'image_alt', 'thumbnail']
+                    as: 'image',
+                    attributes: ['id', 'image_url', 'image_alt']
                 }
             ]
         });
@@ -383,6 +415,7 @@ exports.updateStay = async (req, res) => {
         }
 
         // Mise à jour des données textuelles uniquement
+        // Pas de traitement d'image ici - cela est géré par stayImageController
         await stay.update({
             title: title || stay.title,
             description: description || stay.description,
@@ -409,7 +442,7 @@ exports.updateStay = async (req, res) => {
                 },
                 {
                     model: StayImage,
-                    as: 'images',
+                    as: 'image',
                     attributes: ['id', 'image_url', 'image_alt', 'thumbnail']
                 }
             ]

@@ -7,7 +7,13 @@ const withAuth = require('../middlewares/withAuth');
 const withAdminAuth = require('../middlewares/withAuthAdmin');
 
 // créer un séjour
-router.post('/', withAuth, withAdminAuth, validateStay, validate, stayController.createStay);
+router.post('/', 
+    withAuth, 
+    withAdminAuth,
+    validateStay, 
+    validate, 
+    stayController.createStay
+);
 
 // Récupérer tous les séjours
 router.get('/', stayController.getAllStays);
@@ -31,6 +37,6 @@ router.delete('/:id', withAuth, withAdminAuth, stayController.deleteStay);
 router.get('/fill-status/:id', stayController.getStayFillStatus);
 
 // Routes pour les images des séjours
-// router.use('/:id/images', require('./stayImagesRoutes'));
+router.use('/:id/images', require('./stayImagesRoutes'));
 
 module.exports = router;

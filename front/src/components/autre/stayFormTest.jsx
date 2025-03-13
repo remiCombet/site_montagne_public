@@ -5,7 +5,7 @@ import { addStay } from '../../slices/staySlice';
 import { validateStayForm } from '../../utils/validateStayForm';
 import { getAllReceptionPoints } from '../../api/reception';
 import { parse, isValid, format } from 'date-fns';
-import ReceptionPointTest from './receptionPointTest'; // Importez votre composant
+import ReceptionPointTest from './receptionPointTest';
 
 const StayFormTest = ({ onClose }) => {
     const dispatch = useDispatch();
@@ -26,6 +26,11 @@ const StayFormTest = ({ onClose }) => {
     const [end_date, setEnd_date] = useState('');
     const [status, setStatus] = useState('');
 
+    // Nouveaux états pour l'image
+    const [image, setImage] = useState(null);
+    const [imagePreview, setImagePreview] = useState('');
+    const [imageAlt, setImageAlt] = useState('');
+
     // Gestion des erreurs/validation
     const [message, setMessage] = useState({ type: "", text: "" });
 
@@ -42,6 +47,27 @@ const StayFormTest = ({ onClose }) => {
         const parsedDate = parse(date, "yyyy-MM-dd'T'HH:mm", new Date()); // "yyyy-MM-dd'T'HH:mm" est le format de date venant de <input type="datetime-local" />
         return isValid(parsedDate) ? format(parsedDate, 'yyyy-MM-dd') : null;
     };
+
+    // Gestionnaire pour la sélection d'image
+    const handleImageChange = (e) => {
+        if (e.target.files && e.target.files[0]) {
+            const selectedImage = e.target.files[0];
+            setImage(selectedImage);
+            
+            // Créer une URL de prévisualisation
+            const previewUrl = URL.createObjectURL(selectedImage);
+            setImagePreview(previewUrl);
+        }
+    };
+
+    // Nettoyer l'URL de prévisualisation lorsque le composant est démonté
+    useEffect(() => {
+        return () => {
+            if (imagePreview) {
+                URL.revokeObjectURL(imagePreview);
+            }
+        };
+    }, [imagePreview]);
 
     useEffect(() => {
         if (message.text) {
@@ -112,25 +138,39 @@ const StayFormTest = ({ onClose }) => {
             setMessage({ type: "error", text: validationErrors.join(', ') });
             return;
         }
-    
-        // Si validation réussie, créer le séjour
-        const newStay = {
+        
+        const startDateFormatted = formatDate(start_date);
+        const endDateFormatted = formatDate(end_date);
+
+        if (!startDateFormatted || !endDateFormatted) {
+            setMessage({ type: "error", text: "Le format des dates n'est pas valide" });
+            return;
+        }
+
+        // Au lieu du FormData, créer un objet standard
+        const stayData = {
             title,
             description,
             location,
-            price: parseFloat(price),
+            price,
             physical_level,
             technical_level,
-            min_participant: parseInt(min_participant),
-            max_participant: parseInt(max_participant),
-            start_date,
-            end_date,
-            reception_point_id: parseInt(receptionPoint) || 1,
-            status: "en_attente",
-            user_id: userId
+            min_participant,
+            max_participant,
+            start_date: startDateFormatted,
+            end_date: endDateFormatted,
+            reception_point_id: parseInt(receptionPoint),
+            status: 'en_attente',
+            user_id: userId,
+            // Image et alt optionnels
+            image: image || null,
+            imageAlt: imageAlt || ''
         };
+        
+        // Debug - inspecter le contenu de l'objet
+        console.log('Données envoyées:', stayData);
 
-        createStay(newStay)
+        createStay(stayData)
         .then((res) => {
             if (res.status === 200) {
                 dispatch(addStay(res.stay));
@@ -143,13 +183,15 @@ const StayFormTest = ({ onClose }) => {
                 setTimeout(() => {
                     onClose();
                 }, 1600)
+            } else {
+                throw new Error(res.msg || "Erreur lors de la création du séjour");
             }
         })        
         .catch(err => {
-            // réponse négative
+            console.error("Erreur complète:", err);
             setMessage({
                 type: "error",
-                text: "Erreur lors de la création du séjour"
+                text: err.message || "Erreur lors de la création du séjour"
             });
         });
     };
@@ -261,6 +303,38 @@ const StayFormTest = ({ onClose }) => {
                             />
                         </label>
                         
+                        {/* Nouveaux champs pour l'image */}
+                        <div className="form-group image-upload-container">
+                            <label>
+                                Image du séjour (optionnelle)
+                                <input
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={handleImageChange}
+                                />
+                            </label>
+                            
+                            {imagePreview && (
+                                <div className="image-preview">
+                                    <img 
+                                        src={imagePreview} 
+                                        alt="Aperçu de l'image" 
+                                        style={{ maxWidth: '200px', maxHeight: '200px', marginTop: '10px' }} 
+                                    />
+                                </div>
+                            )}
+                            
+                            <label>
+                                Description de l'image
+                                <input
+                                    type="text"
+                                    value={imageAlt}
+                                    onChange={(e) => setImageAlt(e.target.value)}
+                                    placeholder="Description brève de l'image (optionnelle)"
+                                />
+                            </label>
+                        </div>
+
                         <label>
                             Point de réception
                             <select

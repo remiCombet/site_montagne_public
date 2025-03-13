@@ -9,7 +9,6 @@ export function getAllStayRequests() {
         authHeaders()
     )
     .then((res) => {
-        console.log('api', res.data)
         return res.data
     })
     .catch(err => err.response?.data || { status: 500, msg: "Erreur serveur" });

@@ -386,5 +386,71 @@ const stayImageHelpers = createImageHelpers('stay', StayImage);
 - **Configuration dynamique** : Adaptation automatique des clés et des dossiers
 
 
+## 8. Optimisation de la gestion des images pour les séjours
+
+### Évolution des besoins
+Initialement, nous avions conçu une architecture flexible permettant plusieurs images par séjour. Après analyse des besoins réels et des retours utilisateurs, nous avons déterminé qu'une seule image par séjour était suffisante.
+
+### Solution actuelle
+Implémentation d'une architecture simplifiée avec relation One-to-One entre les séjours et leurs images :
+
+```javascript
+// Modèle StayImage avec relation One-to-One vers Stay
+const StayImage = sequelize.define('StayImage', {
+  id: { /*...*/},
+  stay_id: { 
+    type: DataTypes.INTEGER,
+    allowNull: true,
+    // Contrainte d'unicité ajoutée pour garantir la relation One-to-One
+    unique: true,
+    references: {
+      model: 'stays',
+      key: 'id',
+    }
+  },
+  image_url: { type: DataTypes.STRING(512), allowNull: false },
+  image_alt: { type: DataTypes.STRING(255), allowNull: false }
+}, {/*...*/});
+
+// Relation bidirectionnelle One-to-One avec suppression en cascade
+StayImage.associate = (models) => {
+  StayImage.belongsTo(models.Stay, { 
+    foreignKey: 'stay_id',
+    onDelete: 'CASCADE'
+  });
+};
+
+Stay.associate = function(models) {
+  // ...autres associations...
+  
+  // Association One-to-One avec alias au singulier
+  Stay.hasOne(models.StayImage, {
+    foreignKey: 'stay_id',
+    as: 'image',
+    onDelete: 'CASCADE' 
+  });
+};
+```
+
+L'API pour gérer l'image d'un séjour est également simplifiée :
+
+```javascript
+// Routes pour la gestion de l'image de séjour
+router.use('/:id/images', require('./stayImagesRoutes'));
+
+// Routes principales dans stayImagesRoutes.js
+router.post('/', /* validations et middlewares */, stayImageController.addImage);
+router.delete('/:imageId', /* middlewares */, stayImageController.deleteImage);
+router.put('/:imageId', /* validations */, stayImageController.updateImage);
+```
+
+### Avantages
+- **Simplicité** : Architecture plus claire reflétant l'usage réel de l'application
+- **Performance** : Réduction du volume de données à traiter et à transférer
+- **Expérience utilisateur** : Interface plus directe pour la gestion d'une seule image
+- **Optimisation des ressources** : Le système de détection d'images dupliquées reste fonctionnel
+- **Maintenance simplifiée** : Moins de code à maintenir avec une logique plus simple
+
+
 # Conclusion 
 Ces choix techniques démontrent une approche réfléchie du développement, avec un souci constant d'équilibrer la qualité du code, la maintenabilité et les besoins spécifiques de l'application.

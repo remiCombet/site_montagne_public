@@ -14,6 +14,7 @@ const home = () => {
     getAllStays()
     .then((res) => {
       if (res && res.stays) {
+        console.log("Séjours chargés", res.stays);
         dispatch(setStays(res.stays));
       }
     })
