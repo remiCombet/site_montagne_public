@@ -1,0 +1,122 @@
+@use '../utils/variables' as vars;
+@use '../utils/mixins' as mix;
+
+.admin-dashboard {
+  // Base layout
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  min-height: 100vh;
+  background-color: vars.$white;
+  
+  // Desktop layout
+  @include mix.for-size('tablet') {
+    flex-direction: row;
+  }
+}
+
+// Main content area
+.admin-content {
+  flex: 1;
+  padding: vars.$spacing-md;
+  margin: 0;
+  background-color: vars.$white;
+  
+  @include mix.for-size('tablet') {
+    padding: vars.$spacing-lg;
+  }
+  
+  // Basic typography
+  h1 {
+    font-size: vars.$font-size-h1;
+    color: vars.$primary-color;
+    margin-bottom: vars.$spacing-lg;
+  }
+  
+  h2 {
+    font-size: vars.$font-size-h2;
+    color: vars.$primary-color;
+    margin-bottom: vars.$spacing-md;
+  }
+  
+  h3 {
+    font-size: vars.$font-size-h3;
+    margin-bottom: vars.$spacing-sm;
+  }
+  
+  // Simple table style
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: vars.$spacing-lg;
+    
+    th {
+      text-align: left;
+      padding: vars.$spacing-sm;
+      background-color: vars.$primary-color;
+      color: vars.$white;
+    }
+    
+    td {
+      padding: vars.$spacing-sm;
+      border-bottom: 1px solid vars.$border-color;
+    }
+    
+    tr:hover {
+      background-color: rgba(0, 0, 0, 0.02);
+    }
+  }
+  
+  // Admin form styles
+  form {
+    max-width: 600px;
+    
+    .form-group {
+      margin-bottom: vars.$spacing-md;
+    }
+    
+    label {
+      display: block;
+      margin-bottom: vars.$spacing-xs;
+    }
+    
+    input, select, textarea {
+      width: 100%;
+      padding: vars.$spacing-sm;
+      border: 1px solid vars.$border-color;
+      border-radius: vars.$border-radius;
+      
+      &:focus {
+        border-color: vars.$primary-color;
+        outline: none;
+      }
+    }
+    
+    button[type="submit"] {
+      background-color: vars.$primary-color;
+      color: vars.$white;
+      border: none;
+      padding: vars.$spacing-sm vars.$spacing-md;
+      border-radius: vars.$border-radius;
+      cursor: pointer;
+      
+      &:hover {
+        background-color: darken(vars.$primary-color, 10%);
+      }
+    }
+  }
+  
+  // Simple card style
+  .card {
+    border: 1px solid vars.$border-color;
+    border-radius: vars.$border-radius;
+    padding: vars.$spacing-md;
+    margin-bottom: vars.$spacing-md;
+    
+    .card-title {
+      border-bottom: 1px solid vars.$border-color;
+      padding-bottom: vars.$spacing-sm;
+      margin-bottom: vars.$spacing-md;
+    }
+  }
+}

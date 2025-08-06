@@ -1,0 +1,17 @@
+Explication des URLs blob en JavaScript
+Une URL blob est une référence temporaire vers un objet binaire stocké en mémoire dans le navigateur.
+
+Qu'est-ce qu'une URL blob ?
+Une URL qui commence par blob: suivie d'un identifiant unique
+Exemple : blob:http://localhost:5173/550e8400-e29b-41d4-a716-446655440000
+Créée avec URL.createObjectURL() pour référencer des fichiers ou données en mémoire
+Pourquoi c'est utilisé dans votre code ?
+Pourquoi faut-il les révoquer ?
+Quand vous créez une URL blob avec URL.createObjectURL(), le navigateur alloue de la mémoire pour stocker le fichier. Cette mémoire n'est pas automatiquement libérée, même si :
+
+Le composant est démonté
+Vous remplacez l'image par une autre
+Vous modifiez l'URL d'affichage
+Sans appel à URL.revokeObjectURL(), vous créez une fuite de mémoire qui peut devenir problématique avec de grosses images ou si l'utilisateur reste longtemps sur la page.
+
+C'est une bonne pratique d'optimisation que vous avez correctement implémentée dans votre composant.

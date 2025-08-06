@@ -1,0 +1,218 @@
+@use 'variables' as vars;
+
+// ===== LAYOUT =====
+
+// Centrage horizontal
+@mixin center-horizontal($max-width: 1200px) {
+  width: 100%;
+  max-width: $max-width;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+// Flexbox
+@mixin flex($direction: row, $justify: flex-start, $align: stretch, $wrap: nowrap) {
+  display: flex;
+  flex-direction: $direction;
+  justify-content: $justify;
+  align-items: $align;
+  flex-wrap: $wrap;
+}
+
+// Grille
+@mixin grid($columns: 1, $gap: vars.$spacing-md) {
+  display: grid;
+  grid-template-columns: repeat($columns, 1fr);
+  gap: $gap;
+}
+
+// Mixin pour l'arrière-plan foncé avec ombre
+@mixin dark-background {
+  background-color: #333333;
+  box-shadow: inset 0 0 50px rgba(0,0,0,0.5);
+}
+
+// ===== MEDIA QUERIES (APPROCHE MOBILE-FIRST) =====
+
+// Mixin principal pour l'approche mobile-first (min-width)
+@mixin for-size($breakpoint) {
+  @if map-has-key(vars.$breakpoints, $breakpoint) {
+    @media (min-width: map-get(vars.$breakpoints, $breakpoint)) {
+      @content;
+    }
+  } @else if type-of($breakpoint) == number {
+    @media (min-width: #{$breakpoint}px) {
+      @content;
+    }
+  } @else {
+    @warn "Le breakpoint '#{$breakpoint}' n'existe pas dans $breakpoints et n'est pas un nombre.";
+  }
+}
+
+// Cas exceptionnels où max-width est nécessaire
+@mixin for-size-down($breakpoint) {
+  @if map-has-key(vars.$breakpoints, $breakpoint) {
+    $value: map-get(vars.$breakpoints, $breakpoint);
+    @media (max-width: #{$value - 1}px) {
+      @content;
+    }
+  } @else if type-of($breakpoint) == number {
+    @media (max-width: #{$breakpoint - 1}px) {
+      @content;
+    }
+  } @else {
+    @warn "Le breakpoint '#{$breakpoint}' n'existe pas dans $breakpoints et n'est pas un nombre.";
+  }
+}
+
+// ALIAS POUR RÉTROCOMPATIBILITÉ
+// Ces mixins sont conservés pour ne pas casser le code existant
+@mixin respond-to($breakpoint) {
+  @include for-size($breakpoint) {
+    @content;
+  }
+}
+
+@mixin media-up($breakpoint) {
+  @include for-size($breakpoint) {
+    @content;
+  }
+}
+
+@mixin media-down($breakpoint) {
+  @include for-size-down($breakpoint) {
+    @content;
+  }
+}
+
+// ===== ACCESSIBILITÉ =====
+
+// Visually hidden (accessible mais invisible)
+@mixin visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+}
+
+// ===== TYPOGRAPHIE =====
+
+// Troncature de texte
+@mixin text-truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+// Typographie responsive
+@mixin responsive-font($min-size, $max-size, $min-width: 576px, $max-width: 1200px) {
+  font-size: $min-size;
+  
+  @media (min-width: $min-width) {
+    font-size: calc(#{$min-size} + #{strip-unit($max-size - $min-size)} * ((100vw - #{$min-width}px) / #{strip-unit($max-width - $min-width)}));
+  }
+  
+  @media (min-width: $max-width) {
+    font-size: $max-size;
+  }
+}
+
+// ===== INTERACTIVITÉ =====
+
+// Mixin pour éliminer les effets de clignotement sur les éléments interactifs
+@mixin no-tap-highlight {
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+  
+  &:active, &:focus {
+    background-color: transparent !important;
+    outline: none;
+    box-shadow: none !important;
+  }
+}
+
+// Mixin pour créer des transitions douces
+@mixin smooth-transition($properties: all, $duration: vars.$transition-speed, $timing: ease) {
+  transition: $properties $duration $timing;
+}
+
+// ===== COMPOSANTS =====
+
+// Bordures interactives
+@mixin interactive-border($color: vars.$secondary-color, $speed: vars.$transition-speed) {
+  background-color: $color;
+  transition: width $speed ease;
+}
+
+// Box alerts
+@mixin alert-box($color) {
+  background-color: rgba($color, 0.1);
+  color: $color;
+  border: 1px solid rgba($color, 0.3);
+  border-radius: vars.$border-radius;
+  padding: vars.$spacing-md;
+  margin-bottom: vars.$spacing-lg;
+  font-weight: 500;
+}
+
+// Mixin pour les animations 3D
+@mixin card-flip-animation {
+  transform-style: preserve-3d;
+  transition: 
+  transform vars.$rotation-speed cubic-bezier(0.4, 0.0, 0.2, 1),
+  height vars.$rotation-speed cubic-bezier(0.4, 0.0, 0.2, 1);
+}
+
+// Mixin pour les faces de la carte
+@mixin card-face {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden;
+  border-radius: vars.$border-radius;
+  box-shadow: vars.$box-shadow;
+  background-color: vars.$white;
+  padding: vars.$spacing-md;
+  overflow-y: auto;
+}
+
+// ===== ESPACEMENT =====
+
+// Mixin pour la marge horizontale (gauche et droite)
+@mixin margin-horizontal($value) {
+  margin-left: $value;
+  margin-right: $value;
+}
+
+// Mixin pour la marge verticale (haut et bas)
+@mixin margin-vertical($value) {
+  margin-top: $value;
+  margin-bottom: $value;
+}
+
+// Mixin pour le padding horizontal (gauche et droite)
+@mixin padding-horizontal($value) {
+  padding-left: $value;
+  padding-right: $value;
+}
+
+// Mixin pour le padding vertical (haut et bas)
+@mixin padding-vertical($value) {
+  padding-top: $value;
+  padding-bottom: $value;
+}
+
+// ===== UTILITAIRES =====
+
+// Fonction utilitaire pour strip-unit
+@function strip-unit($value) {
+  @return $value / ($value * 0 + 1);
+}

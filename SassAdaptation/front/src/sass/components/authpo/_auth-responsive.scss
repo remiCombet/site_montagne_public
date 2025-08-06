@@ -1,0 +1,124 @@
+// @use '../../utils/variables' as vars;
+// @use '../../utils/mixins' as mix;
+// @use '../../utils/functions' as fn;
+
+// /**
+//  * Style mobile d'abord (par défaut)
+//  * ---------------------------------
+//  */
+// // Conteneur pour les fieldsets
+// fieldset {
+//   border: none;
+//   margin: 0;
+//   padding: 0;
+// }
+
+// // Tous les champs sont en colonne sur mobile
+// .floating-input-container {
+//   width: 100%;
+//   display: block;
+//   margin-bottom: 1rem;
+// }
+
+// /**
+//  * TABLETTE: Mise en page pour nom/prénom côte à côte
+//  * -------------------------------------------------
+//  * APPROCHE AVEC FLOAT (plus compatible)
+//  */
+// @media (min-width: 768px) {
+//   // Technique avec float au lieu de grid
+//   .register-content .auth-form fieldset {
+//     // Conteneur des flottants
+//     &::after {
+//       content: "";
+//       display: table;
+//       clear: both;
+//     }
+    
+//     // Champs nom/prénom flottants
+//     .floating-input-container.name-container {
+//       float: left !important;
+//       width: calc(50% - 0.5rem) !important;
+//       clear: none !important;
+      
+//       // Premier élément avec marge à droite
+//       &:first-of-type {
+//         margin-right: 1rem !important;
+//       }
+//     }
+    
+//     // Tous les autres champs en pleine largeur et en dessous
+//     .floating-input-container:not(.name-container) {
+//       width: 100% !important;
+//       float: none !important;
+//       clear: both !important;
+//     }
+    
+//     // Le bouton aussi en pleine largeur
+//     button[type="submit"] {
+//       width: 100% !important;
+//       clear: both !important;
+//       display: block !important;
+//     }
+//   }
+// }
+
+// /**
+//  * VERSION MOBILE
+//  * --------------
+//  * Explicitement redéfini pour s'assurer que le mobile fonctionne
+//  */
+// @media (max-width: 767.98px) {
+//   .register-content .auth-form fieldset {
+//     // Retirer tout float/width spécial
+//     .floating-input-container {
+//       float: none !important;
+//       width: 100% !important;
+//       margin-right: 0 !important;
+//       clear: both !important;
+//     }
+//   }
+// }
+
+// /**
+//  * POUR DÉBOGUER - Temporairement ajouter des couleurs de fond
+//  * à commenter ou supprimer une fois le problème résolu
+//  */
+// .register-content .auth-form fieldset .floating-input-container.name-container {
+//   background-color: rgba(255, 0, 0, 0.05);
+// }
+// .register-content .auth-form fieldset .floating-input-container:not(.name-container) {
+//   background-color: rgba(0, 0, 255, 0.05);
+// }
+
+@use '../../utils/variables' as vars;
+@use '../../utils/mixins' as mix;
+@use '../../utils/functions' as fn;
+
+// Version mobile par défaut - tout est en colonne
+.register-content .auth-form fieldset {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+  background-color: rgb(255, 166, 0);
+}
+
+// Version tablette - nom/prénom côte à côte
+@include mix.respond-to('tablet') {
+  .register-content .auth-form fieldset {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    background-color: yellow;
+    gap: 1rem;
+    
+    // Tous les conteneurs sauf name-container prennent toute la largeur
+    .floating-input-container:not(.name-container) {
+      grid-column: 1 / -1;
+    }
+    
+    // Le bouton aussi prend toute la largeur
+    button[type="submit"] {
+      grid-column: 1 / -1;
+    }
+  }
+}

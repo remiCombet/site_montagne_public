@@ -1,0 +1,33 @@
+@use '../utils/mixins' as *;
+
+nav[aria-label="breadcrumb"] {
+    @include padding-vertical(1rem);
+}
+
+nav[aria-label="breadcrumb"] ol {
+    padding: 0;
+    margin: 0;
+    display: flex;
+    font-size: 16px;
+}
+
+nav[aria-label="breadcrumb"] li {
+    margin-right: 5px;
+}
+
+nav[aria-label="breadcrumb"] li:not(:last-child)::after {
+    content: "→";
+    color: rgb(2, 182, 71);
+    font-weight: bold;
+    margin-left: 15px;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+nav[aria-label="breadcrumb"] a {
+    text-decoration: none;
+    color: rgb(0, 255, 98);
+}
+
+nav[aria-label="breadcrumb"] a:hover {
+    text-decoration: underline;
+}

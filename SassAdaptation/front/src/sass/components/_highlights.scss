@@ -1,0 +1,239 @@
+@use '../utils/variables' as vars;
+@use '../utils/mixins' as mix;
+@use '../utils/functions' as fn;
+
+.highlight-management {
+    width: 100%;
+
+    // Mode lecture
+    .highlight-view-mode {
+        .highlight-header {
+            margin-bottom: fn.spacing('base');
+
+            h3 {
+                font-size: fn.font-size('large');
+                margin-bottom: fn.spacing('base');
+            }
+        }
+
+        .highlight-list {
+            display: grid;
+            gap: fn.spacing('base');
+
+            .highlight-item {
+                padding: fn.spacing('base');
+                background-color: fn.bg-color('secondary');
+                border-radius: fn.radius('base');
+                
+                .highlight-title {
+                    display: block;
+                    font-size: fn.font-size('base');
+                    color: fn.text-color('dark');
+                    margin-bottom: fn.spacing('xxs');
+                }
+
+                .highlight-description {
+                    color: fn.text-color('muted');
+                    font-size: fn.font-size('small');
+                }
+            }
+        }
+
+        .highlight-action {
+            display: flex;
+            justify-content: center;
+            margin: fn.spacing('lg') 0;
+
+            .action-button {
+                padding: fn.spacing('xs') fn.spacing('base');
+                border-radius: fn.radius('small');
+            }
+        }
+    }
+
+    // Mode édition
+    .highlight-edit-mode {
+        margin-bottom: fn.spacing('xl');
+
+        .section-header {
+            margin-bottom: fn.spacing('lg');
+            
+            h3 {
+                font-size: fn.font-size('large');
+            }
+        }
+
+        .highlight-list-section {
+            margin-bottom: fn.spacing('xl');
+
+            h4 {
+                margin-bottom: fn.spacing('base');
+            }
+
+            .highlight-edit-list {
+                display: grid;
+                gap: fn.spacing('base');
+
+                .highlight-edit-item {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    padding: fn.spacing('base');
+                    background-color: fn.bg-color('secondary');
+                    border-radius: fn.radius('base');
+                    border: fn.border('dark');
+
+                    &.active-edit {
+                        border-color: fn.border-color('active');
+                    }
+
+                    .highlight-content {
+                        flex: 1;
+                        margin-right: fn.spacing('base');
+                    }
+
+                    .highlight-actions {
+                        display: flex;
+                        gap: fn.spacing('xs');
+                        // Reset des styles par défaut du menu
+                        margin: 0;
+                        padding: 0;
+                        list-style: none;
+
+                        button {
+                            padding: fn.spacing('xs');
+                            border-radius: fn.radius('small');
+                        }
+
+                        // Tablette et desktop
+                        @include mix.respond-to('tablet') {
+                            button {
+                                padding: fn.spacing('xs') fn.spacing('base');
+                            }
+                        }
+                    }
+
+                    // Style de base pour mobile
+                    flex-direction: column;
+                    gap: fn.spacing('sm');
+
+                    .highlight-content {
+                        margin-right: 0;
+                        margin-bottom: fn.spacing('xs');
+                    }
+
+                    .highlight-actions {
+                        width: 100%;
+                        justify-content: center;
+                        gap: fn.spacing('base');
+                    }
+
+                    // Tablette
+                    @include mix.respond-to('tablet') {
+                        flex-direction: row;
+                        
+                        .highlight-content {
+                            margin-right: fn.spacing('base');
+                            margin-bottom: 0;
+                        }
+
+                        .highlight-actions {
+                            width: auto;
+                            justify-content: flex-end;
+                        }
+                    }
+
+                    // Desktop
+                    @include mix.respond-to('desktop') {
+                        .highlight-actions {
+                            gap: fn.spacing('sm');
+                        }
+                    }
+                }
+            }
+        }
+
+        .highlight-form-section {
+            margin-bottom: fn.spacing('xl');
+
+            .form-title-container {
+                position: relative;
+                margin-bottom: fn.spacing('base');
+
+                .form-title {
+                    &.title-visible {
+                        opacity: 1;
+                        transform: translateY(0);
+                    }
+
+                    &.title-hidden {
+                        opacity: 0;
+                        transform: translateY(-10px);
+                    }
+
+                    &.title-entering {
+                        transition: all 0.3s ease;
+                    }
+                }
+            }
+
+            .highlight-form {
+                background-color: fn.bg-color('secondary');
+                padding: fn.spacing('lg');
+                border-radius: fn.radius('base');
+                border: fn.border('dark');
+
+                &.is-editing {
+                    border-color: fn.border-color('active');
+                }
+
+                .form-group {
+                    margin-bottom: fn.spacing('base');
+
+                    label {
+                        display: block;
+                        margin-bottom: fn.spacing('xxs');
+                        color: fn.text-color('dark');
+                    }
+
+                    .text-input,
+                    .text-area {
+                        width: 100%;
+                        padding: fn.spacing('xs');
+                        border: fn.border('dark');
+                        border-radius: fn.radius('small');
+                        font-size: fn.font-size('base');
+
+                        &:focus {
+                            border-color: fn.border-color('active');
+                            outline: none;
+                        }
+                    }
+                }
+
+                .form-actions {
+                    display: flex;
+                    gap: fn.spacing('base');
+                    margin-top: fn.spacing('lg');
+
+                    button {
+                        padding: fn.spacing('xs') fn.spacing('base');
+                        border-radius: fn.radius('small');
+                    }
+                }
+            }
+        }
+
+        .edit-footer {
+            display: flex;
+            justify-content: center;
+            margin-top: fn.spacing('xl');
+            margin-bottom: fn.spacing('base'); // Ajout d'un margin-bottom pour le footer
+
+            button {
+                padding: fn.spacing('xs') fn.spacing('base');
+                border-radius: fn.radius('small');
+            }
+        }
+    }
+}

@@ -1,0 +1,32 @@
+/* Styles isolés pour Register2 */
+.register2-wrapper {
+    width: 100%;
+  }
+  
+  .register2-form {
+    width: 100%;
+  }
+  
+  .register2-form-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 15px;
+    margin-bottom: 20px;
+  }
+  
+  .register2-field-container {
+    position: relative;
+  }
+  
+  /* Vos styles pour les inputs, labels, etc. */
+  
+  /* Media query pour tablette */
+  @media (min-width: 768px) {
+    .register2-form-grid {
+      grid-template-columns: 1fr 1fr;
+    }
+    
+    .register2-field-container.full-width {
+      grid-column: 1 / -1;
+    }
+  }

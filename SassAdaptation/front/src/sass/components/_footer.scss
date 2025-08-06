@@ -1,0 +1,16 @@
+@use 'sass:map';
+@use '../utils/variables' as vars;
+@use '../utils/mixins' as mix;
+
+.main-footer {
+    background: map.get(vars.$background-colors, 'primary');
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 1rem;
+
+    p {
+        color: map.get(vars.$text-colors, 'primary');
+        margin: 0;
+    }
+}

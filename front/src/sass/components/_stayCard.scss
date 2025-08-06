@@ -1,0 +1,323 @@
+@use '../utils/variables' as vars;
+@use '../utils/mixins' as mix;
+
+.stay-card {
+  background-color: vars.$white;
+  border-radius: vars.$border-radius;
+  box-shadow: vars.$box-shadow;
+  margin-bottom: vars.$spacing-md;
+  border: vars.$border-width solid vars.$border-color;
+  transition: all vars.$transition-speed ease;
+  
+  &.selected {
+    border-color: vars.$primary-color;
+  }
+  
+  &.expanded {
+    box-shadow: vars.$box-shadow-lg;
+  }
+  
+  // En-tête de la carte (version fermée)
+  &__header {
+    display: flex;
+    align-items: center;
+    padding: vars.$spacing-sm;
+    
+    @include mix.for-size('tablet') {
+      padding: vars.$spacing-md;
+    }
+    
+    // En-tête spéciale pour la version étendue
+    &--expanded {
+      display: flex;
+      align-items: center;
+      padding: vars.$spacing-md;
+      border-bottom: vars.$border-width solid vars.$border-color;
+      
+      @include mix.for-size('tablet') {
+        padding: vars.$spacing-lg;
+      }
+    }
+    
+    .stay-thumbnail {
+      width: vars.$card-thumbnail-size-mobile;
+      height: vars.$card-thumbnail-size-mobile;
+      min-width: vars.$card-thumbnail-size-mobile;
+      // Ajout d'une marge à droite plus importante pour l'espace entre miniature et titre
+      margin-right: 16px; // Valeur fixe pour un espacement consistant
+      overflow: hidden;
+      border-radius: vars.$border-radius-sm;
+      margin-top: 0;
+      margin-bottom: 0;
+      margin-left: 0;
+      
+      img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+      
+      @include mix.for-size('tablet') {
+        width: vars.$card-thumbnail-size-desktop;
+        height: vars.$card-thumbnail-size-desktop;
+        min-width: vars.$card-thumbnail-size-desktop;
+        // Augmenter encore la marge pour les écrans plus larges
+        margin-right: 24px;
+      }
+    }
+  }
+  
+  &__title {
+    flex: 1;
+    overflow: hidden;
+    // Ajout d'une marge droite pour éviter que le texte ne soit trop près du bouton
+    margin-right: 12px;
+    
+    h3 {
+      margin: 0;
+      font-size: vars.$font-size-base;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      
+      @include mix.for-size('tablet') {
+        font-size: vars.$font-size-lg;
+      }
+    }
+  }
+  
+  &__toggle {
+    background-color: vars.$primary-color;
+    color: vars.$white;
+    border: none;
+    padding: vars.$spacing-xs vars.$spacing-sm;
+    border-radius: vars.$border-radius;
+    cursor: pointer;
+    white-space: nowrap;
+    
+    &:hover {
+      background-color: darken(vars.$primary-color, 10%);
+    }
+  }
+  
+  // Partie développée
+  &__expanded {
+    border-top: vars.$border-width solid vars.$border-color;
+  }
+  
+  // Navigation par onglets
+  &__tabs {
+    display: flex;
+    overflow-x: auto;
+    border-bottom: vars.$border-width solid vars.$border-color;
+    padding: 0;
+    margin: 0;
+    
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    
+    &::-webkit-scrollbar {
+      display: none;
+    }
+    
+    button {
+      flex: 0 0 auto;
+      background: none;
+      border: none;
+      padding: vars.$spacing-sm;
+      white-space: nowrap;
+      color: vars.$text-color-secondary;
+      font-weight: 500;
+      position: relative;
+      
+      @include mix.no-tap-highlight;
+      
+      &.active {
+        color: vars.$primary-color;
+        
+        &::after {
+          content: '';
+          position: absolute;
+          bottom: -1px;
+          left: 0;
+          width: 100%;
+          height: vars.$border-width-lg;
+          background-color: vars.$primary-color;
+        }
+      }
+      
+      &:hover {
+        color: vars.$text-color-hover;
+      }
+    }
+    
+    @include mix.for-size('desktop') {
+      flex-wrap: wrap;
+      justify-content: flex-start;
+      
+      button {
+        padding: vars.$spacing-md;
+      }
+    }
+  }
+  
+  // Contenu de l'onglet
+  &__content {
+    padding: vars.$spacing-md;
+    
+    h3 {
+      margin-top: 0;
+      color: vars.$primary-color;
+    }
+    
+    h4 {
+      margin-bottom: vars.$spacing-xs;
+      color: vars.$text-color-secondary;
+    }
+    
+    .edit-button {
+      display: block;
+      margin-top: vars.$spacing-md;
+      background-color: vars.$secondary-color;
+      color: vars.$white;
+      border: none;
+      padding: vars.$spacing-xs vars.$spacing-sm;
+      border-radius: vars.$border-radius;
+      cursor: pointer;
+      
+      &:hover {
+        background-color: darken(vars.$secondary-color, 10%);
+      }
+    }
+    
+    // Listes pour les différents onglets
+    ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      
+      li {
+        padding: vars.$spacing-xs 0;
+        border-bottom: vars.$border-width solid vars.$border-color-light;
+        
+        &:last-child {
+          border-bottom: none;
+        }
+        
+        &.no-items {
+          font-style: italic;
+          color: vars.$text-color-tertiary;
+        }
+      }
+    }
+    
+    // Style des détails du séjour
+    .stay-details {
+      margin-bottom: vars.$spacing-md;
+      
+      p {
+        margin: vars.$spacing-xs 0;
+      }
+      
+      strong {
+        color: vars.$text-color-secondary;
+      }
+    }
+    
+    // Style pour la prévisualisation d'image
+    .stay-image-preview {
+      text-align: center;
+      margin-bottom: vars.$spacing-md;
+      
+      .preview-image {
+        max-width: 100%;
+        max-height: 200px;
+        object-fit: contain;
+      }
+    }
+  }
+  
+  // Message d'état
+  .message {
+    padding: vars.$spacing-sm;
+    margin: vars.$spacing-sm;
+    border-radius: vars.$border-radius;
+    text-align: center;
+    
+    &--success {
+      background-color: rgba(vars.$success-color, 0.1);
+      color: vars.$success-color;
+    }
+    
+    &--error {
+      background-color: rgba(vars.$error-color, 0.1);
+      color: vars.$error-color;
+    }
+  }
+
+  // Footer avec bouton de fermeture centré
+  &__footer {
+    display: flex;
+    justify-content: center;
+    padding: vars.$spacing-md;
+    border-top: vars.$border-width solid vars.$border-color;
+    margin-top: vars.$spacing-md;
+    
+    // Supprimé les styles redondants de .stay-card__close qui sont maintenant dans _buttons.scss
+  }
+  
+  // Layout spécifique desktop - modification de la grille
+  @include mix.for-size('desktop') {
+    &.expanded {
+      display: grid;
+      // Nouvelle structure demandée: header en haut pleine largeur, 
+      // tabs en dessous, puis content, puis footer
+      grid-template-columns: 1fr;
+      grid-template-rows: auto auto 1fr auto;
+      grid-template-areas:
+        "header"
+        "tabs"
+        "content"
+        "footer";
+      
+      &__header {
+        grid-area: header;
+      }
+      
+      &__tabs {
+        grid-area: tabs;
+        flex-direction: row; // On garde les onglets horizontaux
+        border-bottom: vars.$border-width solid vars.$border-color;
+        border-right: none;
+        padding: vars.$spacing-sm 0;
+        overflow-x: auto;
+        overflow-y: hidden;
+        
+        button {
+          text-align: center;
+          padding: vars.$spacing-sm vars.$spacing-md;
+          
+          &.active::after {
+            // Indicateur en dessous (comme en mobile)
+            bottom: -1px;
+            left: 0;
+            top: auto;
+            right: auto;
+            width: 100%;
+            height: 3px; // Taille fixe au lieu de variable
+          }
+        }
+      }
+      
+      &__content {
+        grid-area: content;
+        max-height: none; // Pas de hauteur max
+        overflow-y: visible;
+      }
+      
+      &__footer {
+        grid-area: footer;
+      }
+    }
+  }
+}

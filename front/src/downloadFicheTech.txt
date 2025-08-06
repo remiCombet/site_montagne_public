@@ -1,0 +1,213 @@
+D'accord ! Voici les étapes pour mettre en place l'upload et le téléchargement de la fiche technique d'un séjour en utilisant express-fileupload et Cloudinary.
+
+1. Modification de la base de données
+On ajoute un champ tech_file_url à la table stay pour stocker l'URL du fichier PDF.
+
+sql
+Copier
+Modifier
+ALTER TABLE stay ADD COLUMN tech_file_url VARCHAR(255) NULL;
+2. Backend (Node.js, Express, Cloudinary)
+a) Configuration
+Installe express-fileupload si ce n’est pas déjà fait :
+
+bash
+Copier
+Modifier
+npm install express-fileupload
+Ajoute express-fileupload et configure Cloudinary dans app.js :
+
+js
+Copier
+Modifier
+const express = require("express");
+const fileUpload = require("express-fileupload");
+const cloudinary = require("cloudinary").v2;
+require("dotenv").config();
+
+const app = express();
+
+app.use(express.json());
+app.use(fileUpload({ useTempFiles: true })); // Active express-fileupload
+
+cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET,
+});
+b) Route pour uploader la fiche technique
+Ajout d'une route POST /api/stays/:id/upload-tech-file pour permettre à un admin d'uploader un fichier PDF.
+
+Contrôleur (controllers/stayController.js)
+js
+Copier
+Modifier
+const Stay = require("../models/Stay");
+const cloudinary = require("cloudinary").v2;
+
+exports.uploadTechFile = async (req, res) => {
+    try {
+        const stayId = req.params.id;
+
+        if (!req.files || !req.files.techFile) {
+            return res.status(400).json({ status: "error", msg: "Aucun fichier fourni" });
+        }
+
+        const techFile = req.files.techFile;
+
+        if (techFile.mimetype !== "application/pdf") {
+            return res.status(400).json({ status: "error", msg: "Seuls les fichiers PDF sont acceptés" });
+        }
+
+        // Upload du fichier PDF sur Cloudinary
+        const result = await cloudinary.uploader.upload(techFile.tempFilePath, {
+            folder: "stays/technical_files",
+            resource_type: "raw", // Nécessaire pour les fichiers PDF
+        });
+
+        // Mise à jour du séjour avec l'URL du fichier
+        await Stay.update(
+            { tech_file_url: result.secure_url },
+            { where: { id: stayId } }
+        );
+
+        res.json({ status: "success", msg: "Fichier technique uploadé", data: result.secure_url });
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ status: "error", msg: "Erreur serveur", error });
+    }
+};
+Route (routes/stayRoutes.js)
+js
+Copier
+Modifier
+const express = require("express");
+const router = express.Router();
+const { withAuth } = require("../middleware/withAuth");
+const { uploadTechFile } = require("../controllers/stayController");
+
+// Route pour uploader une fiche technique (admin uniquement)
+router.post("/:id/upload-tech-file", withAuth, uploadTechFile);
+
+module.exports = router;
+c) Route pour récupérer l'URL du fichier
+Ajout d'une route GET /api/stays/:id/tech-file pour récupérer l’URL du fichier.
+
+Contrôleur
+js
+Copier
+Modifier
+exports.getTechFile = async (req, res) => {
+    try {
+        const stay = await Stay.findByPk(req.params.id, { attributes: ["tech_file_url"] });
+
+        if (!stay || !stay.tech_file_url) {
+            return res.status(404).json({ status: "error", msg: "Fichier technique non disponible" });
+        }
+
+        res.json({ status: "success", data: stay.tech_file_url });
+
+    } catch (error) {
+        res.status(500).json({ status: "error", msg: "Erreur serveur", error });
+    }
+};
+Route
+js
+Copier
+Modifier
+router.get("/:id/tech-file", getTechFile);
+3. Frontend (React)
+a) Formulaire d’upload de la fiche technique (Admin)
+Un admin peut uploader une fiche technique pour un séjour.
+
+jsx
+Copier
+Modifier
+import { useState } from "react";
+import axios from "../../api/axios";
+
+const UploadTechFile = ({ stayId }) => {
+    const [file, setFile] = useState(null);
+    const [message, setMessage] = useState("");
+
+    const handleFileChange = (e) => {
+        setFile(e.target.files[0]);
+    };
+
+    const handleUpload = async () => {
+        if (!file) {
+            setMessage("Veuillez sélectionner un fichier.");
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append("techFile", file);
+
+        try {
+            const response = await axios.post(`/stays/${stayId}/upload-tech-file`, formData, {
+                headers: { "Content-Type": "multipart/form-data" },
+            });
+
+            setMessage(response.data.msg);
+        } catch (error) {
+            setMessage("Erreur lors de l'upload du fichier.");
+        }
+    };
+
+    return (
+        <div>
+            <input type="file" accept="application/pdf" onChange={handleFileChange} />
+            <button onClick={handleUpload}>Uploader</button>
+            {message && <p>{message}</p>}
+        </div>
+    );
+};
+
+export default UploadTechFile;
+b) Bouton de téléchargement de la fiche technique (Utilisateur)
+Sur la page d’un séjour, afficher un bouton pour télécharger la fiche technique.
+
+jsx
+Copier
+Modifier
+import { useEffect, useState } from "react";
+import axios from "../../api/axios";
+
+const DownloadTechFile = ({ stayId }) => {
+    const [techFileUrl, setTechFileUrl] = useState("");
+
+    useEffect(() => {
+        const fetchTechFile = async () => {
+            try {
+                const response = await axios.get(`/stays/${stayId}/tech-file`);
+                setTechFileUrl(response.data.data);
+            } catch (error) {
+                console.error("Aucun fichier technique trouvé.");
+            }
+        };
+
+        fetchTechFile();
+    }, [stayId]);
+
+    return techFileUrl ? (
+        <a href={techFileUrl} target="_blank" rel="noopener noreferrer">
+            📄 Télécharger la fiche technique
+        </a>
+    ) : (
+        <p>Aucune fiche technique disponible.</p>
+    );
+};
+
+export default DownloadTechFile;
+4. Résumé des étapes
+✅ Backend :
+
+Ajout du champ tech_file_url dans la table stay.
+Route POST /api/stays/:id/upload-tech-file : upload du fichier sur Cloudinary via express-fileupload.
+Route GET /api/stays/:id/tech-file : récupération de l’URL du fichier technique.
+✅ Frontend :
+
+Admin : Interface pour uploader une fiche technique.
+Utilisateur : Bouton pour télécharger la fiche technique.
+Avec cette solution, ton site permettra aux admins d’uploader des fiches techniques en PDF et aux utilisateurs de les télécharger facilement. 🚀

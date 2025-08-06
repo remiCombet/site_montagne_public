@@ -1,0 +1,48 @@
+.calendar-container {
+    width: 100%;
+    max-width: 600px;
+    margin: 0 auto;
+    text-align: center;
+  }
+  
+  .calendar-title {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+  }
+  
+  .calendar-row {
+    display: flex;
+  }
+  
+  .calendar-header-cell,
+  .calendar-cell {
+    flex: 1;
+    padding: 10px;
+    border: 1px solid #ddd;
+    text-align: center;
+    position: relative;
+  }
+  
+  .current-month {
+    background-color: #fff;
+  }
+  
+  .other-month {
+    background-color: #f9f9f9;
+    color: #aaa;
+  }
+  
+  .stay-day {
+    background-color: #d1e7dd;
+  }
+  
+  .stay-label {
+    font-size: 0.8rem;
+    color: #0f5132;
+    margin-top: 5px;
+  }
+  
+  .day-number {
+    font-weight: bold;
+  }
+  

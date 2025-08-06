@@ -1,0 +1,123 @@
+@use '../utils/variables' as vars;
+@use '../utils/mixins' as mix;
+@use '../utils/functions' as fn;
+@use 'sass:map';
+
+.admin-articles {
+    .article-card {
+        background-color: fn.bg-color('secondary');
+        border-radius: fn.radius('medium');
+        padding: fn.spacing('base');
+        margin: fn.spacing('base') 0;
+        box-shadow: fn.shadow('header');
+
+        // Header (image + titre + meta)
+        &__header {
+            display: flex;
+            gap: fn.spacing('base');
+            margin-bottom: fn.spacing('base');
+        }
+
+        &__image-container {
+            width: clamp(80px, 30%, 120px);
+            aspect-ratio: 1;
+            flex-shrink: 0;
+
+            img {
+                display: block;
+                width: 100%;
+                border-radius: fn.radius('medium');
+            }
+        }
+
+        &__title-group {
+            flex: 1;
+            min-width: 0;
+        }
+
+        &__title {
+            font-size: fn.font-size('large');
+            margin-bottom: fn.spacing('xs');
+        }
+
+        &__meta {
+            display: flex;
+            flex-direction: column;
+            gap: fn.spacing('xs');
+            font-size: fn.font-size('small');
+        }
+
+        // Corps (description)
+        &__body {
+            border-top: fn.border('dark');
+            padding: fn.spacing('base') 0;
+        }
+
+        // Footer (boutons)
+        &__actions {
+            display: flex;
+            justify-content: center;
+            gap: fn.spacing('base');
+            border-top: fn.border('dark');
+            padding-top: fn.spacing('base');
+        }
+    }
+
+    // Responsive
+    @include mix.respond-to('tablet') {
+        .article-card {
+            &__image-container {
+                width: clamp(100px, 35%, 150px);
+            }
+
+            &__title {
+                margin-bottom: fn.spacing('lg');
+            }
+
+            &__meta {
+                gap: fn.spacing('base');
+            }
+        }
+    }
+
+    @include mix.respond-to('desktop') {
+        .articles-list {
+            section {
+                ul {
+                    display: grid;
+                    grid-template-columns: repeat(2, 1fr);
+                    gap: fn.spacing('xl');
+                }
+            }
+        }
+
+        .article-card {
+            // 90% de la hauteur de la carte pour assurer un cohérence visuelle verticale (adapter la hauteur des deux cartes cote à cote mais aussi éviter de créer trop d'espace vertical qu'il y aurait si 100%)
+            height: 90%;
+            display: flex;
+            flex-direction: column;
+
+            &__header {
+                align-items: flex-start;
+            }
+
+            &__title-group {
+                display: flex;
+                flex-direction: column;
+                gap: fn.spacing('base');
+            }
+
+            &__title {
+                margin-bottom: fn.spacing('sm');
+            }
+
+            &__meta {
+                gap: fn.spacing('sm');
+            }
+
+            &__actions {
+                margin-top: auto;
+            }
+        }
+    }
+}

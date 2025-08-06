@@ -1,0 +1,123 @@
+@use '../../utils/variables' as vars;
+@use '../../utils/mixins' as mix;
+@use '../../utils/functions' as fn;
+
+// ====================================
+// Styles pour la section de liste des séjours
+// ====================================
+.stay-list-section {
+    padding: fn.spacing('base');
+
+    &__title {
+        font-size: fn.font-size('large');
+        margin-bottom: fn.spacing('md');
+        text-align: center;
+        font-weight: 700;
+
+        @include mix.respond-to('desktop') {
+            font-size: fn.font-size('xlarge');
+        }
+    }
+    
+    &__empty-message {
+        text-align: center;
+        padding: fn.spacing('xl');
+        background-color: fn.bg-color('light');
+        border-radius: fn.radius('medium');
+        font-style: italic;
+        box-shadow: fn.shadow('subtle');
+    }
+}
+
+// Grille des cartes de séjour
+.stay-list-grid {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: fn.spacing('lg');
+
+    @include mix.respond-to('tablet') {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    @include mix.respond-to('desktop') {
+        grid-template-columns: repeat(3, 1fr);
+    }
+    
+    &__item {
+        // display:flex;
+    }
+}
+
+// ====================================
+// Styles pour la carte de séjour
+// ====================================
+.stay-card {
+    position: relative;
+    background-color: #f1f3f5;
+    
+  
+  &:hover {
+    // Styles appliqués au survol
+  }
+  
+  &__link {
+    // Styles pour le lien englobant toute la carte
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    flex-direction: row;
+    text-decoration: none;
+  }
+  
+  &__image-container {
+    // Styles pour le conteneur d'image (div ou figure)
+  }
+  
+  &__image {
+    // Styles pour l'image elle-même
+  }
+  
+  &__content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding-left: fn.spacing('base');
+  }
+  
+  &__title {
+    color: fn.color('secondary', 'light');
+  }
+  
+  &__description {
+    // Styles pour la description tronquée
+    // text-decoration: none;
+  }
+  
+  &__footer {
+    // Styles pour le pied de la carte avec prix et CTA
+  }
+  
+  &__price {
+    // Styles pour l'affichage du prix
+  }
+  
+  &__cta {
+    // Styles pour le bouton d'appel à l'action
+  }
+  
+  &__badge {
+    // Styles de base pour les badges
+    
+    &--new {
+      // Variante pour badge "nouveau"
+    }
+    
+    &--featured {
+      // Variante pour badge "mis en avant"
+    }
+  }
+}

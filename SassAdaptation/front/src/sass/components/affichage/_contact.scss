@@ -1,0 +1,401 @@
+@use '../../utils/variables' as vars;
+@use '../../utils/mixins' as mix;
+@use '../../utils/functions' as fn;
+
+.main-content--contact {
+  position: relative;
+
+  @include mix.respond-to('desktop') {
+      max-width: none !important;
+      width: 100%;
+      padding: 0;
+      margin: 0;
+    }
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: url('https://res.cloudinary.com/dpa2kakxx/image/upload/c_scale,w_640,q_auto/v1736608654/site_montagne_v3/background/test_y7jbfl.jpg');
+    background-size: cover;
+    background-position: center;
+    z-index: -1;
+  }
+}
+
+.contact {
+  padding: fn.spacing('base');
+  margin: fn.spacing('base') 0;
+  background-color: fn.bg-color('light'); 
+  border-radius: fn.radius('medium');
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  justify-content: space-evenly;
+  
+  // Sur tablette et desktop, centrage vertical et ajustement hauteur
+  @include mix.respond-to('tablet') {    
+    box-shadow: fn.shadow('card');
+    width: clamp(500px, 80vw, 800px);
+    max-height: 400px;
+    margin: auto;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    
+    // Quand le formulaire est affiché (utilisateur connecté)
+    &:has(.contact__form-container.logged) {
+      max-height: 550px;
+    }
+  }
+  
+  @include mix.respond-to('desktop') {
+    padding: fn.spacing('lg');
+    max-height: 500px;
+    width: clamp(700px, 70vw, 1200px);
+    
+    // Quand le formulaire est affiché (utilisateur connecté)
+    &:has(.contact__form-container.logged) {
+      max-height: 650px;
+    }
+  }
+  
+  // Solution alternative pour les navigateurs sans support :has()
+  &--logged {
+    @include mix.respond-to('tablet') {
+      max-height: 550px !important;
+    }
+    
+    @include mix.respond-to('desktop') {
+      max-height: 650px !important;
+    }
+  }
+  
+  // En-tête de la section
+  &__header {
+    text-align: center;
+    margin-bottom: fn.spacing('md');
+    
+    @include mix.respond-to('tablet') {
+      margin-bottom: fn.spacing('sm');
+      width: 100%;
+    }
+  }
+  
+  &__title {
+    font-size: fn.font-size('large');
+    color: fn.color('primary', 'base');
+    margin-bottom: fn.spacing('xxs');
+    
+    @include mix.respond-to('desktop') {
+      font-size: fn.font-size('xlarge');
+    }
+  }
+  
+  &__subtitle {
+    color: fn.text-color('base');
+    font-size: fn.font-size('small');
+    
+    @include mix.respond-to('desktop') {
+      font-size: fn.font-size('base');
+    }
+  }
+  
+  // Les détails de contact doivent aussi prendre toute la largeur
+  &__details {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: fn.spacing('base');
+    margin-bottom: fn.spacing('md');
+    width: 100%;
+    
+    @include mix.respond-to('tablet') {
+      grid-template-columns: repeat(3, 1fr);
+      gap: fn.spacing('sm');
+      margin-bottom: fn.spacing('sm');
+    }
+    
+    @include mix.respond-to('desktop') {
+      gap: fn.spacing('md');
+    }
+  }
+  
+  // Cartes d'information (adresse, téléphone, email)
+  &__item {
+    background-color: white;
+    border-radius: fn.radius('medium');
+    padding: fn.spacing('base');
+    box-shadow: fn.shadow('card');
+    text-align: center;
+    
+    @include mix.respond-to('tablet') {
+      padding: fn.spacing('sm');
+    }
+    
+    @include mix.respond-to('desktop') {
+      padding: fn.spacing('base');
+    }
+
+    &:hover {
+      @include mix.transform(translateY(-4px));
+      box-shadow: fn.shadow('card-hover');
+    }
+    
+    &-title {
+      font-size: fn.font-size('medium');
+      color: fn.color('primary', 'base');
+      margin-bottom: fn.spacing('xs');
+      
+      @include mix.respond-to('tablet') {
+        font-size: fn.font-size('base');
+        margin-bottom: fn.spacing('xxs');
+      }
+      
+      @include mix.respond-to('desktop') {
+        font-size: fn.font-size('medium');
+      }
+    }
+    
+    &-value {
+      margin: 0;
+      font-size: fn.font-size('base');
+      
+      a {
+        color: fn.color('secondary', 'light');
+        font-weight: 500;
+        position: relative;
+        text-decoration: none;
+        @include mix.transition(
+          color, 
+          fn.transition-duration('medium'), 
+          fn.transition-curve('ease-out')
+        );
+            
+        &::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 50%;
+            width: 0;
+            height: 1.5px;
+            background-color: fn.color('secondary', 'base');
+            transform: translateX(-50%);
+            @include mix.transition(
+              width, 
+              fn.transition-duration('medium'), 
+              fn.transition-curve('ease-out')
+            );
+        }
+            
+        &:hover {
+            color: fn.color('secondary', 'base');
+                
+            &::after {
+                width: 100%;
+            }
+        }
+      }
+
+      .contact__item:nth-child(3) & {
+        color: fn.text-color('muted2');
+      }
+    }
+  }
+  
+  // Styles pour le formulaire
+  &__form-container {
+    width: 100%;
+    margin-top: fn.spacing('md');
+    
+    @include mix.respond-to('tablet') {
+      margin-top: fn.spacing('sm');
+    }
+  }
+  
+  &__form {
+    background-color: white;
+    padding: fn.spacing('md');
+    border-radius: fn.radius('medium');
+    box-shadow: fn.shadow('card');
+    
+    &-title {
+      font-size: fn.font-size('medium');
+      color: fn.color('primary', 'base');
+      margin-bottom: fn.spacing('sm');
+      text-align: center;
+    }
+
+    &-group {
+      margin-bottom: fn.spacing('base');
+    }
+
+    &-label {
+      display: block;
+      margin-bottom: fn.spacing('xxs');
+      
+      // Style pour le compteur de caractères dans le label
+      .char-counter {
+        font-size: fn.font-size('xs');
+        color: fn.text-color('muted');
+        margin-left: fn.spacing('xs');
+        font-weight: normal;
+        
+        &--exceeded {
+          color: fn.color('accent', 'base');
+          font-weight: 600;
+        }
+      }
+    }
+
+    &-textarea {
+      width: 100%;
+      padding: fn.spacing('xs');
+      border: fn.border('primary');
+      border-radius: fn.radius('small');
+      font-size: fn.font-size('small');
+      resize: vertical;
+
+      &:focus {
+        outline: none;
+        border-color: fn.color('primary', 'base');
+        box-shadow: 0 0 0 2px rgba(fn.color('primary', 'base'), 0.1);
+        
+        // Ajout pour le style d'erreur quand le texte est trop long
+        &.exceeded {
+          border-color: fn.color('accent', 'base');
+          box-shadow: 0 0 0 2px rgba(fn.color('accent', 'base'), 0.1);
+        }
+      }
+      
+      &::placeholder {
+        color: fn.text-color('muted');
+      }
+    }
+
+    &-submit {
+      display: block;
+      width: 50%;
+      margin: 0 auto;
+      padding: fn.spacing('xs') fn.spacing('sm');
+      background-color: fn.color('secondary', 'base');
+      border-radius: fn.radius('medium');
+      color: white;
+      border: none;
+      font-size: fn.font-size('small');
+      cursor: pointer;
+      @include mix.transition(
+        (background-color, transform, box-shadow), 
+        fn.transition-duration('medium'), 
+        fn.transition-curve('ease-out')
+      );
+
+      @include mix.respond-to('tablet') {
+        width: 40%;
+      }
+
+      @include mix.respond-to('desktop') {
+        width: 30%;
+        font-size: fn.font-size('medium');
+      }
+
+      &:hover:not(:disabled) {
+        background-color: fn.color('secondary', 'dark');
+        @include mix.transform(translateY(-2px));
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+      }
+    
+      &:active:not(:disabled) {
+        @include mix.transform(translateY(0));
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+      
+      &:disabled {
+        opacity: 0.7;
+        cursor: not-allowed;
+      }
+    }
+  }
+  
+  &__user-info {
+    background-color: rgba(fn.color('secondary', 'light'), 0.1);
+    border-left: 3px solid fn.color('primary', 'base');
+    padding: fn.spacing('xs') fn.spacing('sm');
+    margin-bottom: fn.spacing('sm');
+    border-radius: fn.radius('small');
+
+    @include mix.respond-to('desktop') {
+      padding: fn.spacing('sm');
+      margin-bottom: fn.spacing('md');
+    }
+
+    p {
+      margin: 0;
+      font-size: fn.font-size('small');
+
+      @include mix.respond-to('desktop') {
+        font-size: fn.font-size('base');
+      }
+    }
+    
+    strong {
+      color: fn.color('primary', 'base');
+    }
+  }
+
+  &__login-container {
+    text-align: center;
+
+    @include mix.respond-to('tablet') {
+      padding: fn.spacing('md') 0;
+    }
+
+    @include mix.respond-to('desktop') {
+      padding: fn.spacing('lg') 0;
+    }
+  }
+
+  &__login-message {
+    margin-bottom: fn.spacing('xs');
+    font-size: fn.font-size('small');
+
+    @include mix.respond-to('desktop') {
+      font-size: fn.font-size('base');
+      margin-bottom: fn.spacing('sm');
+    }
+  }
+
+  &__login-link {
+    display: inline-block;
+    padding: fn.spacing('xs') fn.spacing('sm');
+    background-color: fn.color('secondary', 'base');
+    color: white;
+    text-decoration: none;
+    border-radius: fn.radius('small');
+    font-size: fn.font-size('small');
+    @include mix.transition(
+      (background-color, transform, box-shadow), 
+      fn.transition-duration('medium'), 
+      fn.transition-curve('ease-out')
+    );
+
+    @include mix.respond-to('desktop') {
+      padding: fn.spacing('sm') fn.spacing('md');
+      font-size: fn.font-size('base');
+    }
+
+    &:hover {
+      background-color: fn.color('secondary', 'dark');
+      @include mix.transform(translateY(-2px));
+      box-shadow: fn.shadow('card-hover');
+  }
+  
+    &:active {
+        @include mix.transform(translateY(-1px));
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+  }
+}

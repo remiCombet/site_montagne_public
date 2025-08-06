@@ -1,0 +1,214 @@
+@use '../../utils/functions' as fn;
+@use '../../utils/mixins' as mix;
+@use '../../utils/variables' as vars;
+
+/**
+ * Styles principaux du composant Register
+ * --------------------------------------
+ * Structure avec préfixe "register-" pour éviter les conflits
+ */
+
+// Conteneur principal
+.register-content {
+    // Titre principal
+    h2 {
+        color: var(--color-primary);
+        margin-bottom: fn.spacing('sm');
+        text-align: center;
+        font-weight: 600;
+    }
+    
+    // Animation du formulaire
+    .auth-form {
+        animation: registerFadeIn 0.3s ease-out;
+        
+        @keyframes registerFadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+    }
+}
+
+/**
+ * Composants spécifiques à Register
+ * --------------------------------
+ */
+
+// Lien dans le footer
+.auth-links .register-link {
+    font-weight: 500;
+    transition: color 0.2s;
+    
+    &:hover, &:focus {
+        color: var(--color-primary-dark);
+    }
+}
+
+// Icône de validation des champs
+.validation-check {
+    position: absolute;
+    top: 50%;
+    right: 2.5rem;
+    transform: translateY(-50%);
+    color: var(--color-success);
+    opacity: 0;
+    transition: opacity 0.2s;
+    
+    &.visible {
+        opacity: 1;
+    }
+}
+
+/**
+ * Adaptations pour tablettes (≥ 768px)
+ * -----------------------------------
+ */
+@include mix.respond-to('tablet') {
+    .register-content {
+        h2 {
+            margin-bottom: fn.spacing('sm');
+        }
+        
+        .auth-form {
+            margin: fn.spacing('xs') 0;
+            
+            // Mise en page des champs nom/prénom sur la même ligne
+            // Sélecteur très spécifique pour garantir la priorité
+            fieldset .floating-input-container.name-container {
+                display: inline-block !important;
+                width: calc(50% - 0.5rem) !important;
+                vertical-align: top !important;
+                box-sizing: border-box !important;
+                
+                &:first-of-type {
+                    margin-right: 1rem !important;
+                }
+            }
+            
+            // Override pour le comportement des requirements
+            fieldset .floating-input-container.field-focused {
+                &.name-container {
+                    margin-bottom: 1.5rem !important; // Espace pour les messages d'erreur
+                }
+            }
+        }
+    }
+}
+
+/**
+ * Optimisations pour petits écrans en mode paysage
+ * ----------------------------------------------
+ */
+@media (min-width: 768px) and (max-height: 700px) {
+    .register-content {
+        // Titre plus compact
+        h2 {
+            margin-bottom: 0.5rem;
+            font-size: 1.4rem;
+        }
+        
+        .auth-form {
+            margin-top: 0.25rem;
+            
+            fieldset {
+                // Tous les champs plus compacts
+                .floating-input-container {
+                    margin-bottom: 0.5rem;
+                    padding: 0.25rem 0;
+                    
+                    // Inputs plus petits
+                    input {
+                        padding: 0.5rem 0.75rem;
+                    }
+                    
+                    // Ajuster la position du label
+                    label {
+                        top: calc(0.5rem + 0.25rem);
+                        font-size: 0.95rem;
+                    }
+                    
+                    // Animation du label adaptée
+                    input:focus + label, 
+                    input:not(:placeholder-shown) + label {
+                        transform: translateY(-1.1rem) scale(0.85);
+                    }
+                    
+                    // Espaces pour les champs en focus
+                    &.field-focused {
+                        margin-bottom: 1.4rem !important;
+                        
+                        // Cas spécial pour mot de passe
+                        &.password-container {
+                            margin-bottom: 2.5rem !important;
+                        }
+                    }
+                }
+                
+                // Bouton plus compact
+                button[type="submit"] {
+                    padding: 0.5rem;
+                    margin: 0.25rem 0 0.5rem;
+                }
+            }
+        }
+    }
+    
+    // Footer plus compact
+    .auth-links {
+        margin-top: 0.25rem;
+        
+        p {
+            margin: 0;
+        }
+    }
+}
+
+/**
+ * Option: Placement des exigences de champ à droite (tablette)
+ * ---------------------------------------------------------
+ * Décommentez cette section si vous souhaitez afficher les requirements 
+ * à droite des champs en mode tablette au lieu d'en dessous
+ */
+
+@include mix.respond-to('tablet') {
+    .register-content .auth-form fieldset .floating-input-container {
+        position: relative;
+        
+        .field-requirements {
+            width: 100%;
+            
+            &.visible {
+                opacity: 1;
+                max-height: none;
+            }
+            
+            ul {
+                flex-direction: row;
+                
+                li {
+                    font-size: 0.7rem;
+                    white-space: nowrap;
+                }
+            }
+        }
+        
+        // Espace pour les champs standards
+        &.name-container.field-focused,
+        &.email-container.field-focused {
+            margin-bottom: 2rem !important;
+
+            .field-requirements.visible {
+                max-height: 2rem !important;
+            }
+        }
+        
+        // Augmentation spécifique pour le conteneur password
+        &.password-container.field-focused {
+            margin-bottom: 3rem !important;
+            
+            .field-requirements.visible {
+                max-height: 3rem !important;
+            }
+        }
+    }
+}

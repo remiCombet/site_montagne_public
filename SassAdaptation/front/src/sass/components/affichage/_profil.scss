@@ -1,0 +1,136 @@
+.profile-container {
+  min-height: 60vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 2rem 1rem 2rem 1rem; // adapte le padding-top selon la hauteur de ton menu
+  position: static; // important : PAS absolute sur mobile
+}
+
+// Desktop/tablette : centrage absolu
+@media (min-width: 768px) {
+  .profile-container {
+    min-height: 80vh;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    padding: 0;
+  }
+}
+
+.profile-card {
+  width: clamp(280px, 90vw, 700px);
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+  padding: 1.5rem;
+}
+
+.profile-header {
+  text-align: center;
+//   margin-bottom: 1.5rem;
+
+  h2 {
+    font-size: 1.4rem;
+    margin-bottom: 0.5rem;
+    color: #2d4739;
+  }
+
+  .profile-message {
+    margin: 0.5rem 0 0 0;
+    font-size: 1rem;
+    border-radius: 4px;
+    padding: 0.5rem;
+    &.success { background: #e6f9e6; color: #217a3c; }
+    &.error { background: #ffeaea; color: #b30000; }
+  }
+}
+
+.update-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+}
+
+.floating-input-container {
+  position: relative;
+  margin-bottom: 0.5rem;
+
+  input,
+  textarea {
+    width: 100%;
+    padding: 0.9rem 0.7rem 0.5rem 0.7rem;
+    border: 1px solid #d3d3d3;
+    border-radius: 5px;
+    font-size: 1rem;
+    background: #fafafa;
+    transition: border-color 0.2s;
+    &:focus {
+      border-color: #2d4739;
+      background: #fff;
+    }
+  }
+
+  label {
+    // position: absolute;
+    // left: 0.8rem;
+    // top: 0.9rem;
+    font-size: 1rem;
+    color: #888;
+    pointer-events: none;
+    transition: 0.2s;
+    background: #fff;
+    padding: 0 0.2rem;
+  }
+
+  input:focus + label,
+  input:not(:placeholder-shown) + label,
+  textarea:focus + label,
+  textarea:not(:placeholder-shown) + label {
+    // top: -0.7rem;
+    // left: 0.6rem;
+    font-size: 0.85rem;
+    color: #2d4739;
+    background: #fff;
+  }
+
+  .input-border {
+    display: none;
+  }
+}
+
+.profile-submit {
+  width: 100%;
+  padding: 0.9rem;
+  background: #2d4739;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  font-weight: 600;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: background 0.2s;
+  &:hover {
+    background: #1a2e22;
+  }
+}
+
+// FieldRequirements styles (si besoin)
+.field-requirements {
+  font-size: 0.85rem;
+  color: #888;
+  margin-top: 0.2rem;
+}
+
+// Responsive (desktop)
+@media (min-width: 600px) {
+  .profile-card {
+    padding: 2.5rem 2.5rem 2rem 2.5rem;
+    // max-width: 500px;
+  }
+  .profile-header h2 {
+    font-size: 1.7rem;
+  }
+}

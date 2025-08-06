@@ -1,0 +1,114 @@
+@use 'sass:map';
+@use '../utils/variables' as vars;
+@use '../utils/mixins' as mix;
+
+// Layout principal admin
+.admin-dashboard {
+    display: flex;
+    flex-direction: column;
+    height: auto;
+
+    // Sidebar mobile
+    .sidebar {
+        width: 100%;
+        background: map.get(vars.$background-colors, 'admin');
+        padding: 1rem;
+        
+        // Menu de navigation
+        .sidebar-menu {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 1rem;
+
+            a {
+                text-decoration: none;
+                color: map.get(vars.$text-colors, 'admin');
+                position: relative;
+                @include mix.transition(color);
+
+                &::after {
+                    content: '';
+                    position: absolute;
+                    bottom: 0;
+                    left: 50%;
+                    transform: translateX(-50%);
+                    width: 0;
+                    height: 1px;
+                    background-color: map.get(vars.$text-colors, 'secondary-active');
+                    @include mix.transition(width);
+                }
+                
+                &.active {
+                    color: map.get(vars.$text-colors, 'secondary-active');
+                    
+                    &::after {
+                        width: 100%;
+                    }
+                }
+
+                &:hover {
+                    color: map.get(vars.$text-colors, 'secondary-active');
+                    
+                    &::after {
+                        width: 100%;
+                    }
+                }
+            }
+        }
+    }
+
+    // Contenu principal
+    .admin-content {
+        width: 100%;
+        padding: 1rem;
+        flex: 1;
+    }
+
+    // Version tablette
+    @include mix.respond-to('tablet') {
+        flex-direction: row;
+        // min-height: calc(100vh - (
+        //     map.get(map.get(vars.$layout-heights, 'header'), 'tablet') + 
+        //     map.get(map.get(vars.$layout-heights, 'footer'), 'tablet')
+        // ));
+
+        .sidebar {
+            width: 30vw;
+            max-width: 300px;
+            background: map.get(vars.$background-colors, 'admin');
+            
+            
+            .sidebar-menu {
+                position: sticky;
+                top: map.get(map.get(vars.$layout-heights, 'header'), 'tablet');
+                flex-direction: column;
+                text-align: center;
+                align-items: center;
+                height: auto;
+            }
+        }
+    }
+
+    // Version desktop
+    @include mix.respond-to('desktop') {
+        // min-height: calc(100vh - (
+        //     map.get(map.get(vars.$layout-heights, 'header'), 'desktop') + 
+        //     map.get(map.get(vars.$layout-heights, 'footer'), 'desktop')
+        // ));
+
+        .sidebar {
+            .sidebar-menu {
+                // On garde la même approche pour desktop
+                position: sticky;
+                top: 50%;
+                transform: translateY(-50%);
+                // Vous pouvez ajuster le gap si désiré
+                gap: 2.5rem;
+            }
+        }
+    }
+}

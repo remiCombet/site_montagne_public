@@ -1,0 +1,29 @@
+// Point d'entrée principal pour les styles d'authentification
+@use '../../utils/variables' as vars;
+@use '../../utils/mixins' as mix;
+@use '../../utils/functions' as fn;
+@use 'sass:map';
+
+// Importer les composants dans l'ordre de spécificité croissante
+// @use 'auth-layout';
+// @use 'auth-forms';
+// @use 'auth-inputs';
+// @use 'auth-login';
+// @use 'auth-register';
+// @use 'auth-responsive';
+
+.auth {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: fn.spacing('base') 0;
+    // pour compenser le margin horizontal de layout et avoir background sur toute la largeur
+    margin: fn.spacing('base') fn.spacing('auth');
+    // background-color: red;
+
+    &__container {
+        padding: fn.spacing('base');
+        // background-color: blue;
+        width: 100%;
+    }
+}

@@ -1,0 +1,80 @@
+// @use '../../utils/variables' as vars;
+// @use '../../utils/mixins' as mix;
+// @use '../../utils/functions' as fn;
+
+// // Conteneur spécifique au register
+// .register-content {
+//     // Animation spécifique au register
+//     .auth-form {
+//         animation: registerFadeIn 0.3s ease-out;
+        
+//         @keyframes registerFadeIn {
+//             from { opacity: 0; }
+//             to { opacity: 1; }
+//         }
+//     }
+// }
+
+// // Règles spécifiques aux champs du register
+// .auth-form fieldset {
+//     // Styles spécifiques pour les champs du formulaire d'inscription
+    
+//     // Mot de passe avec exigences multiples
+//     .floating-input-container.password-container {
+//         &.field-focused {
+//             margin-bottom: 3rem;
+            
+//             .field-requirements.visible {
+//                 max-height: 3rem;
+//             }
+//         }
+        
+//         .field-requirements ul {
+//             display: flex;
+//             flex-wrap: wrap;
+//             gap: 0.5rem;
+//         }
+//     }
+    
+//     // Téléphone avec exigence simple
+//     .floating-input-container.phone-container {
+//         &.field-focused {
+//             margin-bottom: 1.1rem;
+//         }
+//     }
+    
+//     // Autres champs avec exigences en ligne
+//     .floating-input-container:not(.password-container) {
+//         &.field-focused {
+//             margin-bottom: 1.8rem;
+            
+//             .field-requirements.visible {
+//                 max-height: 1.5rem;
+//             }
+//         }
+        
+//         .field-requirements ul {
+//             display: flex;
+//             white-space: nowrap;
+//             overflow-x: auto;
+//             scrollbar-width: none;
+            
+//             &::-webkit-scrollbar {
+//                 display: none;
+//             }
+            
+//             li {
+//                 margin-right: 0.5rem;
+                
+//                 &:last-child {
+//                     margin-right: 0;
+//                 }
+//             }
+//         }
+//     }
+// }
+
+// // Lien spécifique au register
+// .auth-links .register-link {
+//     font-weight: 500;
+// }

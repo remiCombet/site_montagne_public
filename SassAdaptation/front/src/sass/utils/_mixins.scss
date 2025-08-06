@@ -1,0 +1,72 @@
+@use 'sass:map';
+@use 'variables' as vars;
+
+// Mixin pour les breakpoints
+@mixin respond-to($breakpoint) {
+  @if map.has-key(vars.$breakpoints, $breakpoint) {
+      @media screen and (min-width: map.get(vars.$breakpoints, $breakpoint)) {
+          @content;
+      }
+  } @else {
+      @warn "Le breakpoint '#{$breakpoint}' n'existe pas.";
+  }
+}
+
+// Mixin pour les transitions
+@mixin transition(
+    $properties: all, 
+    $duration: map.get(map.get(vars.$animations, 'durations'), 'medium'),
+    $timing: map.get(map.get(vars.$animations, 'curves'), 'ease-out')
+) {
+    $prefixes: ('-webkit-', '-moz-', '-ms-', '-o-', '');
+    
+    @if type-of($properties) == 'list' {
+        // Si c'est une liste de propriétés
+        $transitions: ();
+        
+        @each $prop in $properties {
+            $transitions: append($transitions, #{$prop} #{$duration} #{$timing}, comma);
+        }
+        
+        @each $prefix in $prefixes {
+            #{$prefix}transition: $transitions;
+        }
+    } @else {
+        // Si c'est une seule propriété
+        @each $prefix in $prefixes {
+            #{$prefix}transition: $properties $duration $timing;
+        }
+    }
+}
+
+// Ajouter un mixin pour la transformation
+@mixin transform($transform) {
+    -webkit-transform: $transform;
+    -moz-transform: $transform;
+    -ms-transform: $transform;
+    -o-transform: $transform;
+    transform: $transform;
+}
+// @mixin transition(
+//     $property: all, 
+//     $duration: map.get(map.get(vars.$animations, 'durations'), 'medium'),
+//     $timing: map.get(map.get(vars.$animations, 'curves'), 'ease-out')
+// ) {
+//     -webkit-transition: $property $duration $timing;
+//     -moz-transition: $property $duration $timing;
+//     -ms-transition: $property $duration $timing;
+//     -o-transition: $property $duration $timing;
+//     transition: $property $duration $timing;
+// }
+
+// Mixin pour les animations avec préfixes
+@mixin prefixed-animation($name, $duration, $timing-function, $fill-mode: forwards) {
+    $prefixes: map.get(map.get(vars.$browser-styles, 'transitions'), 'prefixes');
+    
+    @each $prefix in $prefixes {
+        #{$prefix}animation-name: $name;
+        #{$prefix}animation-duration: $duration;
+        #{$prefix}animation-timing-function: $timing-function;
+        #{$prefix}animation-fill-mode: $fill-mode;
+    }
+}

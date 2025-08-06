@@ -1,0 +1,46 @@
+@use '../utils/variables' as *;
+@use '../utils/mixins' as mix;
+
+.articles-section {
+    margin-top: 2rem;
+    padding: 1rem;
+    max-width: $main-app-width;
+    margin: 0 auto;
+
+    h2 {
+        text-align: center;
+        margin-bottom: 2rem;
+        
+        &:hover {
+            color: $primary-color;
+            transition: color 0.3s ease;
+        }
+    }
+}
+
+.articles-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: $spacing-large;
+    padding: $spacing-medium;
+    
+    @include mix.respond-to('mobile') {
+        grid-template-columns: 1fr;
+        gap: $spacing-small;
+        padding: $spacing-small;
+    }
+}
+
+.loading-message {
+    text-align: center;
+    font-style: italic;
+    color: $text-muted;
+    grid-column: 1 / -1;
+}
+
+.error-message {
+    text-align: center;
+    color: $error-color;
+    font-weight: bold;
+    grid-column: 1 / -1;
+} 

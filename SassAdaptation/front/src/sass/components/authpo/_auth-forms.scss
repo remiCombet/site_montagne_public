@@ -1,0 +1,107 @@
+// @use '../../utils/variables' as vars;
+// @use '../../utils/mixins' as mix;
+// @use '../../utils/functions' as fn;
+
+// // Styles communs aux formulaires d'authentification
+// .auth-form {
+//     margin: fn.spacing('xs') 0;
+    
+//     fieldset {
+//         border: none;
+//         padding: 0;
+//         margin: 0;
+//     }
+    
+//     // Titres de formulaires
+//     h2 {
+//         color: var(--color-primary);
+//         margin-bottom: fn.spacing('sm');
+//         text-align: center;
+//         font-weight: 600;
+//     }
+    
+//     // Bouton de soumission générique
+//     button[type="submit"] {
+//         width: 100%;
+//         padding: 0.75rem;
+//         margin: fn.spacing('base') 0;
+//         background-color: var(--color-primary);
+//         color: white;
+//         border: none;
+//         border-radius: fn.radius('medium');
+//         cursor: pointer;
+//         font-weight: 500;
+//         transition: background-color 0.2s;
+        
+//         &:hover {
+//             background-color: var(--color-primary-dark);
+//         }
+//     }
+// }
+
+// // Messages d'erreur/succès
+// .auth-message {
+//     padding: 0.75rem;
+//     margin: fn.spacing('sm') 0;
+//     border-radius: fn.radius('small');
+//     text-align: center;
+//     animation: slideDown 0.3s ease-in-out;
+    
+//     &.error {
+//         background-color: rgba(231, 76, 60, 0.1);
+//         color: #c0392b;
+//         border-left: 3px solid #e74c3c;
+//     }
+    
+//     &.success {
+//         background-color: rgba(46, 204, 113, 0.1);
+//         color: #27ae60;
+//         border-left: 3px solid #2ecc71;
+//     }
+    
+//     @keyframes slideDown {
+//         from {
+//             opacity: 0;
+//             transform: translateY(-10px);
+//         }
+//         to {
+//             opacity: 1;
+//             transform: translateY(0);
+//         }
+//     }
+// }
+
+// // Liens en bas de formulaire
+// .auth-links {
+//     text-align: center;
+//     margin-top: fn.spacing('md');
+    
+//     p {
+//         margin-bottom: fn.spacing('xs');
+//     }
+    
+//     a {
+//         color: var(--color-primary);
+//         text-decoration: none;
+//         font-weight: 500;
+//         transition: color 0.2s;
+        
+//         &:hover {
+//             color: var(--color-primary-dark);
+//             text-decoration: underline;
+//         }
+//     }
+// }
+
+// // Classes utilitaires
+// .visually-hidden {
+//     position: absolute;
+//     width: 1px;
+//     height: 1px;
+//     padding: 0;
+//     margin: -1px;
+//     overflow: hidden;
+//     clip: rect(0, 0, 0, 0);
+//     white-space: nowrap;
+//     border: 0;
+// }

@@ -1,0 +1,114 @@
+@use '../utils/variables' as vars;
+
+@mixin form-section {
+  margin-bottom: vars.$spacing-lg;
+
+  h4 {
+    margin-top: 0;
+    margin-bottom: vars.$spacing-sm;
+    color: vars.$text-color-secondary;
+    font-size: vars.$font-size-base;
+    border-left: vars.$border-width-lg solid vars.$primary-color;
+    padding-left: vars.$spacing-sm;
+  }
+
+  .form-group {
+    margin-bottom: vars.$spacing-md;
+
+    label {
+      display: block;
+      margin-bottom: vars.$spacing-xs;
+      font-weight: 500;
+    }
+
+    .text-input {
+      width: 100%;
+      padding: vars.$spacing-sm;
+      border: vars.$border-width solid vars.$border-color;
+      border-radius: vars.$border-radius;
+
+      &:focus {
+        outline: none;
+        border-color: vars.$primary-color;
+      }
+    }
+
+    .file-input {
+      width: 100%;
+      padding: vars.$spacing-sm 0;
+    }
+
+    .form-help {
+      display: block;
+      margin-top: vars.$spacing-xs;
+      color: vars.$text-color-tertiary;
+      font-size: vars.$font-size-sm;
+    }
+  }
+}
+
+@mixin alert {
+  margin-bottom: vars.$spacing-md;
+  padding: vars.$spacing-sm;
+  border-radius: vars.$border-radius;
+
+  &.alert-success {
+    background-color: rgba(vars.$success-color, 0.1);
+    color: vars.$success-color;
+  }
+
+  &.alert-danger {
+    background-color: rgba(vars.$error-color, 0.1);
+    color: vars.$error-color;
+  }
+}
+
+@mixin image-preview {
+  width: 100%;
+  margin: 0 0 vars.$spacing-lg 0;
+  text-align: center;
+
+  .preview-image {
+    max-width: 100%;
+    max-height: 300px;
+    object-fit: contain;
+    border-radius: vars.$border-radius;
+    border: vars.$border-width solid vars.$border-color-light;
+  }
+
+  .image-status {
+    display: block;
+    margin-top: vars.$spacing-sm;
+    font-style: italic;
+    color: vars.$text-color-tertiary;
+  }
+}
+
+@mixin danger-zone {
+  border: vars.$border-width dashed vars.$error-color;
+  padding: vars.$spacing-md;
+  border-radius: vars.$border-radius;
+  margin-top: vars.$spacing-xl;
+
+  h4 {
+    color: vars.$error-color;
+    border-left-color: vars.$error-color;
+  }
+
+  p {
+    margin-bottom: vars.$spacing-md;
+  }
+
+  .btn-outline-danger {
+    border: vars.$border-width solid vars.$error-color;
+    background: transparent;
+    color: vars.$error-color;
+    padding: vars.$spacing-xs vars.$spacing-md;
+    border-radius: vars.$border-radius;
+    cursor: pointer;
+
+    &:hover {
+      background-color: rgba(vars.$error-color, 0.1);
+    }
+  }
+}

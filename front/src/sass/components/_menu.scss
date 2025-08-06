@@ -1,0 +1,74 @@
+.main-navBar {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  gap: 20px;
+
+  li {
+    position: relative;
+
+    a {
+      text-decoration: none;
+      color: #E0E0E0;
+      transition: color 0.3s;
+
+      &:hover {
+        color: #007bff;
+      }
+    }
+
+    &.submenu-active > a,
+    &.menu-item-has-submenu.submenu-active > a {
+      color: #007bff;
+    }
+
+    .active {
+      color: rgb(0, 255, 98);
+    }
+
+    .submenu {
+      visibility: hidden;
+      opacity: 0;
+      position: absolute;
+      top: 100%;
+      left: -20px; // pour recentrer (cause margin et padding?)
+      background-color: #f9f9f9;
+      list-style: none;
+      padding: 10px;
+      margin-top: 5px;
+      border: 1px solid #00aeff;
+      z-index: 10;
+      box-shadow: 0 8px 12px rgba(0, 0, 0, 0.9);
+      transition: opacity 0.3s ease, visibility 0s linear 0.3s, transform 0.3s ease-in-out;
+      transform: scale(0.5);
+
+      li {
+        padding: 5px 10px;
+
+        a {
+          color: #000;
+
+          &:hover {
+            color: #007bff;
+          }
+        }
+      }
+    }
+
+    &.menu-item-has-submenu {
+      &:hover .submenu {
+        visibility: visible;
+        opacity: 1;
+        transition-delay: 0s;
+        transform: scale(1);
+      }
+
+      &.submenu-active .submenu {
+        visibility: visible;
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+  }
+}

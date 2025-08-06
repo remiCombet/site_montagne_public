@@ -1,0 +1,56 @@
+.article-navigation {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    // background-color: #f8f9fa;
+    border-top: 1px solid #e0e0e0;
+
+    // Lien précédent
+    .article-navigation__previous,
+    .article-navigation__previous-disabled {
+        flex: 1;
+        text-align: left;
+    }
+
+    .article-navigation__previous-disabled {
+        display: none; // Cacher si aucun article précédent
+    }
+
+    // Lien suivant
+    .article-navigation__next,
+    .article-navigation__next-disabled {
+        flex: 1;
+        text-align: right;
+    }
+
+    .article-navigation__next-disabled {
+        display: none; // Cacher si aucun article suivant
+    }
+
+    // Lien central pour les articles
+    .article-navigation__center {
+        flex: 1;
+        text-align: center;
+        font-weight: bold;
+    }
+
+    // Mobile-first : style par défaut
+    a {
+        color: rgb(2, 182, 71);
+        text-decoration: none;
+
+        &:hover {
+            text-decoration: underline;
+            color: #007bff;
+        }
+    }
+
+    // Responsive styles
+    @media (min-width: 768px) {
+        .article-navigation {
+            padding: 1.5rem 2rem;
+            font-size: 1.2rem;
+        }
+    }
+}

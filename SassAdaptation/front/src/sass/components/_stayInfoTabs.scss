@@ -1,0 +1,75 @@
+@use '../utils/variables' as vars;
+@use '../utils/mixins' as mix;
+@use '../utils/functions' as fn;
+
+.stay-info-tabs {
+    width: 100%;
+
+    .tabs-navigation {
+        display: flex;
+        gap: fn.spacing('xs');
+        margin-bottom: fn.spacing('base');
+        
+        .tab-button {
+            flex: 1;
+            padding: fn.spacing('xs');
+            border-radius: fn.radius('small');
+            // Suppression de la transition
+            
+            &.active {
+                background-color: fn.bg-color('primary');
+                color: fn.text-color('light');
+            }
+
+            &:hover:not(.active) {
+                background-color: fn.bg-color('secondary');
+            }
+
+            @include mix.respond-to('tablet') {
+                flex: 0 1 auto;
+                padding: fn.spacing('xs') fn.spacing('base');
+            }
+        }
+    }
+
+    // Conteneur pour les tabs et leur contenu
+    .panel-container {
+        position: relative;
+        width: 100%;
+        overflow: hidden;
+    }
+
+    .tab-content {
+        width: 100%;
+        position: relative;
+        
+        // Suppression des animations slide
+    }
+
+    // Assurez-vous qu'on ne voit qu'un contenu à la fois
+    .tabs-content {
+        position: relative;
+        width: 100%;
+        min-height: 300px; // Garder la hauteur minimale pour éviter les sauts
+        // Suppression de la transition de hauteur
+        
+        .tab-panel {
+            width: 100%;
+            display: none; // Utilisation de display none/block au lieu d'opacité/visibilité
+            
+            &.active {
+                display: block;
+            }
+            
+            .section-header {
+                margin-bottom: fn.spacing('lg');
+                
+                h3 {
+                    font-size: fn.font-size('large');
+                    color: fn.text-color('dark');
+                }
+            }
+        }
+    }
+}
+

@@ -1,0 +1,17 @@
+@use '../../sass/test/variablesTest' as v;
+@use '../../sass/test/mixinsTest' as m;
+
+.background-section {
+    width: 100%;
+    height: 30vh;
+    background-color: v.$secondary-color;
+}
+
+.main-content {
+    width: 100%;
+    max-width: v.$container-xl;
+    margin: 0 auto;
+    padding: 2rem 1rem;
+    min-height: 50vh;
+    background-color: v.$bg-light;
+}

@@ -1,0 +1,44 @@
+.stays-section {
+    display: flex;
+    flex-direction: column;  // En mobile, les séjours seront empilés les uns au-dessus des autres.
+    gap: 1rem; // Espacement entre les séjours.
+
+    .stay-card {
+        background-color: #fff;
+        padding: 1rem;
+        box-shadow: 0 5px 10px rgba(0, 0, 0, 0.5);
+        margin-bottom: 1rem;
+        border: 1px solid #e0e0e0;
+        color: #333;
+        border: 2px solid rgba(0, 0, 0, 0.0);;
+        
+        &:hover {
+            box-shadow: 0 2px 15px rgba(0, 0, 0, 0.7);
+            border: 2px solid #007bff;
+        }
+        
+        p {
+            margin: 0.5rem 0;
+            font-size: 1rem;
+            line-height: 1.5;
+        }
+    }
+
+    // Pour les écrans plus grands (tablettes et ordinateurs)
+    // @media (min-width: 768px) {
+    //     flex-direction: row;
+    //     flex-wrap: wrap;
+    //     gap: 2rem;
+
+    //     .stay-card {
+    //         width: 48%;  // Deux séjours par ligne sur tablette et plus grand
+    //     }
+    // }
+
+    // Pour les écrans encore plus grands (bureau)
+    // @media (min-width: 1024px) {
+    //     .stay-card {
+    //         width: 30%;  // Trois séjours par ligne sur grand écran
+    //     }
+    // }
+}

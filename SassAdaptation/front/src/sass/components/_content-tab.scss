@@ -1,0 +1,83 @@
+@use '../utils/variables' as vars;
+@use '../utils/mixins' as mix;
+@use '../utils/functions' as fn;
+
+.stay-info-tabs {
+    .tabs-content {
+        position: relative;
+        min-height: 300px;
+        overflow: hidden;
+
+        .tab-panel {
+            position: absolute;
+            width: 100%;
+            opacity: 0;
+            transform: translateX(100%);
+            visibility: hidden;
+
+            &.slide-left {
+                animation: slideInRight 0.3s forwards;
+            }
+
+            &.slide-right {
+                animation: slideInLeft 0.3s forwards;
+            }
+
+            &.slide-out-left {
+                animation: slideOutLeft 0.3s forwards;
+            }
+
+            &.slide-out-right {
+                animation: slideOutRight 0.3s forwards;
+            }
+        }
+    }
+}
+
+@keyframes slideInRight {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+        visibility: visible;
+    }
+}
+
+@keyframes slideInLeft {
+    from {
+        transform: translateX(-100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+        visibility: visible;
+    }
+}
+
+@keyframes slideOutLeft {
+    from {
+        transform: translateX(0);
+        opacity: 1;
+    }
+    to {
+        transform: translateX(-100%);
+        opacity: 0;
+        visibility: hidden;
+    }
+}
+
+@keyframes slideOutRight {
+    from {
+        transform: translateX(0);
+        opacity: 1;
+    }
+    to {
+        transform: translateX(100%);
+        opacity: 0;
+        visibility: hidden;
+    }
+}

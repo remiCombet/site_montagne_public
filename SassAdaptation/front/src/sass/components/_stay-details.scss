@@ -1,0 +1,394 @@
+@use '../utils/variables' as vars;
+@use '../utils/mixins' as mix;
+@use '../utils/functions' as fn;
+
+.stay-details-management {
+    width: 100%;
+
+    // Vue mode lecture
+    .stay-details-view {
+        .details-header {
+            h3 {
+                font-size: fn.font-size('large');
+                margin-bottom: fn.spacing('base');
+            }
+        }
+
+        .details-tabs {
+            display: flex;
+            gap: fn.spacing('xs');
+            margin-bottom: fn.spacing('base');
+            
+            .tab-button {
+                flex: 1;
+                padding: fn.spacing('xs');
+                border-radius: fn.radius('small');
+                border: none;
+                background: none;
+                cursor: pointer;
+                
+                &.active {
+                    background-color: fn.bg-color('primary');
+                    color: fn.text-color('light');
+                }
+
+                @include mix.respond-to('tablet') {
+                    flex: 0 1 auto;
+                    padding: fn.spacing('xs') fn.spacing('base');
+                }
+            }
+        }
+
+        .stay-info-list {
+            display: grid;
+            gap: fn.spacing('base');
+
+            .stay-info-item {
+                dt {
+                    color: fn.text-color('muted');
+                    font-size: fn.font-size('small');
+                    margin-bottom: fn.spacing('xxs');
+                }
+
+                dd {
+                    font-size: fn.font-size('base');
+                }
+            }
+        }
+
+        .details-action {
+            display: flex;
+            justify-content: center;
+            margin: fn.spacing('lg') 0;
+            
+
+            .action-button {
+                padding: fn.spacing('xs') fn.spacing('base');
+                border-radius: fn.radius('small');
+            }
+        }
+    }
+
+    // Mode édition
+    .stay-details-edit {
+        // Même style pour les onglets en mode édition
+        .details-tabs {
+            display: flex;
+            gap: fn.spacing('xs');
+            margin-bottom: fn.spacing('base');
+            
+            .tab-button {
+                flex: 1;
+                padding: fn.spacing('xs');
+                border-radius: fn.radius('small');
+                border: none;
+                background: none;
+                cursor: pointer;
+                
+                &.active {
+                    background-color: fn.bg-color('primary');
+                    color: fn.text-color('light');
+                }
+
+                @include mix.respond-to('tablet') {
+                    flex: 0 1 auto;
+                    padding: fn.spacing('xs') fn.spacing('base');
+                }
+
+                &:disabled {
+                    cursor: not-allowed;
+                    opacity: 0.7;
+                }
+            }
+        }
+    }
+}
+
+.stay-details-content {
+    width: 100%;
+    
+    .stay-info-list {
+        display: grid;
+        gap: fn.spacing('base');
+
+        .stay-info-item {
+            dt {
+                color: fn.text-color('muted');
+                font-size: fn.font-size('small');
+                margin-bottom: fn.spacing('xxs');
+            }
+
+            dd {
+                font-size: fn.font-size('base');
+            }
+        }
+    }
+
+    // Mode édition
+    .stay-edit-form {
+        display: grid;
+        gap: fn.spacing('lg');
+
+        .stay-edit-fieldset {
+            border: none;
+            padding: 0;
+            margin: 0;
+            
+            legend {
+                font-size: fn.font-size('medium');
+                margin-bottom: fn.spacing('base');
+                color: fn.text-color('primary');
+            }
+        }
+
+        .form-group {
+            margin-bottom: fn.spacing('base');
+
+            label {
+                display: block;
+                margin-bottom: fn.spacing('xxs');
+                color: fn.text-color('muted');
+                font-size: fn.font-size('small');
+            }
+
+            input, select, textarea {
+                width: 100%;
+                padding: fn.spacing('xs');
+                border-radius: fn.radius('small');
+                border: fn.border('primary');
+                
+                &:focus {
+                    outline: none;
+                    border-color: fn.border-color('active');
+                }
+
+                &:disabled {
+                    opacity: 0.7;
+                    cursor: not-allowed;
+                }
+            }
+        }
+
+        .form-row {
+            display: grid;
+            gap: fn.spacing('base');
+            grid-template-columns: 1fr;
+
+            @include mix.respond-to('tablet') {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    }
+
+    .details-action {
+        display: flex;
+        justify-content: center;
+        margin: fn.spacing('lg') 0;
+    }
+
+    .form-actions {
+        display: flex;
+        gap: fn.spacing('base');
+        justify-content: flex-end;
+        margin-top: fn.spacing('lg');
+    }
+
+    .danger-zone {
+        margin-top: fn.spacing('xl');
+        padding: fn.spacing('base');
+        border-radius: fn.radius('medium');
+        background-color: fn.bg-color('danger-light');
+
+        h4 {
+            color: fn.text-color('danger');
+            margin-bottom: fn.spacing('base');
+        }
+
+        .delete-confirmation {
+            margin-top: fn.spacing('base');
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: fn.spacing('base');
+            margin-top: fn.spacing('base');
+        }
+    }
+
+    .alert {
+        padding: fn.spacing('base');
+        margin-bottom: fn.spacing('base');
+        border-radius: fn.radius('small');
+        
+        &.alert-danger {
+            background-color: fn.bg-color('danger-light');
+            color: fn.text-color('danger');
+        }
+        
+        &.alert-success {
+            background-color: fn.bg-color('success-light');
+            color: fn.text-color('success');
+        }
+    }
+}
+
+.stay-details {
+    width: 100%;
+
+    // Mode lecture
+    .stay-info-list {
+        display: grid;
+        gap: fn.spacing('base');
+        margin-bottom: fn.spacing('lg');
+        
+        dt {
+            color: fn.text-color('muted');
+            font-size: fn.font-size('small');
+            margin-bottom: fn.spacing('xxs');
+        }
+
+        dd {
+            font-size: fn.font-size('base');
+        }
+    }
+
+    // Mode édition
+    .stay-edit-form {
+        display: grid;
+        gap: fn.spacing('lg');
+
+        fieldset {
+            border: none;
+            padding: 0;
+            margin: 0;
+            
+            legend {
+                font-size: fn.font-size('medium');
+                margin-bottom: fn.spacing('base');
+                font-weight: 600; // Ajout du gras
+                color: fn.text-color('dark'); // Changement de couleur pour plus de contraste
+                padding: fn.spacing('xs') 0; // Ajout d'espacement vertical
+                border-bottom: 2px solid fn.border-color('primary'); // Ajout d'une ligne de séparation
+            }
+        }
+
+        .form-row {
+            display: grid;
+            gap: fn.spacing('base');
+            grid-template-columns: 1fr;
+
+            @include mix.respond-to('tablet') {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        label {
+            display: block;
+            margin-bottom: fn.spacing('base');
+
+            span {
+                display: block;
+                color: fn.text-color('muted');
+                font-size: fn.font-size('small');
+                margin-bottom: fn.spacing('xxs');
+            }
+
+            input, select, textarea {
+                width: 100%;
+                padding: fn.spacing('xs');
+                border-radius: fn.radius('small');
+                border: fn.border('primary');
+                
+                &:focus {
+                    outline: none;
+                    border-color: fn.border-color('active');
+                }
+
+                &:disabled {
+                    opacity: 0.7;
+                    cursor: not-allowed;
+                }
+            }
+        }
+    }
+
+    // Éléments communs
+    menu {
+        display: flex;
+        gap: fn.spacing('base');
+        margin: fn.spacing('lg') 0;
+        padding: 0;
+
+        &.form-actions {
+            justify-content: flex-end;
+        }
+
+        .action-button {
+            margin: fn.spacing('xs'); // Ajout de la marge pour les boutons dans les menus
+        }
+    }
+
+    .alert {
+        padding: fn.spacing('base');
+        margin-bottom: fn.spacing('base');
+        border-radius: fn.radius('small');
+        
+        &.alert-danger {
+            background-color: fn.bg-color('danger-light');
+            color: fn.text-color('danger');
+        }
+        
+        &.alert-success {
+            background-color: fn.bg-color('success-light');
+            color: fn.text-color('success');
+        }
+    }
+
+    footer.danger-zone {
+        margin-top: fn.spacing('xl');
+        padding: fn.spacing('base');
+        border-radius: fn.radius('medium');
+        background-color: fn.bg-color('danger-light');
+
+        h4 {
+            color: fn.text-color('danger');
+            margin-bottom: fn.spacing('base');
+        }
+
+        button.action-button {
+            margin: fn.spacing('xs');  // Ajout de marge autour du bouton
+            padding: fn.spacing('xs') fn.spacing('base');  // Ajout de padding
+        }
+
+        aside.delete-confirmation {
+            margin-top: fn.spacing('base');
+            
+            .action-buttons {
+                display: flex;
+                gap: fn.spacing('base');
+                margin-top: fn.spacing('base');
+                
+                button {
+                    margin: fn.spacing('xs');  // Ajout de marge autour des boutons de confirmation
+                    padding: fn.spacing('xs') fn.spacing('base');  // Ajout de padding
+                }
+            }
+        }
+    }
+
+    // Mettre à jour les styles des boutons pour correspondre à reception-point
+    .action-button {
+        padding: fn.spacing('xs') fn.spacing('base');
+        border-radius: fn.radius('small');
+        margin: fn.spacing('xs'); // Ajout de la marge uniforme
+    }
+
+    // Animations
+    &.slide-right {
+        animation: slideFromRight 0.3s forwards;
+    }
+
+    &.slide-left {
+        animation: slideFromLeft 0.3s forwards;
+    }
+}

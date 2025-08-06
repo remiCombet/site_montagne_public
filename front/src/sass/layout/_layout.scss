@@ -1,0 +1,99 @@
+@use '../utils/variables' as vars;
+@use '../utils/mixins' as mix;
+
+// Structure du layout principal
+#root, .App {
+  @include mix.flex(column); // Utilise le mixin flex
+  min-height: 100vh;
+}
+
+// Structure du header
+header {
+  width: 100%;
+  
+  // Structure de la navigation
+  .site-navigation {
+    min-height: 3.5rem;
+    @include mix.padding-horizontal(1rem);
+    padding-top: 0.8rem;
+    padding-bottom: 0.8rem;
+    
+    @include mix.for-size('tablet') {
+      min-height: 4rem;
+      @include mix.padding-horizontal(2rem);
+    }
+    
+    @include mix.for-size('desktop') {
+      min-height: 5rem;
+      @include mix.padding-horizontal(3rem);
+      padding-top: 1rem;
+      padding-bottom: 1rem;
+    }
+  }
+  
+  // Dimensions de la bannière
+  .banner {
+    height: 30vh;
+    width: 100%;
+    
+    @include mix.for-size('tablet') {
+      height: 40vh;
+    }
+    
+    @include mix.for-size('desktop') {
+      height: 50vh;
+    }
+  }
+}
+
+// Structure du contenu principal
+main, .main-content {
+  // Version mobile par défaut
+  @include mix.center-horizontal(vars.$container-max-width-mobile);
+  flex: 1;
+  
+  // Largeurs responsives
+  @include mix.for-size('tablet') {
+    @include mix.center-horizontal(vars.$container-max-width-tablet);
+  }
+  
+  @include mix.for-size('desktop') {
+    @include mix.center-horizontal(vars.$container-max-width-desktop);
+  }
+  
+  @include mix.for-size('large') {
+    @include mix.center-horizontal(vars.$container-max-width-large);
+  }
+}
+
+// Structure du footer
+.site-footer {
+  min-height: 3rem;
+  width: 100%;
+  text-align: center;
+  background-color: vars.$primary-color;
+  color: vars.$white;
+  
+  @include mix.for-size('tablet') {
+    min-height: 4rem;
+  }
+  
+  @include mix.for-size('desktop') {
+    min-height: 5rem;
+  }
+}
+
+// Utilitaires de layout
+.full-height {
+  min-height: 100vh;
+}
+
+// Pour le background optionnel
+.background-section {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: -1;
+}

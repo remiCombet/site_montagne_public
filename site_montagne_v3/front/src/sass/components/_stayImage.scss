@@ -1,0 +1,52 @@
+@use '../utils/variables' as vars;
+
+.image-management {
+  // Styles généraux
+  width: 100%;
+  background-color: vars.$background-light;
+  border-radius: vars.$border-radius;
+}
+
+.image-preview-container {
+  width: 100%;
+  margin: vars.$spacing-sm 0 0 0;
+  text-align: center;
+
+  .preview-image {
+    max-width: 100%;
+    max-height: 200px;
+    object-fit: contain;
+    border-radius: vars.$border-radius;
+    border: vars.$border-width solid vars.$border-color-light;
+  }
+
+  .image-status {
+    display: block;
+    margin-top: vars.$spacing-sm;
+    font-style: italic;
+    color: vars.$text-color-tertiary;
+  }
+}
+
+.alert {
+  margin-bottom: vars.$spacing-md;
+  padding: vars.$spacing-sm;
+  border-radius: vars.$border-radius;
+
+  &.alert-success {
+    background-color: rgba(vars.$success-color, 0.1);
+    color: vars.$success-color;
+  }
+
+  &.alert-danger {
+    background-color: rgba(vars.$error-color, 0.1);
+    color: vars.$error-color;
+  }
+}
+
+.form-actions {
+  margin-top: vars.$spacing-md;
+  display: flex;
+  gap: vars.$spacing-md;
+  justify-content: center;
+}

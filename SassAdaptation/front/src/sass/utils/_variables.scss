@@ -1,0 +1,216 @@
+// Breakpoints
+$breakpoints: (
+    'mobile': 320px,
+    'tablet': 768px,
+    'desktop': 1024px,
+    'large-desktop': 1440px
+);
+
+// Font sizes
+$font-sizes: (
+    'small': 0.875rem,    // 14px
+    'base': 1rem,         // 16px
+    'medium': 1.25rem,    // 20px
+    'large': 1.5rem,      // 24px
+    'xlarge': 2rem        // 32px
+);
+
+// Couleurs de base
+$primary-color: #3498db;
+$secondary-color: #2ecc71;
+$accent-color: #e74c3c;
+
+// Palette de couleurs primaires avec variantes
+$colors: (
+    'primary': (
+        'base': #2E7D32,
+        'light': #4CAF50,
+        'dark': #1B5E20,
+        'contrast': #ffffff
+    ),
+    'secondary': (
+        'base': #1565C0,
+        'light': #1E88E5,
+        'dark': #0D47A1,
+        'contrast': #ffffff
+    ),
+    'accent': (
+        'base': #e74c3c,
+        'light': #f3a695,
+        'dark': #c0392b,
+        'contrast': #ffffff
+    ),
+    // Autres couleurs...
+);
+
+// Couleurs de fond
+$background-colors: (
+    'primary': #5f5f5f,
+    'secondary': #f8f9fa,
+    'dark': #343a40,
+    'light': #f1f3f5,
+    'admin': #557db1,
+    'popup': rgba(0, 0, 0, 0.5)
+);
+
+// Couleurs de texte
+$text-colors: (
+    'primary': #d1e8ff,
+    'base': #000000,
+    'primary-active': #4fc3ff,
+    'secondary': #2ecc71,
+    'secondary-active': #43f88e,
+    'third-active': #27ae60,
+    'admin': #000000,
+    'light': #f8f9fa,
+    'dark': #212529,
+    'muted': #868e96,
+    'muted2': #656769
+);
+
+// Espacements
+// $spacing-base: 1rem;
+// $spacing-small: 0.5rem;
+// $spacing-large: 2rem;
+
+// Espacements
+$spacing: (
+    'xxs': 0.25rem,     // 4px
+    'xs': 0.5rem,       // 8px (actuellement utilisé pour certains gaps)
+    'sm': 0.75rem,      // 12px (utilisé pour certains margins)
+    'auth': -1rem,
+    'base': 1rem,       // 16px (valeur de base actuelle)
+    'md': 1.25rem,      // 20px
+    'lg': 1.5rem,       // 24px (utilisé dans les media queries)
+    'xl': 2rem,         // 32px (utilisé pour les gaps en desktop)
+    'xxl': 2.5rem       // 40px
+);
+
+// Bordures
+$borders: (
+    'menu': 1px solid rgb(31, 30, 30),
+    'light': 1px solid rgba(255, 255, 255, 0.1),
+    'dark': 1px solid rgba(0, 0, 0, 0.1),
+    'primary': 1px solid #dee2e6,
+    'active': 2px solid #4fc3ff,
+    'button': 1.5px solid rgba(0, 0, 0, 0.2) 
+);
+
+// Status colors
+$status-colors: (
+    'pending': #ffd700,
+    'approved': #2ecc71,
+    'rejected': #e74c3c,
+    'cancelled': #95a5a6,
+    'waiting': #3498db,
+    'complet': #27ae60,
+    'participants_insuffisants': #e67e22,
+    'en_attente_de_validation': #f1c40f,
+    'en_attente': #3498db,
+    'validé': #2ecc71,
+    'refusé': #e74c3c,
+    'annulé': #95a5a6
+);
+
+// Border radius
+$border-radius: (
+    'small': 4px,
+    'medium': 8px,
+    'large': 12px
+);
+
+// Table styles
+$table-styles: (
+    'header-bg': #f8f9fa,
+    'row-hover': rgba(0, 0, 0, 0.05),
+    'border': 1px solid #dee2e6
+);
+
+// Cards
+// $card-styles: (
+//     'padding': (
+//         'small': 0.75rem,
+//         'medium': 1rem,
+//         'large': 1.5rem
+//     ),
+//     'background': (
+//         'primary': #ffffff,
+//         'secondary': #f8f9fa,
+//         'hover': rgba(0, 0, 0, 0.05)
+//     ),
+//     'shadow': 0 2px 4px rgba(0, 0, 0, 0.1)
+// );
+
+// Grid
+$grid-spacing: (
+    'small': 0.5rem,
+    'medium': 1rem,
+    'large': 1.5rem,
+    'xlarge': 2rem
+);
+
+// Animations
+$animations: (
+    'durations': (
+        'fast': 150ms,
+        'medium': 300ms,
+        'slow': 500ms
+    ),
+    'curves': (
+        'ease-out': ease-out,
+        'ease-in': ease-in,
+        'ease-in-out': ease-in-out,
+        'smooth': cubic-bezier(0.4, 0, 0.2, 1)
+    )
+);
+
+// peux etre rajouter pour le darkmode dark et light ? 
+// Ombres
+$shadows: (
+    'header': 0 4px 8px rgba(0, 0, 0, 0.6),
+    'submenu': 3px 8px 8px rgba(0, 0, 0, 0.55),
+    'card': 0 3px 10px rgba(0, 0, 0, 0.1),
+    'card-hover': 0 8px 20px rgba(0, 0, 0, 0.15),
+    'featured': 0 2px 8px rgba(0, 0, 0, 0.08),
+    'auth': 0 4px 15px rgba(0, 0, 0, 0.6),
+);
+
+$layout-heights: (
+    'header': (
+        'mobile': 4rem,
+        'tablet': 3.5rem,
+        'desktop': 3.5rem 
+    ),
+    'footer': (
+        'mobile': 3rem,
+        'tablet': 3rem,
+        'desktop': 3rem
+    ),
+    'banner': (
+        'height': (
+            'mobile': 40vh,
+            'tablet': 40vh,
+            'desktop': 40vh
+        )
+    )
+);
+
+// Styles spécifiques aux navigateurs
+$browser-styles: (
+    'transitions': (
+        'prefixes': ('-webkit-', '-moz-', '-ms-', '-o-', '')
+    ),
+    'scrollbar': (
+        'firefox': 'none',
+        'ms': 'none',
+        'webkit': 'none'
+    ),
+    'gradients': (
+        'fade-right': (
+            'start': 0%,
+            'middle': 95%,
+            'end': 100%,
+            'opacity': 0.3
+        )
+    )
+);

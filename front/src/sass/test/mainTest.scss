@@ -1,0 +1,59 @@
+@use 'variablesTest' as v;
+@use 'mixinsTest' as m;
+@use 'headerTest';
+
+// Reset de base
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    line-height: 1.6;
+    color: v.$text-color;
+    background-color: v.$bg-light;
+}
+
+// Styles de base pour les éléments
+h1 {
+    color: v.$title-color;
+}
+
+h2, h3, h4, h5, h6 {
+  color: v.$primary-color;
+  margin-bottom: 1rem;
+}
+
+a {
+  color: v.$link-color;
+  text-decoration: none;
+  @include m.hover-transition;
+
+  &:hover {
+    color: v.$hover-accent;
+  }
+}
+
+.container {
+  width: 100%;
+  padding: 0 1rem;
+  margin: 0 auto;
+
+  @include m.sm {
+    max-width: v.$container-sm;
+  }
+
+  @include m.md {
+    max-width: v.$container-md;
+  }
+
+  @include m.lg {
+    max-width: v.$container-lg;
+  }
+
+  @include m.xl {
+    max-width: v.$container-xl;
+  }
+}

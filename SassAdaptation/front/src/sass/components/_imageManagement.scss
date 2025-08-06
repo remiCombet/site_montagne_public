@@ -1,0 +1,158 @@
+@use '../utils/variables' as vars;
+@use '../utils/mixins' as mix;
+@use '../utils/functions' as fn;
+@use 'sass:map';
+
+// Styles communs pour form-group et danger-zone
+%content-container {
+  display: flex;
+  flex-direction: column;
+  gap: fn.spacing('xs');
+  margin: fn.spacing('sm') 0;
+}
+
+.image-management {
+    // Styles pour le conteneur principal
+    .image-view-mode {
+      // Styles pour le mode visualisation
+      .image-header {
+        // Styles pour l'en-tête de l'image
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        margin-bottom: fn.spacing('base');
+
+        h3 {
+          // order: 2;
+        }
+
+        .image-preview-container {
+            // Styles pour le conteneur de l'aperçu de l'image
+            width: clamp(80px, 50%, 200px);;
+            aspect-ratio: 1;
+            flex-shrink: 0;
+
+          .preview-image {
+            // Styles pour l'image de prévisualisation
+            display: block;
+            width: 100%;
+            margin: fn.spacing('xs') 0;
+          }
+          .image-status {
+            // Styles pour le statut de l'image par défaut
+          }
+
+          .image-alt {
+            // styles pour la description d'e l'image
+          }
+        }
+      }
+      .image-action {
+        // Styles pour les actions sur l'image
+        display: flex;
+        justify-content: center;
+        margin-bottom: fn.spacing('xs');
+        
+        .action-button {
+          // Styles pour les boutons d'action
+        }
+      }
+    }
+  
+    .image-edit-mode {
+      // Styles pour le mode édition
+      
+      .section-header {
+        // Styles pour l'en-tête de section
+        text-align: center;
+      }
+      .alert {
+        // Styles pour les messages d'alerte
+      }
+      form {
+        // Styles pour le formulaire
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        
+        .image-preview-container {
+          // Styles pour le conteneur de l'aperçu de l'image
+          width: clamp(80px, 50%, 200px);
+          aspect-ratio: 1;
+          flex-shrink: 0;
+          
+
+          .preview-image {
+            // Styles pour l'image de prévisualisation
+            display: block;
+            width: 100%;
+            margin: fn.spacing('xs') 0;
+          }
+          .image-status {
+            // Styles pour le statut de l'image
+          }
+        }
+        .form-section {
+          // Styles pour une section du formulaire
+          // background-color: red;
+          padding: fn.spacing('xs') 0;
+          width: 100%;
+
+          .form-group {
+            // Styles pour un groupe de champs
+            background-color: fn.bg-color('light');
+            @extend %content-container;
+            
+            label {
+              // Styles pour les labels
+
+            }
+            .file-input {
+              // Styles pour l'input de type fichier
+
+            }
+            .text-input {
+              // Styles pour l'input de type texte
+
+            }
+            .form-help {
+              // Styles pour l'aide du formulaire
+              display: block;
+              color: fn.text-color('muted');
+
+            }
+          }
+          &.danger-zone {
+            // Styles spécifiques pour la zone dangereuse
+            background-color: yellow;
+            @extend %content-container;
+
+            button {
+              width: clamp(120px, 50%, 250px);
+              align-self: center;
+            }
+          }
+        }
+        .delete-confirmation {
+          // Styles pour la confirmation de suppression
+          .action-buttons {
+            // Styles pour les boutons d'action
+          }
+        }
+        .form-actions {
+          // Styles pour les actions du formulaire
+          .action-button {
+            // Styles pour les boutons d'action
+          }
+        }
+      }
+      .image-edit-footer {
+        // Styles pour le footer du mode édition
+        .action-button {
+          // Styles pour les boutons d'action
+        }
+      }
+    }
+  }

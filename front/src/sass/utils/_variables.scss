@@ -1,0 +1,147 @@
+// Variables pour les hauteurs et largeurs
+// $main-app-width: 1200px;
+// $header-height: 10vh;
+// $footer-height: 10vh;
+
+// Couleurs principales (palette de l'application)
+$primary-color: #3498db;
+$primary-color-dark: darken($primary-color, 15%);
+$secondary-color: #2ecc71;
+$secondary-color-dark: darken($secondary-color, 15%);
+$third-color: #333; 
+$accent-color: #e74c3c;
+$background-color: #f8f9fa;
+$text-color: #555;
+$white: #fff;
+
+// Largeurs de conteneur pour le layout responsive
+$container-max-width-mobile: 95%;
+$container-max-width-tablet: 720px;
+$container-max-width-desktop: 960px;
+$container-max-width-large: 1140px;
+
+// Espacements (système d'échelle)
+// Unité de base
+$spacing-unit: 0.5rem;
+
+$spacing-xs: $spacing-unit * 0.5;
+$spacing-sm: $spacing-unit;
+$spacing-md: $spacing-unit * 2;
+$spacing-lg: $spacing-unit * 3;
+$spacing-xl: $spacing-unit * 4;
+$spacing-xxl: $spacing-unit * 6;
+
+// Couleurs d'interface
+$background-light: rgb(240, 240, 240);
+$background-medium: rgb(192, 192, 192);
+$background-dark: rgb(124, 124, 124);
+$background-site: #e6e6e6;
+$background-administration: #d4e3f8;
+
+// Couleurs fonctionnelles
+$border-color: #ccc;
+$border-dark: #000;
+$border-light: #fff;
+$border-color-light: #e9ecef;
+
+// Couleurs pour les messages
+$error-color: #d32f2f;
+$success-color: #388e3c;
+$warning-color: #f39c12;
+$info-color: #3498db;
+
+// Couleurs de texte
+$text-primary: #212529;
+$text-color-secondary: #6c757d;
+$text-color-tertiary: #adb5bd;
+$text-color-hover: #24ad5d;
+$text-muted: #bbbbbb;
+$text-light: #f8f9fa;
+
+// Formulaires
+$input-padding: $spacing-md;
+$input-border-radius: 0.25rem;
+$label-offset-y: -30px;
+$label-offset-x: -4px;
+$border-thickness: 2px;
+
+// Typographie
+$font-family-base: 'Roboto', sans-serif;
+$font-family-headings: 'Montserrat', sans-serif;
+
+$font-size-xs: 0.5rem;
+$font-size-base: 1rem;
+$font-size-sm: 0.875rem;
+$font-size-lg: 1.125rem;
+$font-size-xl: 1.25rem;
+
+$font-size-h1: 2.25rem;
+$font-size-h2: 1.8rem;
+$font-size-h3: 1.5rem;
+$font-size-h4: 1.25rem;
+
+$line-height-base: 1.5;
+$line-height-sm: 1.25;
+$line-height-lg: 1.8;
+
+// Points de rupture (breakpoints)
+$breakpoints: (
+    'mobile': 576px,
+    'tablet': 768px,
+    'desktop': 992px,
+    'large': 1200px
+);
+
+// Dimensions 
+$border-radius-sm: 0.25rem;
+$border-radius: 0.5rem;
+$border-radius-lg: 1rem;
+$border-radius-pill: 50rem;
+
+// Dimensions spécifiques pour les cartes
+$card-thumbnail-size-mobile: 60px;
+$card-thumbnail-size-desktop: 80px;
+$card-sidebar-width: 250px;
+$card-content-max-height: 600px;
+
+// Dimensions de popup
+$popup-max-width: 600px;
+$popup-max-height-percent: 90vh;
+$popup-max-height-percent-mobile: 95vh;
+
+$border-width: 1px;
+$border-width-lg: 2px;
+
+// Box shadows
+$box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+$box-shadow-sm: 0 2px 5px rgba(0, 0, 0, 0.05);
+$box-shadow-lg: 0 10px 30px rgba(0, 0, 0, 0.15);
+
+
+$input-border: #ccc;
+$button-padding: 14px;
+
+// Animation speed
+$rotation-speed: 0.7s;
+$transition-speed: 0.3s;
+$transition-speed-fast: 0.15s;
+$transition-speed-slow: 0.5s;
+
+// Opacité pour les overlays
+$overlay-opacity: 0.5;
+
+// Z-index
+$z-index-dropdown: 1000;
+$z-index-sticky: 1020;
+$z-index-fixed: 1030;
+$z-index-modal-backdrop: 1040;
+$z-index-modal: 1050;
+$z-index-tooltip: 1060;
+// Z-index spécifiques pour les popups
+$z-index-popup: 1000;
+
+// Dimensions et espacements spécifiques aux composants
+// $card-padding: $spacing-md;
+// $input-padding: $spacing-md; 
+// $button-padding: $spacing-md * 0.7;
+// $container-max-width: 600px;

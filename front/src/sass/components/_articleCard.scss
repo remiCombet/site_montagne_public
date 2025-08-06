@@ -1,0 +1,111 @@
+@use '../utils/variables' as *;
+@use '../utils/mixins' as *;
+
+.article-card {
+    margin-bottom: 1.5rem;
+    border: 1px solid $border-color;
+    border-radius: 0.5rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    transition: box-shadow 0.3s ease;
+    
+    &:hover {
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    
+    &__content {
+        padding: 1rem;
+    }
+    
+    &__header {
+        margin-bottom: 1rem;
+    }
+    
+    &__title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+    }
+    
+    &__description {
+        color: #4b5563;
+        margin-bottom: 1rem;
+    }
+    
+    &__meta {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.5rem;
+        font-size: 0.875rem;
+        color: #6b7280;
+        margin-bottom: 1rem;
+    }
+    
+    &__image-container {
+        margin: 1rem 0;
+        width: 100%;
+        height: 200px;
+        overflow: hidden;
+        border-radius: 0.25rem;
+    }
+    
+    &__image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    
+    &__image-placeholder {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: #f3f4f6;
+        color: #6b7280;
+    }
+    
+    &__actions {
+        display: flex;
+        gap: 0.5rem;
+        margin-top: 1rem;
+    }
+    
+    &__button {
+        padding: 0.5rem 1rem;
+        border-radius: 0.25rem;
+        font-weight: 500;
+        cursor: pointer;
+        
+        &--edit {
+            background-color: #3b82f6;
+            color: white;
+            
+            &:hover {
+                background-color: #2563eb;
+            }
+        }
+        
+        &--images {
+            background-color: #10b981;
+            color: white;
+            
+            &:hover {
+                background-color: #059669;
+            }
+        }
+        
+        &--delete {
+            background-color: #ef4444;
+            color: white;
+            
+            &:hover:not(:disabled) {
+                background-color: #dc2626;
+            }
+            
+            &:disabled {
+                opacity: 0.5;
+                cursor: not-allowed;
+            }
+        }
+    }
+}

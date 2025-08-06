@@ -1,0 +1,74 @@
+@use '../utils/mixins' as mix;
+@use '../utils/variables' as vars;
+
+.banner {
+    width: 100%;
+    height: 250px;
+    position: relative;
+    
+    // Image de fond par défaut (mobile)
+    background-image: var(--banner-img-mobile);
+    background-size: cover;
+    background-position: center;
+    
+    // Versions tablette et desktop avec les images appropriées
+    @include mix.respond-to('tablet') {
+        height: 350px;
+        background-image: var(--banner-img-tablet);
+    }
+    
+    @include mix.respond-to('desktop') {
+        height: 450px;
+        background-image: var(--banner-img-desktop);
+    }
+    
+    // Overlay sombre semi-transparent
+    &::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.4);
+        z-index: 1;
+    }
+    
+    &__content {
+        position: relative;
+        z-index: 2;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        height: 100%;
+        color: #fff;
+        text-align: center;
+        padding: 0 20px;
+    }
+    
+    &__title {
+        font-size: 2rem;
+        margin-bottom: 1rem;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+        
+        @include mix.respond-to('tablet') {
+            font-size: 2.5rem;
+        }
+        
+        @include mix.respond-to('desktop') {
+            font-size: 3rem;
+        }
+    }
+    
+    &__subtitle {
+        font-size: 1rem;
+        max-width: 600px;
+        margin: 0 auto;
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+        
+        @include mix.respond-to('tablet') {
+            font-size: 1.25rem;
+        }
+    }
+}

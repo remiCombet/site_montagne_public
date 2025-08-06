@@ -1,0 +1,170 @@
+@use '../utils/variables' as vars;
+@use '../utils/mixins' as mix;
+
+.profile-container {
+  width: 100%;
+  margin: 2rem auto;
+  padding: vars.$spacing-md;
+  perspective: 1000px;
+  
+  // Utilisation des largeurs responsives
+  max-width: vars.$container-max-width-mobile;
+  
+  @include mix.for-size('tablet') {
+    max-width: vars.$container-max-width-tablet;
+  }
+  
+  @include mix.for-size('desktop') {
+    max-width: vars.$container-max-width-desktop;
+  }
+}
+
+.profile-card {
+  position: relative;
+  background-color: vars.$white;
+  border-radius: vars.$border-radius;
+  box-shadow: vars.$box-shadow;
+  padding: vars.$spacing-lg;
+  transition: all vars.$transition-speed ease;
+  
+  // Animation d'entrée optionnelle
+  animation: card-appear 0.5s ease-out;
+  
+  @include mix.for-size('tablet') {
+    padding: vars.$spacing-xl;
+  }
+}
+
+.profile-header {
+  margin-bottom: vars.$spacing-lg;
+  padding-bottom: vars.$spacing-md;
+  
+  h2 {
+    color: vars.$primary-color;
+    margin-bottom: vars.$spacing-sm;
+    font-size: vars.$font-size-h2;
+  }
+}
+
+// Style du formulaire qui reprend les éléments des formulaires auth
+.update-form {
+  display: flex;
+  flex-direction: column;
+  gap: vars.$spacing-md;
+  
+  .floating-input-container {
+    position: relative;
+    margin-bottom: vars.$spacing-md;
+    
+    input {
+      width: 100%;
+      padding: vars.$input-padding;
+      border: 1px solid vars.$input-border;
+      border-radius: vars.$border-radius;
+      background-color: vars.$white;
+      font-size: vars.$font-size-base;
+      transition: border-color vars.$transition-speed ease;
+      
+      &:focus {
+        outline: none;
+        border-color: vars.$primary-color;
+      }
+    }
+    
+    label {
+      position: absolute;
+      left: vars.$input-padding;
+      top: vars.$input-padding;
+      color: vars.$text-color-secondary;
+      transition: all vars.$transition-speed ease;
+      pointer-events: none;
+      font-size: vars.$font-size-base;
+    }
+    
+    // Label flottant
+    input:focus ~ label,
+    input:not(:placeholder-shown) ~ label {
+    transform: translateY(vars.$label-offset-y) translateX(vars.$label-offset-x);
+    color: vars.$primary-color;
+    z-index: 2;
+    font-weight: 800;
+    font-size: 0.85rem;
+    transition: all vars.$transition-speed ease;
+
+    text-shadow: 
+        0px 0px 3px rgba(255, 255, 255, 0.8),
+        0px 0px 1px rgba(255, 255, 255, 1);
+    }
+    
+    // Bordure interactive
+    .input-border {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      height: vars.$border-thickness;
+      width: 0;
+      background-color: vars.$primary-color;
+      transition: width vars.$transition-speed ease;
+      z-index: 1;
+    }
+    
+    input:focus ~ .input-border {
+      width: 100%;
+    }
+  }
+  
+  // Bouton de soumission
+  .profile-submit {
+    margin-top: vars.$spacing-md;
+    padding: 0.75rem 1.5rem;
+    background-color: vars.$primary-color;
+    color: vars.$white;
+    border: none;
+    border-radius: vars.$border-radius;
+    font-size: vars.$font-size-base;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color vars.$transition-speed ease;
+    
+    &:hover {
+      background-color: darken(vars.$primary-color, 10%);
+    }
+    
+    &:focus {
+      outline: none;
+      box-shadow: 0 0 0 2px rgba(vars.$primary-color, 0.5);
+    }
+  }
+}
+
+// Messages de statut
+.profile-message {
+  padding: vars.$spacing-sm;
+  border-radius: vars.$border-radius;
+  margin-bottom: vars.$spacing-md;
+  font-weight: 500;
+  
+  &.success {
+    background-color: rgba(vars.$success-color, 0.1);
+    color: vars.$success-color;
+    border: 1px solid rgba(vars.$success-color, 0.3);
+  }
+  
+  &.error {
+    background-color: rgba(vars.$error-color, 0.1);
+    color: vars.$error-color;
+    border: 1px solid rgba(vars.$error-color, 0.3);
+  }
+}
+
+// Animation d'entrée
+@keyframes card-appear {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

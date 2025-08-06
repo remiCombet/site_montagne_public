@@ -1,0 +1,290 @@
+@use '../../utils/variables' as vars;
+@use '../../utils/mixins' as mix;
+@use '../../utils/functions' as fn;
+@use 'sass:map';
+
+.featured-stays {
+    background-color: fn.bg-color('light');
+    border-radius: fn.radius('medium');
+    box-shadow: map.get(vars.$shadows, 'featured');
+    margin-bottom: fn.spacing('xl');
+    padding: fn.spacing('lg') fn.spacing('md');
+
+    &__header {
+        text-align: center;
+        margin-bottom: fn.spacing('lg'); 
+    }
+    
+    &__title {
+        color: fn.color('primary', 'base');
+        font-size: map.get(vars.$font-sizes, 'large');
+        margin-bottom: fn.spacing('xs'); // Rapproche le titre du sous-titre
+        position: relative;
+        display: inline-block;
+        
+        // Petite décoration sous le titre
+        &::after {
+            content: "";
+            display: block;
+            width: 80px;
+            height: 3px;
+            background-color: fn.color('primary', 'light');
+            margin: fn.spacing('xs') auto 0; // Centré sous le texte
+        }
+    }
+    
+    &__subtitle {
+        color: fn.text-color('muted');
+        font-size: map.get(vars.$font-sizes, 'base');
+        max-width: 600px; // Limite la largeur pour une meilleure lisibilité
+        margin: 0 auto; // Centre le bloc
+        line-height: 1.5; // Meilleur espacement des lignes
+    }
+    
+    &__grid {
+        display: grid;
+        grid-template-columns: repeat(1, 1fr);
+        gap: fn.spacing('md');
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        
+        // Configuration de base sur tablette
+        @include mix.respond-to('tablet') {
+            // Pour 1 séjour
+            &:only-child {
+                grid-template-columns: 1fr;
+                max-width: 450px;
+                margin: 0 auto;
+            }
+            
+            // Pour 2 séjours
+            &:has(li:nth-child(2):last-child) {
+                grid-template-columns: repeat(2, 1fr);
+                max-width: 800px;
+                margin: 0 auto;
+            }
+            
+            // Pour 3+ séjours
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        // Configuration améliorée sur desktop pour limiter la largeur
+        @include mix.respond-to('desktop') {
+            // Le sélecteur :has peut ne pas être compatible avec tous les navigateurs
+            // Solution sans :has pour plus de compatibilité
+            grid-template-columns: repeat(3, minmax(280px, 350px));
+            justify-content: center;
+        }
+    }
+    
+    &__footer {
+        margin-top: fn.spacing('lg');
+        text-align: center;
+    }
+    
+    &__link {
+        display: inline-block;
+        background-color: fn.color('primary'); 
+        color: fn.color('primary', 'contrast');
+        border-radius: fn.radius('small');
+        padding: fn.spacing('xs') fn.spacing('md');
+        text-decoration: none;
+        font-weight: 500;
+        transition: background-color 0.3s;
+
+        &:hover {
+            background-color: fn.color('primary', 'dark');
+        }
+
+        &:focus {
+            background-color: fn.color('primary', 'light');
+        }
+    }
+  }
+  
+  .stay-card {
+    box-shadow: map.get(vars.$shadows, 'featured');
+    transition: box-shadow 0.3s ease, transform 0.3s ease;
+
+    &:hover {
+        box-shadow: map.get(vars.$shadows, 'card-hover');
+        transform: translateY(-3px);
+    }
+
+    &__figure {
+        width: 100%;
+        height: clamp(120px, 25vh, 250px);
+        overflow: hidden;
+        position: relative; 
+        border-radius: fn.radius('medium');
+
+        &:hover .stay-card__image {
+            transform: scale(1.05);
+        }
+    }
+    
+    &__image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: center;
+        transition: transform 0.3s ease;
+
+        // breakpoint tablette
+        @include mix.respond-to('tablet') {
+            height: clamp(180px, 30vh, 300px);
+        }
+        
+        // breakpoint desktop
+        @include mix.respond-to('desktop') {
+            height: clamp(220px, 35vh, 350px);
+        }
+    }
+    
+    &__header {
+        
+    }
+    
+    &__title {
+    }
+    
+    &__details {
+      // Style pour la liste ul
+      display: flex;
+      flex-direction: column;
+      gap: fn.spacing('xs');
+    }
+
+    // &__location, &__dates, &__price {
+    //     display: flex;
+    //     align-items: center;
+    //     font-size: fn.font-size('sm');
+        
+    //     // Pour les icônes emoji en début de ligne
+    //     &::before {
+    //         margin-right: fn.spacing('xs');
+    //     }
+    // }
+    
+    &__location {
+        // Style pour le li
+        font-weight: 700;
+        color: fn.text-color('dark');
+    }
+    
+    &__dates {
+      // Style pour le li
+    }
+    
+    &__price {
+      // Style pour le li
+    }
+    
+    &__footer {
+        text-align: center;
+        padding: fn.spacing('xs') fn.spacing('md');
+    }
+    
+    &__button {
+        display: inline-block;
+        padding: fn.spacing('xs') fn.spacing('sm');
+        margin-top: fn.spacing('md');
+        background-color: fn.color('secondary');
+        color: fn.color('secondary', 'contrast');
+        border-radius: fn.radius('small');
+        text-decoration: none;
+        text-align: center;
+        font-weight: 500;
+        transition: background-color 0.3s ease, transform 0.2s ease;
+
+        &:hover {
+            background-color: fn.color('secondary', 'dark');
+            transform: translateY(-2px);
+        }
+        
+        &:focus {
+            background-color: fn.color('secondary', 'light');
+            outline: 2px solid fn.color('secondary', 'light');
+            outline-offset: 2px;
+        }
+        
+        &:active {
+            transform: translateY(0);
+        }
+    }
+}
+
+// Dans _featuredStays.scss ou créez un fichier _seasonalEffects.scss à importer
+
+// Classe de test pour l'herbe
+.stay-card--grass-test {
+    position: relative;
+    
+    .grass-border {
+      position: absolute;
+      bottom: -2px; // Ajustez selon votre design
+      left: 0;
+      right: 0;
+      height: 35px;
+      z-index: 2000;
+      pointer-events: none;
+      
+      &::after {
+        content: "";
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 100%;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 60'%3E%3Cpath d='M50,60 C35,45 30,30 10,15' fill='none' stroke='%232E7D32' stroke-width='1.3' stroke-linecap='round'/%3E%3Cpath d='M50,60 C40,40 45,25 20,10' fill='none' stroke='%232E7D32' stroke-width='1.5' stroke-linecap='round'/%3E%3Cpath d='M50,60 C45,45 42,35 35,25' fill='none' stroke='%23388E3C' stroke-width='1.2' stroke-linecap='round'/%3E%3Cpath d='M50,60 C52,35 48,15 50,5' fill='none' stroke='%234CAF50' stroke-width='1.5' stroke-linecap='round'/%3E%3Cpath d='M50,60 C55,45 58,35 65,25' fill='none' stroke='%23388E3C' stroke-width='1.2' stroke-linecap='round'/%3E%3Cpath d='M50,60 C60,45 65,30 85,15' fill='none' stroke='%23388E3C' stroke-width='1.5' stroke-linecap='round'/%3E%3Cpath d='M50,60 C65,45 70,30 90,20' fill='none' stroke='%232E7D32' stroke-width='1.3' stroke-linecap='round'/%3E%3C/svg%3E");
+        background-size: 20px auto;
+        background-repeat: repeat-x;
+        background-position: bottom center;
+        transform-origin: bottom center;
+      }
+      
+      &::before {
+        content: "";
+        position: absolute;
+        bottom: 0;
+        left: 15px; // Décalage pour varier la position
+        right: 0;
+        height: 100%;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 60'%3E%3Cpath d='M50,60 C43,45 38,35 15,20' fill='none' stroke='%232E7D32' stroke-width='1.2' stroke-linecap='round'/%3E%3Cpath d='M50,60 C47,40 45,25 40,10' fill='none' stroke='%234CAF50' stroke-width='1.1' stroke-linecap='round'/%3E%3Cpath d='M50,60 C50,45 51,30 55,15' fill='none' stroke='%23388E3C' stroke-width='1.4' stroke-linecap='round'/%3E%3Cpath d='M50,60 C53,50 58,35 65,20' fill='none' stroke='%234CAF50' stroke-width='1.2' stroke-linecap='round'/%3E%3Cpath d='M50,60 C57,45 63,30 75,15' fill='none' stroke='%232E7D32' stroke-width='1.3' stroke-linecap='round'/%3E%3C/svg%3E");
+        background-size: 22px auto;
+        background-repeat: repeat-x;
+        background-position: bottom center;
+        transform-origin: bottom center;
+      }
+    }
+    
+    &:hover .grass-border::after {
+      animation: grassWave 3s ease-in-out infinite alternate;
+    }
+    
+    &:hover .grass-border::before {
+      animation: grassWave 3s ease-in-out infinite alternate 0.5s; // Animation légèrement décalée
+    }
+  }
+  
+  // Animation pour l'herbe qui ondule
+  @keyframes grassWave {
+    0% {
+      transform: translateX(0) rotate(0deg);
+    }
+    25% {
+      transform: translateX(-2px) rotate(1deg);
+    }
+    50% {
+      transform: translateX(-1px) rotate(0deg);
+    }
+    75% {
+      transform: translateX(-2px) rotate(-1deg);
+    }
+    100% {
+      transform: translateX(0) rotate(0deg);
+    }
+  }
