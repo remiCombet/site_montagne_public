@@ -148,9 +148,8 @@ Le projet illustre une maîtrise complète du développement web moderne :
 ## 📞 Contact
 
 **Rémi Combet** - Développeur Full-Stack  
-📧 Email : [ton-email@example.com]  
-💼 LinkedIn : [ton-profil-linkedin]  
-🌐 Portfolio : [ton-site-web]
+📧 Email : combet.grangeat.remi@gmail.com 
+🌐 Portfolio : en cours de création
 
 ---
 
