@@ -1,0 +1,31 @@
+@use 'variablesTest' as v;
+
+// Breakpoints mixins
+@mixin sm {
+  @media (min-width: v.$breakpoint-sm) {
+    @content;
+  }
+}
+
+@mixin md {
+  @media (min-width: v.$breakpoint-md) {
+    @content;
+  }
+}
+
+@mixin lg {
+  @media (min-width: v.$breakpoint-lg) {
+    @content;
+  }
+}
+
+@mixin xl {
+  @media (min-width: v.$breakpoint-xl) {
+    @content;
+  }
+}
+
+// Transition mixin
+@mixin hover-transition {
+  transition: all 0.3s ease-in-out;
+}

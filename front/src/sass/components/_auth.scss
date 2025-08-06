@@ -1,0 +1,123 @@
+@use '../utils/variables' as vars;
+@use '../utils/mixins' as mix;
+
+// Mobile-first styles for auth container
+.auth-container {
+  width: 100%;
+  margin: 0 auto;
+  padding: vars.$spacing-sm;
+  perspective: 1000px;
+  transition: all 0.3s ease;
+  
+  // Utilisation des largeurs responsives
+  max-width: vars.$container-max-width-mobile;
+  
+  @include mix.for-size('tablet') {
+    max-width: vars.$container-max-width-tablet;
+    padding: vars.$spacing-lg;
+  }
+  
+  @include mix.for-size('desktop') {
+    max-width: vars.$container-max-width-desktop;
+  }
+}
+
+// La carte qui tourne
+.auth-cube {
+  position: relative;
+  width: 100%;
+  height: 450px; // Hauteur par défaut (mobile)
+  @include mix.card-flip-animation;
+  
+  // Hauteur spécifique pour le mode register sur mobiles
+  &.show-second {
+    height: 650px;
+  }
+  
+  // Pour les très petits écrans - adapter encore plus
+  @include mix.for-size-down(400) {
+    &.show-second {
+      height: 700px;
+    }
+  }
+  
+  // Écrans moyens et plus grands
+  @include mix.for-size('mobile') {
+    height: 500px; // Login
+    
+    &.show-second {
+      height: 700px; // Register
+    }
+  }
+}
+
+// États de rotation
+.auth-cube.show-first {
+  transform: rotateY(0);
+}
+
+.auth-cube.show-second {
+  transform: rotateY(180deg);
+}
+
+// Faces de la carte (login et register)
+.auth-face {
+    @include mix.card-face;
+    overflow-y: visible;
+    height: auto;
+    max-height: 100%; 
+}
+
+// Face avant (Login)
+.auth-front {
+  z-index: vars.$z-index-fixed;
+  transform: rotateY(0deg);
+}
+
+// Face arrière (Register)
+.auth-right {
+  transform: rotateY(180deg);
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  
+  // Correction d'orientation pour les éléments
+  input, button, label, p, a, h2, h3 {
+    text-align: left;
+    direction: ltr;
+  }
+
+  // Structure des contenus
+  .register-content {
+    flex-shrink: 0; // Ne pas réduire l'en-tête
+  }
+  
+  .auth-form {
+    flex: 1; // Prend tout l'espace disponible
+    padding-bottom: 10px; // Espace pour le footer
+  }
+  
+  .auth-links {
+    // Plus besoin de position absolute
+    position: static; // Revenir au flux normal
+    margin-top: auto; // Pousse le footer vers le bas automatiquement  
+    padding: vars.$spacing-sm 0;
+    width: 100%;
+    text-align: center;
+  }
+}
+
+// Contenus scrollables
+.auth-content {
+  width: 100%;
+  max-height: 100%;
+  overflow-y: auto;
+}
+
+// Styles spécifiques pour chaque type de contenu
+.login-content,
+.register-content {
+  width: 100%;
+  padding: vars.$spacing-md 0;
+}

@@ -1,0 +1,48 @@
+@use '../../utils/variables' as vars;
+@use '../../utils/mixins' as mix;
+@use '../../utils/functions' as fn;
+
+// // Conteneur spécifique au login
+// .login-content {
+//     // Animation spécifique au login
+//     .auth-form {
+//         animation: loginFadeIn 0.3s ease-out;
+        
+//         @keyframes loginFadeIn {
+//             from { opacity: 0; }
+//             to { opacity: 1; }
+//         }
+//     }
+    
+//     // Options supplémentaires (se souvenir de moi, mot de passe oublié)
+//     .login-options {
+//         display: flex;
+//         justify-content: space-between;
+//         align-items: center;
+//         margin: fn.spacing('xs') 0 fn.spacing('sm');
+//         font-size: 0.9rem;
+        
+//         .remember-me {
+//             display: flex;
+//             align-items: center;
+            
+//             input[type="checkbox"] {
+//                 margin-right: 0.5rem;
+//             }
+//         }
+        
+//         .forgot-password {
+//             color: var(--color-text-muted);
+//             transition: color 0.2s;
+            
+//             &:hover {
+//                 color: var(--color-primary);
+//             }
+//         }
+//     }
+// }
+
+// // Lien spécifique au login
+// .auth-links .login-link {
+//     font-weight: 500;
+// }

@@ -1,0 +1,113 @@
+@use 'sass:map';
+@use 'variables' as vars;
+
+// Fonction pour les espacements
+@function spacing($key) {
+    @return map.get(vars.$spacing, $key);
+}
+
+// Fonction pour les tailles de police
+@function font-size($key) {
+    @return map.get(vars.$font-sizes, $key);
+}
+
+// Fonction pour les couleurs de fond
+@function bg-color($key) {
+    @return map.get(vars.$background-colors, $key);
+}
+
+// Fonction pour les couleurs de texte
+@function text-color($key) {
+    @return map.get(vars.$text-colors, $key);
+}
+
+// Fonction pour les bordures
+@function border($key) {
+    @return map.get(vars.$borders, $key);
+}
+
+// Fonction pour les status
+@function status-color($key) {
+    @return map.get(vars.$status-colors, $key);
+}
+
+// Fonction pour les border-radius
+@function radius($key) {
+    @return map.get(vars.$border-radius, $key);
+}
+
+// Fonction pour les ombres
+@function shadow($key) {
+    @return map.get(vars.$shadows, $key);
+}
+
+// Fonction pour les transitions
+@function transition-duration($key) {
+    @return map.get(map.get(vars.$animations, 'durations'), $key);
+}
+
+@function transition-curve($key) {
+    @return map.get(map.get(vars.$animations, 'curves'), $key);
+}
+
+// Fonction pour les hauteurs de layout
+@function layout-height($component, $breakpoint) {
+    @return map.get(map.get(vars.$layout-heights, $component), $breakpoint);
+}
+
+// Fonctions pour les styles spécifiques aux navigateurs
+@function scrollbar-style($browser) {
+    @return map.get(map.get(vars.$browser-styles, 'scrollbar'), $browser);
+}
+
+@function gradient-fade($direction, $color) {
+    $fade: map.get(map.get(vars.$browser-styles, 'gradients'), 'fade-right');
+    
+    @return linear-gradient(
+        #{$direction},
+        #{$color} map.get($fade, 'start'),
+        #{$color} map.get($fade, 'middle'),
+        rgba($color, map.get($fade, 'opacity')) map.get($fade, 'end')
+    );
+}
+
+@function get-browser-prefixes() {
+    @return map.get(map.get(vars.$browser-styles, 'transitions'), 'prefixes');
+}
+
+// Fonction pour les couleurs de bordure
+@function border-color($key) {
+    @if $key == 'active' {
+        @return map.get(vars.$text-colors, 'primary-active');
+    }
+    @return map.get(vars.$borders, $key);
+}
+
+// Fonction pour les couleurs avec variantes
+@function color($key, $variant: 'base') {
+    @if map.has-key(vars.$colors, $key) {
+        $color-map: map.get(vars.$colors, $key);
+        
+        @if map.has-key($color-map, $variant) {
+            @return map.get($color-map, $variant);
+        }
+        @else {
+            @error "La variante '#{$variant}' n'existe pas pour la couleur '#{$key}'";
+        }
+    }
+    @else {
+        @error "La couleur '#{$key}' n'existe pas dans la palette de couleurs";
+    }
+}
+
+// keyframes
+@keyframes slideFromRight {
+    0% {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    100% {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}

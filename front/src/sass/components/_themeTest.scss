@@ -1,0 +1,212 @@
+@use '../utils/variables' as vars;
+@use '../utils/mixins' as mix;
+@use './editableComponent';
+
+// Variables spécifiques aux thèmes
+$theme-active-bg: rgba(vars.$primary-color, 0.08);
+$theme-active-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+
+.theme-management {
+  @extend .editable-component;
+  
+  // Spécifique au mode vue
+  .theme-view-mode {
+    @extend .view-mode;
+    
+    .theme-header {
+      @extend .component-header;
+      
+      // Styles spécifiques aux thèmes
+      .theme-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: vars.$spacing-sm;
+        list-style: none;
+        padding: 0;
+        margin: vars.$spacing-sm 0;
+        
+        .theme-tag {
+          background-color: vars.$background-medium;
+          border: 1px solid vars.$border-light;
+          padding: vars.$spacing-xs vars.$spacing-md;
+          border-radius: vars.$border-radius-pill;
+          font-size: vars.$font-size-sm;
+          box-shadow: vars.$box-shadow-sm;
+          transition: transform vars.$transition-speed ease;
+          
+          &:hover {
+            transform: translateY(-2px);
+          }
+        }
+      }
+      
+      .empty-message {
+        color: vars.$text-color-secondary;
+        font-style: italic;
+        margin: vars.$spacing-sm 0;
+      }
+    }
+    
+    .theme-action {
+      @extend .component-action;
+    }
+  }
+  
+  // Spécifique au mode édition
+  .theme-edit-mode {
+    @extend .edit-mode;
+    
+    // Styles spécifiques aux sections de thèmes
+    .theme-section, 
+    .theme-form-section {
+      background-color: vars.$white;
+      padding: vars.$spacing-md;
+      border-radius: vars.$border-radius;
+      margin-bottom: vars.$spacing-md;
+      box-shadow: vars.$box-shadow;
+      
+      h4 {
+        color: vars.$primary-color;
+        margin-top: 0;
+        margin-bottom: vars.$spacing-sm;
+      }
+      
+      .empty-message {
+        color: vars.$text-color-secondary;
+        font-style: italic;
+        margin: vars.$spacing-sm 0;
+      }
+    }
+    
+    // Styles spécifiques aux listes de thèmes
+    .theme-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      
+      &.with-actions {
+        .theme-item {
+          // Modifier la disposition en colonne par défaut (pour mobile)
+          @include mix.flex(column, flex-start, stretch);
+          padding: vars.$spacing-sm;
+          margin-bottom: vars.$spacing-sm;
+          background-color: vars.$white;
+          border-radius: vars.$border-radius;
+          border-left: vars.$border-width-lg solid vars.$primary-color;
+          box-shadow: vars.$box-shadow-sm;
+          transition: transform vars.$transition-speed ease, box-shadow vars.$transition-speed ease;
+          
+          &:hover {
+            transform: translateY(-2px);
+            box-shadow: vars.$box-shadow;
+          }
+
+          .theme-name {
+            display: block;
+            font-weight: 500;
+            color: vars.$primary-color;
+            margin-bottom: vars.$spacing-sm;
+          }
+
+          // Modification des actions pour être en colonne sur mobile (comme StaySteps)
+          .theme-actions {
+            width: 100%;
+            @include mix.flex(column, center, stretch);
+            gap: vars.$spacing-sm;
+            padding: 0;
+            margin: 0;
+            
+            button {
+              width: 100%;
+            }
+          }
+          
+          // Adaptation pour tablette et desktop
+          @include mix.for-size('tablet') {
+            @include mix.flex(row, space-between, center);
+            
+            .theme-name {
+              margin-bottom: 0;
+              flex: 1;
+            }
+            
+            .theme-actions {
+              width: auto;
+              min-width: 120px;
+              flex-direction: row;
+              
+              button {
+                width: auto;
+              }
+            }
+          }
+        }
+      }
+    }
+    
+    // Animation pour transition du message
+    .alert {
+      transition: opacity 0.3s ease-in-out;
+      
+      &.fade-out {
+        opacity: 0;
+      }
+    }
+    
+    // Formulaire pour ajouter un thème
+    .theme-form {
+      margin-top: vars.$spacing-md;
+      
+      .form-group {
+        margin-bottom: vars.$spacing-md;
+      }
+      
+      // Style spécifique pour le groupe d'input
+      .input-group {
+        // Affichage en colonne sur mobile
+        @include mix.flex(column, stretch, stretch);
+        gap: vars.$spacing-sm;
+        
+        input {
+          width: 100%;
+          padding: vars.$spacing-sm;
+          border: vars.$border-width solid vars.$input-border;
+          border-radius: vars.$border-radius;
+          
+          &:focus {
+            outline: none;
+            border-color: vars.$primary-color;
+          }
+        }
+        
+        button {
+          width: 100%;
+        }
+        
+        // Adaptation pour tablette et desktop
+        @include mix.for-size('tablet') {
+          @include mix.flex(row, stretch, center);
+          
+          input {
+            flex: 1;
+          }
+          
+          button {
+            width: auto;
+            min-width: 100px;
+          }
+        }
+      }
+      
+      // Cache visuellement le label mais le garde accessible
+      .visually-hidden {
+        @include mix.visually-hidden;
+      }
+    }
+    
+    // Footer du mode édition
+    .theme-edit-footer {
+      @extend .edit-footer;
+    }
+  }
+}

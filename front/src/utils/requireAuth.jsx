@@ -1,64 +1,90 @@
 import { useState, useEffect } from "react";
-import { useSelector, useDispatch } from "react-redux";
+import { useDispatch } from "react-redux";
 import { Navigate, useParams } from "react-router-dom";
-import { selectUser, connectUser } from "../slices/userSlice";
+import { connectUser, logoutUser } from "../slices/userSlice";
 import { checkMyToken } from "../api/auth";
+import { useAuth } from "../context/authContext";
 
 const RequireAuth = (props) => {
     const token = window.localStorage.getItem('Vent_dAmes_Montagne');
     const params = useParams();
-    const user = useSelector(selectUser);
     const dispatch = useDispatch();
+    const { isLoggedIn, isAdmin } = useAuth();
     const Child = props.child;
     const [redirectPath, setRedirectPath] = useState(null);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        if (!user.isLogged) {
-            // Si l'utilisateur n'est pas connecté et qu'on a besoin d'une connexion
+        // Cas 1: Page protégée mais utilisateur non connecté
+        if (props.auth && !isLoggedIn) {
+            // Si pas de token, rediriger directement
             if (!token) {
-                setRedirectPath("/login");  // Redirige vers login si le token est absent
+                console.log("Pas de token - redirection vers login");
+                dispatch(logoutUser()); // S'assurer que Redux est propre
+                setRedirectPath("/auth");
                 setLoading(false);
             } else {
-                // Si un token existe, on vérifie sa validité
+                // Si token présent, vérifier sa validité
+                console.log("Token présent - vérification avec l'API");
                 checkMyToken()
                     .then((res) => {
+                        console.log("Réponse de vérification token:", res);
                         if (res.status === 200) {
-                            // Si le token est valide, on met à jour l'utilisateur
+                            // Token valide, connecter l'utilisateur
+                            console.log("Token valide - mise à jour de l'utilisateur");
                             dispatch(connectUser({
                                 infos: { ...res.user, token },
                                 role: res.user.role || ''
                             }));
+                            setLoading(false);
                         } else {
-                            setRedirectPath("/login");  // Token invalide
+                            // Token invalide, nettoyer et rediriger
+                            console.log("Token invalide:", res.msg);
+                            window.localStorage.removeItem('Vent_dAmes_Montagne');
+                            dispatch(logoutUser());
+                            setRedirectPath("/auth");
+                            setLoading(false);
                         }
                     })
-                    .catch(() => {
-                        setRedirectPath("/login");  // Erreur lors de la vérification du token
-                    })
-                    .finally(() => setLoading(false));  // On termine le chargement
-            }
-        } else {
-            // Si l'utilisateur est connecté
-            if (props.admin && user.role !== "admin") {
-
-                // Si l'utilisateur est connecté mais n'est pas admin
-                setRedirectPath("/");  // Redirige vers la page d'accueil
-                setLoading(false);
-            } else {
-              setLoading(false);
+                    .catch((error) => {
+                        // Erreur API, nettoyer et rediriger
+                        console.error("Erreur vérification token:", error);
+                        window.localStorage.removeItem('Vent_dAmes_Montagne');
+                        dispatch(logoutUser());
+                        setRedirectPath("/auth");
+                        setLoading(false);
+                    });
             }
         }
-    }, [props, user, token, dispatch]);
+        // Cas 2: Page non protégée - aucune vérification nécessaire
+        else if (!props.auth) {
+            console.log("Page non protégée - accès direct");
+            setLoading(false);
+        }
+        // Cas 3: Page protégée, utilisateur connecté mais vérification admin requise
+        else if (props.admin && !isAdmin) {
+            console.log("Page admin - utilisateur non admin - redirection accueil");
+            setRedirectPath("/");
+            setLoading(false);
+        }
+        // Cas 4: Page protégée, utilisateur connecté avec droits suffisants
+        else {
+            console.log("Utilisateur connecté avec les droits suffisants");
+            setLoading(false);
+        }
+    }, [props.auth, props.admin, isLoggedIn, isAdmin, token, dispatch]);
 
+    // Afficher un indicateur de chargement pendant la vérification
     if (loading) {
-        return null;
+        return <div className="loading-indicator">Vérification de votre session...</div>;
     }
 
+    // Rediriger si nécessaire
     if (redirectPath) {
         return <Navigate to={redirectPath} />;
     }
 
+    // Rendre le composant enfant avec les paramètres
     return <Child {...props} params={params} />;
 };
 

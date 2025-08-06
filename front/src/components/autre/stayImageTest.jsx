@@ -3,8 +3,7 @@ import { useDispatch } from 'react-redux';
 import { updateStayStore } from '../../slices/staySlice';
 import * as stayImageAPI from '../../api/admin/stayImage';
 
-const StayImageTest = ({ stay, onClose, onUpdate }) => {
-
+const StayImageTest = ({ stay, onUpdate }) => {
     const dispatch = useDispatch();
     const [image, setImage] = useState(null);
     const [previewUrl, setPreviewUrl] = useState('');
@@ -12,36 +11,45 @@ const StayImageTest = ({ stay, onClose, onUpdate }) => {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [message, setMessage] = useState({ type: '', text: '' });
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+    const [isEditing, setIsEditing] = useState(false);
     
     // Image par défaut
     const defaultImageUrl = 'https://res.cloudinary.com/dpa2kakxx/image/upload/v1741274688/site_montagne_v3/montagneDessin_vcxgkc.png';
     
-    // debogage 
-    useEffect(() => {
-        console.log('chargement stay:', stay);
-    }, [stay]);
-
     // Initialiser avec l'image existante si disponible
     useEffect(() => {
         if (stay.image) {
-            setPreviewUrl(stay.image.url);
+            setPreviewUrl(stay.image.url || defaultImageUrl);
             setImageAlt(stay.image.alt || '');
+        } else {
+            setPreviewUrl(defaultImageUrl);
+            setImageAlt('');
         }
-    }, [stay]);
+    }, [stay, defaultImageUrl]);
 
     // Nettoyer l'URL de prévisualisation lors du démontage
     useEffect(() => {
         return () => {
-            if (previewUrl.startsWith('blob:')) {
+            if (previewUrl && previewUrl.startsWith('blob:')) {
                 URL.revokeObjectURL(previewUrl);
             }
         };
     }, [previewUrl]);
 
+    // Effacer le message après 3 secondes
+    useEffect(() => {
+        if (message.text) {
+            const timeoutId = setTimeout(() => {
+                setMessage({ type: "", text: "" });
+            }, 3000);
+            return () => clearTimeout(timeoutId);
+        }
+    }, [message]);
+
     const handleFileChange = (e) => {
         if (e.target.files && e.target.files[0]) {
             // Nettoyer l'ancienne URL blob si elle existe
-            if (previewUrl.startsWith('blob:')) {
+            if (previewUrl && previewUrl.startsWith('blob:')) {
                 URL.revokeObjectURL(previewUrl);
             }
             
@@ -50,58 +58,95 @@ const StayImageTest = ({ stay, onClose, onUpdate }) => {
         }
     };
 
-    const handleSubmit = async (e) => {
+    const handleSubmit = (e) => {
         e.preventDefault();
         setIsSubmitting(true);
         setMessage({ type: '', text: '' });
         
-        try {
-            const formData = new FormData();
+        const formData = new FormData();
+        
+        if (image) {
+            formData.append('fichierImage', image);
+        }
+        
+        formData.append('descriptionImage', imageAlt);
+        
+        // Si l'image n'a pas d'ID (image par défaut), ajouter une nouvelle image
+        if (!stay.image?.id) {
+            console.log("Ajout d'une nouvelle image au séjour", stay.id);
             
-            if (image) {
-                formData.append('fichierImage', image);
-            }
-            
-            formData.append('descriptionImage', imageAlt);
-            
-            // Toujours utiliser updateImage car nous savons qu'il y a déjà une image (défaut ou personnalisée)
-            const response = await stayImageAPI.updateImage(stay.id, stay.image.id, formData);
-            console.log(response)
-            if (response.status === 200) {
-                setMessage({ type: 'success', text: 'Image mise à jour avec succès' });
-                
-                // Mise à jour directe du stay dans Redux
-                const updatedStay = { 
-                    ...stay,
-                    image: {
-                        id: response.image?.id || stay.image?.id,
-                        url: response.image?.url || response.image_url,
-                        alt: response.image?.alt || response.image_alt || imageAlt
+            stayImageAPI.addImages(stay.id, formData)
+                .then((response) => {
+                    if (response.status === 201) {
+                        setMessage({ type: 'success', text: 'Image ajoutée avec succès' });
+                        
+                        // On détermine la structure de l'objet image selon la réponse
+                        const newImageData = response.images?.[0] || response.image || {};
+                        
+                        const updatedStay = { 
+                            ...stay,
+                            image: {
+                                id: newImageData.id,
+                                url: newImageData.url || response.image_url,
+                                alt: newImageData.alt || response.image_alt || imageAlt
+                            }
+                        };
+                        
+                        dispatch(updateStayStore(updatedStay));
+                        if (onUpdate) onUpdate(updatedStay);
+                        setImage(null);
+                    } else {
+                        setMessage({ type: 'error', text: response.msg || response.message || 'Erreur lors de l\'ajout de l\'image' });
                     }
-                    
-                };
-                
-                dispatch(updateStayStore(updatedStay));
-                if (onUpdate) onUpdate(updatedStay);
-                
-                setTimeout(() => {
-                    onClose();
-                }, 1500);
-            } else {
-                setMessage({ type: 'error', text: response.msg || 'Erreur lors de la mise à jour' });
-            }
-        } catch (error) {
-            console.error('Erreur:', error);
-            setMessage({ type: 'error', text: 'Erreur lors de la mise à jour' });
-        } finally {
-            setIsSubmitting(false);
+                })
+                .catch((error) => {
+                    console.error('Erreur lors du traitement de l\'image:', error);
+                    setMessage({ type: 'error', text: 'Une erreur est survenue lors du traitement de l\'image' });
+                })
+                .finally(() => {
+                    setIsSubmitting(false);
+                });
+        } 
+        // Si l'image a un ID, mettre à jour l'image existante
+        else {
+            console.log("Mise à jour de l'image", stay.image.id, "du séjour", stay.id);
+            
+            stayImageAPI.updateImage(stay.id, stay.image.id, formData)
+                .then((response) => {
+                    if (response.status === 200) {
+                        setMessage({ type: 'success', text: 'Image mise à jour avec succès' });
+                        
+                        // On utilise directement l'objet image de la réponse
+                        const updatedStay = { 
+                            ...stay,
+                            image: {
+                                id: response.image.id,
+                                url: response.image.url,
+                                alt: response.image.alt || imageAlt
+                            }
+                        };
+                        
+                        dispatch(updateStayStore(updatedStay));
+                        if (onUpdate) onUpdate(updatedStay);
+                        setImage(null);
+                    } else {
+                        setMessage({ type: 'error', text: response.msg || response.message || 'Erreur lors de la mise à jour de l\'image' });
+                    }
+                })
+                .catch((error) => {
+                    console.error('Erreur lors du traitement de l\'image:', error);
+                    setMessage({ type: 'error', text: 'Une erreur est survenue lors de la mise à jour de l\'image' });
+                })
+                .finally(() => {
+                    setIsSubmitting(false);
+                });
         }
     };
-    
+
     // Supprimer l'image personnalisée et revenir à l'image par défaut
-    const handleDeleteImage = async () => {
-        // Ne pas permettre la suppression si c'est déjà l'image par défaut
-        if (stay.image.url === defaultImageUrl) {
+    const handleDeleteImage = () => {
+        // Vérifier si l'image existe et si ce n'est pas déjà l'image par défaut
+        if (!stay.image?.id || stay.image.url === defaultImageUrl) {
             setMessage({ type: 'info', text: 'Vous utilisez déjà l\'image par défaut' });
             setShowDeleteConfirm(false);
             return;
@@ -111,102 +156,121 @@ const StayImageTest = ({ stay, onClose, onUpdate }) => {
         setMessage({ type: '', text: '' });
         setShowDeleteConfirm(false);
         
-        try {
-            const response = await stayImageAPI.deleteImage(stay.id, stay.image.id);
-            
-            if (response.status === 200) {
-                setMessage({ type: 'success', text: 'Image supprimée, image par défaut utilisée' });
-                
-                // Mise à jour du séjour avec l'image par défaut
-                const updatedStay = { 
-                    ...stay,
-                    image: {
-                        id: null,
-                        url: defaultImageUrl,
-                        alt: 'Image par défaut'
-                    }
-                };
-                
-                dispatch(updateStayStore(updatedStay));
-
-                if (onUpdate) onUpdate(updatedStay);
-                
-                // Réinitialiser le formulaire
-                setImage(null);
-                setPreviewUrl(defaultImageUrl);
-                setImageAlt('Image par défaut');
-                
-                setTimeout(() => {
-                    onClose();
-                }, 1500);
-            } else {
-                setMessage({ type: 'error', text: response.msg || 'Erreur lors de la suppression' });
-            }
-        } catch (error) {
-            console.error('Erreur:', error);
-            setMessage({ type: 'error', text: 'Erreur lors de la suppression' });
-        } finally {
-            setIsSubmitting(false);
-        }
+        stayImageAPI.deleteImage(stay.id, stay.image.id)
+            .then((response) => {
+                if (response.status === 200) {
+                    setMessage({ type: 'success', text: 'Image supprimée, image par défaut utilisée' });
+                    
+                    // Mise à jour du séjour avec l'image par défaut
+                    const updatedStay = { 
+                        ...stay,
+                        image: {
+                            id: null,
+                            url: defaultImageUrl,
+                            alt: 'Image par défaut'
+                        }
+                    };
+                    
+                    dispatch(updateStayStore(updatedStay));
+                    if (onUpdate) onUpdate(updatedStay);
+                    
+                    // Réinitialiser le formulaire
+                    setImage(null);
+                    setPreviewUrl(defaultImageUrl);
+                    setImageAlt('Image par défaut');
+                } else {
+                    setMessage({ type: 'error', text: response.msg || 'Erreur lors de la suppression' });
+                }
+            })
+            .catch((error) => {
+                console.error('Erreur:', error);
+                setMessage({ type: 'error', text: 'Erreur lors de la suppression' });
+            })
+            .finally(() => {
+                setIsSubmitting(false);
+            });
     };
 
-    // Vérifier si l'image actuelle est l'image par défaut
-    const isDefaultImage = stay.image.url === defaultImageUrl;
+    // Vérifier si l'image actuelle est l'image par défaut (de façon sécurisée)
+    const isDefaultImage = !stay.image?.id || stay.image.url === defaultImageUrl;
 
-    return (
-        <div className="popup-overlay" onClick={(e) => {
-            if (e.target.classList.contains("popup-overlay")) onClose();
-        }}>
-            <div className="popup-content">
-                <h2>Gestion de l'image du séjour</h2>
-
-                {message.text && (
-                    <div className={`message ${message.type}`}>
-                        {message.text}
-                    </div>
-                )}
+    // Mode lecture simple
+    const renderViewMode = () => (
+        <section className="image-view-mode">
+            <header className="image-header">
+                <h3>Image du séjour</h3>
                 
-                <form onSubmit={handleSubmit}>
-                    <div className="image-preview-container">
-                        {previewUrl && (
-                            <div className="image-preview">
-                                <img 
-                                    src={previewUrl} 
-                                    alt={imageAlt || 'Aperçu'} 
-                                    style={{ 
-                                        maxWidth: '100%', 
-                                        maxHeight: '200px',
-                                        display: 'block',
-                                        margin: '0 auto 1rem auto',
-                                        border: '1px solid #ddd',
-                                        borderRadius: '4px'
-                                    }} 
-                                />
-                                {isDefaultImage && (
-                                    <div className="image-status" style={{ textAlign: 'center', marginBottom: '1rem' }}>
-                                        <small>Image par défaut</small>
-                                    </div>
-                                )}
-                            </div>
-                        )}
-                    </div>
-                    
+                <figure className="image-preview-container">
+                    <img 
+                        src={stay.image?.url || defaultImageUrl} 
+                        alt={stay.image?.alt || "Image du séjour"} 
+                        className="preview-image"
+                    />
+                    <figcaption>
+                        {stay.image?.alt || "Image du séjour"}
+                        {isDefaultImage && <span className="image-status">(Image par défaut)</span>}
+                    </figcaption>
+                </figure>
+            </header>
+    
+            <aside className="image-action">
+                <button 
+                    className="btn-primary action-button"
+                    onClick={() => setIsEditing(true)}
+                    aria-label="Modifier l'image"
+                >
+                    Modifier
+                </button>
+            </aside>
+        </section>
+    );
+
+    // Mode édition
+    const renderEditMode = () => (
+        <section className="image-edit-mode">
+            <header className="section-header">
+                <h3>Modifier l'image du séjour</h3>
+            </header>
+            
+            {message.text && (
+                <div className={`alert alert-${message.type === 'error' ? 'danger' : message.type}`} 
+                     role="alert">
+                    {message.text}
+                </div>
+            )}
+            
+            <form onSubmit={handleSubmit}>
+                <figure className="image-preview-container">
+                    <img 
+                        src={previewUrl || defaultImageUrl} 
+                        alt={imageAlt || "Aperçu de l'image"} 
+                        className="preview-image"
+                    />
+                    {isDefaultImage && (
+                        <figcaption className="image-status">Image par défaut</figcaption>
+                    )}
+                </figure>
+                
+                <section className="form-section">
+                    <h4>Changer l'image</h4>
                     <div className="form-group">
-                        <label htmlFor="image">Changer l'image:</label>
+                        <label htmlFor="image">Sélectionner une image:</label>
                         <input 
                             type="file" 
                             id="image" 
                             onChange={handleFileChange}
                             accept="image/*"
                             disabled={isSubmitting}
+                            className="file-input"
                         />
-                        <small style={{ display: 'block', margin: '0.5rem 0' }}>
-                            Formats acceptés: JPG, PNG, GIF (max 2MB)
-                        </small>
+                        <small className="form-help">Formats acceptés: JPG, PNG, GIF (max 2MB)</small>
                     </div>
-                    
+                </section>
+                
+                <section className="form-section">
+                    <h4>Description de l'image</h4>
                     <div className="form-group">
-                        <label htmlFor="imageAlt">Description de l'image:</label>
+                        <label htmlFor="imageAlt">Texte alternatif:</label>
                         <input 
                             type="text" 
                             id="imageAlt" 
@@ -214,98 +278,85 @@ const StayImageTest = ({ stay, onClose, onUpdate }) => {
                             onChange={(e) => setImageAlt(e.target.value)}
                             placeholder="Description de l'image"
                             disabled={isSubmitting}
+                            className="text-input"
                         />
+                        <small className="form-help">Cette description aide les personnes utilisant des lecteurs d'écran</small>
                     </div>
-                    
-                    <div className="form-actions" style={{ 
-                        display: 'flex', 
-                        justifyContent: 'space-between',
-                        marginTop: '1rem' 
-                    }}>
-                        <button 
-                            type="submit" 
-                            className="btn-submit" 
-                            disabled={isSubmitting}
-                        >
-                            {isSubmitting ? 'En cours...' : 'Enregistrer'}
-                        </button>
-                        
-                        {/* Bouton de suppression - visible uniquement si ce n'est pas l'image par défaut */}
-                        {!isDefaultImage && !showDeleteConfirm && (
-                            <button 
-                                type="button" 
-                                className="btn-delete"
-                                onClick={() => setShowDeleteConfirm(true)}
-                                disabled={isSubmitting}
-                                style={{ backgroundColor: '#ff6b6b' }}
-                            >
-                                Utiliser l'image par défaut
-                            </button>
-                        )}
-                        
+                </section>
+                
+                {/* Section pour la suppression de l'image */}
+                {!isDefaultImage && !showDeleteConfirm && (
+                    <section className="form-section danger-zone">
+                        <h4>Utiliser l'image par défaut</h4>
+                        <p>
+                            Vous pouvez revenir à l'image par défaut du séjour. 
+                            Attention, cette action supprimera définitivement l'image actuelle.
+                        </p>
                         <button 
                             type="button" 
-                            className="btn-cancel" 
-                            onClick={onClose}
+                            className="btn-outline-danger"
+                            onClick={() => setShowDeleteConfirm(true)}
                             disabled={isSubmitting}
                         >
-                            {message.type === 'success' ? 'Fermer' : 'Annuler'}
+                            Utiliser l'image par défaut
                         </button>
-                    </div>
-                    
-                    {/* Confirmation de suppression */}
-                    {showDeleteConfirm && (
-                        <div className="delete-confirmation" style={{
-                            marginTop: '1rem',
-                            padding: '1rem',
-                            border: '1px solid #ff6b6b',
-                            borderRadius: '4px',
-                            backgroundColor: '#fff5f5'
-                        }}>
-                            <p>Êtes-vous sûr de vouloir revenir à l'image par défaut ?</p>
-                            <p>L'image actuelle sera définitivement supprimée.</p>
-                            <div style={{ 
-                                display: 'flex', 
-                                justifyContent: 'space-between',
-                                marginTop: '1rem'
-                            }}>
-                                <button 
-                                    type="button"
-                                    onClick={handleDeleteImage}
-                                    disabled={isSubmitting}
-                                    style={{ backgroundColor: '#ff6b6b' }}
-                                >
-                                    Oui, utiliser l'image par défaut
-                                </button>
-                                <button 
-                                    type="button"
-                                    onClick={() => setShowDeleteConfirm(false)}
-                                    disabled={isSubmitting}
-                                >
-                                    Annuler
-                                </button>
-                            </div>
-                        </div>
-                    )}
-                </form>
+                    </section>
+                )}
                 
+                {/* Confirmation de suppression */}
+                {showDeleteConfirm && (
+                    <section className="delete-confirmation">
+                        <h4>Confirmation</h4>
+                        <p>Êtes-vous sûr de vouloir revenir à l'image par défaut ?</p>
+                        <p>L'image actuelle sera définitivement supprimée.</p>
+                        <div className="action-buttons">
+                            <button 
+                                type="button"
+                                className="btn-danger action-button"
+                                onClick={handleDeleteImage}
+                                disabled={isSubmitting}
+                            >
+                                Oui, utiliser l'image par défaut
+                            </button>
+                            <button 
+                                type="button"
+                                className="btn-outline action-button"
+                                onClick={() => setShowDeleteConfirm(false)}
+                                disabled={isSubmitting}
+                            >
+                                Annuler
+                            </button>
+                        </div>
+                    </section>
+                )}
+                
+                <div className="form-actions">
+                    <button 
+                        type="submit" 
+                        className="btn-success action-button"
+                        disabled={isSubmitting}
+                    >
+                        {isSubmitting ? 'En cours...' : 'Enregistrer les modifications'}
+                    </button>
+                </div>
+            </form>
+            
+            <footer className="image-edit-footer">
                 <button 
-                    className="close-btn" 
-                    onClick={onClose}
-                    style={{
-                        position: 'absolute',
-                        top: '10px',
-                        right: '10px',
-                        background: 'none',
-                        border: 'none',
-                        fontSize: '1.5rem',
-                        cursor: 'pointer'
-                    }}
+                    className="btn-primary action-button"
+                    onClick={() => setIsEditing(false)}
+                    disabled={isSubmitting}
                 >
-                    &times;
+                    Terminer
                 </button>
-            </div>
-        </div>
+            </footer>
+        </section>
+    );
+
+    return (
+        <article className="image-management">
+            {isEditing ? renderEditMode() : renderViewMode()}
+        </article>
     );
 };
 

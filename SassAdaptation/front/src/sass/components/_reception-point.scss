@@ -1,0 +1,79 @@
+@use '../utils/variables' as vars;
+@use '../utils/mixins' as mix;
+@use '../utils/functions' as fn;
+
+.reception-point {
+    width: 100%;
+
+    header {
+        h4 {
+            font-size: fn.font-size('large');
+            margin-bottom: fn.spacing('base');
+        }
+    }
+
+    .point-details {
+        display: grid;
+        gap: fn.spacing('base');
+
+        dt {
+            color: fn.text-color('muted');
+            font-size: fn.font-size('small');
+            margin-bottom: fn.spacing('xxs');
+        }
+
+        dd {
+            font-size: fn.font-size('base');
+        }
+    }
+
+    // Style des boutons conservé de l'ancien code
+    .action-button {
+        padding: fn.spacing('xs') fn.spacing('base');
+        border-radius: fn.radius('small');
+    }
+
+    .action-menu,
+    .reception-actions {
+        display: flex;
+        gap: fn.spacing('base');
+        margin: fn.spacing('lg') 0;
+        padding: 0;
+    }
+
+    // Styles du formulaire
+    form {
+        fieldset {
+            border: none;
+            padding: 0;
+            margin: 0 0 fn.spacing('lg');
+            
+            legend {
+                font-size: fn.font-size('medium');
+                margin-bottom: fn.spacing('base');
+                font-weight: 600;
+                color: fn.text-color('dark');
+                padding: fn.spacing('xs') 0;
+                border-bottom: 2px solid fn.border-color('primary');
+            }
+        }
+
+        label {
+            display: block;
+            margin-bottom: fn.spacing('base');
+
+            span {
+                display: block;
+                color: fn.text-color('muted');
+                font-size: fn.font-size('small');
+                margin-bottom: fn.spacing('xxs');
+            }
+
+            input, select {
+                width: 100%;
+                padding: fn.spacing('xs');
+                border-radius: fn.radius('small');
+            }
+        }
+    }
+}

@@ -1,0 +1,284 @@
+@use '../utils/variables' as vars;
+@use '../utils/mixins' as mix;
+@use './editableComponent';
+
+$access-active-bg: rgba(vars.$primary-color, 0.08);
+$access-active-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+
+.access-management {
+  @extend .editable-component;
+  
+  // Spécifique au mode vue
+  .access-view-mode {
+    @extend .view-mode;
+    
+    .access-header {
+      @extend .component-header;
+      
+      // Styles spécifiques aux accès
+      .access-list {
+        list-style: none;
+        padding: 0;
+        margin: vars.$spacing-md 0 0;
+        
+        .access-item {
+          position: relative;
+          margin-bottom: vars.$spacing-md;
+          padding: vars.$spacing-md;
+          background-color: vars.$white;
+          border-radius: vars.$border-radius;
+          border-left: vars.$border-width-lg solid vars.$secondary-color;
+          box-shadow: vars.$box-shadow;
+          @include mix.smooth-transition(all);
+          
+          &:hover {
+            transform: translateY(-2px);
+          }
+          
+          .access-category {
+            display: block;
+            font-weight: 600;
+            color: vars.$primary-color;
+            margin-bottom: vars.$spacing-xs;
+            font-size: vars.$font-size-base;
+          }
+          
+          .access-informations {
+            display: block;
+            font-size: vars.$font-size-sm;
+            color: vars.$text-color-secondary;
+          }
+        }
+      }
+      
+      .empty-message {
+        color: vars.$text-color-secondary;
+        font-style: italic;
+        margin: vars.$spacing-sm 0;
+      }
+    }
+    
+    .access-action {
+      @extend .component-action;
+    }
+  }
+  
+  // Spécifique au mode édition
+  .access-edit-mode {
+    @extend .edit-mode;
+    
+    // Animation pour transition du message
+    .alert {
+      transition: opacity 0.3s ease-in-out;
+      
+      &.fade-out {
+        opacity: 0;
+      }
+    }
+    
+    // Sections pour les différentes catégories d'accès
+    .access-section, 
+    .access-form-section {
+      background-color: vars.$white;
+      padding: vars.$spacing-md;
+      border-radius: vars.$border-radius;
+      margin-bottom: vars.$spacing-md;
+      box-shadow: vars.$box-shadow;
+      
+      h4 {
+        color: vars.$primary-color;
+        margin-top: 0;
+        margin-bottom: vars.$spacing-sm;
+      }
+    }
+    
+    // Styles spécifiques aux listes d'accès
+    .access-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      
+      &.with-actions {
+        .access-item {
+          // Modifier la disposition en colonne par défaut (pour mobile)
+          @include mix.flex(column, flex-start, stretch);
+          padding: vars.$spacing-sm;
+          margin-bottom: vars.$spacing-sm;
+          background-color: vars.$background-light;
+          border-radius: vars.$border-radius;
+          border-left: vars.$border-width-lg solid vars.$secondary-color;
+          box-shadow: vars.$box-shadow-sm;
+          transition: transform vars.$transition-speed ease, box-shadow vars.$transition-speed ease;
+          
+          &:hover {
+            transform: translateY(-2px);
+            box-shadow: vars.$box-shadow;
+          }
+          
+          &.active-edit {
+            background-color: $access-active-bg;
+            border-left-width: calc(vars.$border-width-lg * 1.5);
+            transform: translateX(vars.$spacing-xs);
+            box-shadow: $access-active-shadow;
+          }
+
+          .access-content {
+            width: 100%;
+            margin-bottom: vars.$spacing-sm;
+            
+            .access-category {
+              display: block;
+              font-weight: 600;
+              color: vars.$primary-color;
+              margin-bottom: vars.$spacing-xs;
+            }
+
+            .access-informations {
+              display: block;
+              font-size: vars.$font-size-sm;
+              color: vars.$text-color-secondary;
+              @include mix.text-truncate;
+            }
+          }
+
+          // Modification des actions pour être en colonne sur mobile (comme StaySteps)
+          .access-actions {
+            width: 100%;
+            @include mix.flex(column, center, stretch);
+            gap: vars.$spacing-sm;
+            padding: 0;
+            margin: 0;
+            
+            button {
+              width: 100%;
+            }
+          }
+          
+          // Adaptation pour tablette et desktop
+          @include mix.for-size('tablet') {
+            @include mix.flex(row, space-between, center);
+            
+            .access-content {
+              margin-bottom: 0;
+              flex: 1;
+            }
+            
+            .access-actions {
+              width: auto;
+              min-width: 120px;
+              flex-direction: row;
+              
+              button {
+                width: auto;
+              }
+            }
+          }
+        }
+      }
+    }
+    
+    // Animation pour le changement de titre du formulaire
+    .form-title-container {
+      position: relative;
+      height: 2.5rem;
+      overflow: hidden;
+      margin-bottom: vars.$spacing-md;
+      
+      .form-title {
+        position: absolute;
+        width: 100%;
+        @include mix.smooth-transition(all, 0.4s, ease-in-out);
+        
+        // États des titres
+        &.title-hidden {
+          opacity: 0;
+          transform: translateX(-100%);
+        }
+        
+        &.title-visible {
+          opacity: 1;
+          transform: translateX(0);
+        }
+        
+        &.title-edit.title-entering {
+          opacity: 0;
+          transform: translateX(100%);
+        }
+        
+        &.title-add.title-entering {
+          opacity: 0;
+          transform: translateX(-100%);
+        }
+      }
+    }
+    
+    // Formulaire pour ajouter/modifier un accès
+    .access-form {
+      margin-top: vars.$spacing-md;
+      @include mix.smooth-transition(all);
+      
+      &.is-editing {
+        border-left: vars.$border-width-lg solid vars.$primary-color;
+        background-color: $access-active-bg;
+        padding: vars.$spacing-md;
+        border-radius: vars.$border-radius;
+        box-shadow: $access-active-shadow;
+      }
+      
+      fieldset {
+        border: none;
+        padding: 0;
+        margin: 0 0 vars.$spacing-md;
+        
+        legend {
+          font-weight: 600;
+          color: vars.$primary-color;
+          margin-bottom: vars.$spacing-sm;
+        }
+      }
+      
+      .form-group {
+        margin-bottom: vars.$spacing-md;
+        
+        label {
+          display: block;
+          margin-bottom: vars.$spacing-xs;
+          font-weight: 500;
+        }
+        
+        .text-input, .text-area {
+          width: 100%;
+          padding: vars.$spacing-sm;
+          border: vars.$border-width solid vars.$input-border;
+          border-radius: vars.$border-radius;
+          
+          &:focus {
+            outline: none;
+            border-color: vars.$primary-color;
+          }
+        }
+        
+        .text-area {
+          resize: vertical;
+        }
+      }
+      
+      // Indicateur pour le mode édition
+      .editing-indicator {
+        display: inline-block;
+        background: vars.$primary-color;
+        color: vars.$white;
+        padding: vars.$spacing-xs vars.$spacing-sm;
+        border-radius: vars.$border-radius-pill;
+        margin-bottom: vars.$spacing-sm;
+        font-size: vars.$font-size-sm;
+        opacity: 0;
+        @include mix.smooth-transition(all);
+        
+        .is-editing & {
+          opacity: 1;
+        }
+      }
+    }
+  }
+}

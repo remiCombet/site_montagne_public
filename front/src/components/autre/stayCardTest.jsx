@@ -1,205 +1,147 @@
-import { useState, useEffect } from 'react';
-import { format } from 'date-fns';
+import React, { useState, useEffect } from 'react';
 import StayDetails from './stayDetails';
-import StayEditPopupTest from './stayEditPopupTest';
+import StayImageTest from './stayImageTest';
 import ThemeTest from './themeTest';
 import HighlightTest from './highlightTest';
 import StayStepTest from './stayStepTest';
 import AccessTest from './accessTest';
 import EquipmentsTest from './equipmentsTest';
-import StayImageTest from './stayImageTest';
-import { decodeHTML } from '../../utils/decodeHtml';
+// @ts-ignore
+import { decodeHTML } from '../../utils/decodeHTML';
 
-const StayCardTest = ({ stay, onSelect, selectedStay, onDeselect }) => {
-
-    // popup pour la modification d'un séjour
-    const [isPopupOpen, setIsPopupOpen] = useState(false);
-
-    // popup pour la gestion des themes d'un séjour
-    const [isPopupThemeOpen, setIsPopupThemeOpen] = useState(false);
-
-    // popup pour la gestion des points fors d'un séjour
-    const [isPopupHighlightOpen, setIsPopupHighlightOpen] = useState(false);
-
-    // popup pour la gestion des étapes d'un séjour
-    const [isPopupStayStepOpen, setIsPopupStayStepOpen] = useState(false);
-
-    // popup pour la gestion des acces d'un séjour
-    const [isPopupAccessOpen, setIsPopupAccessOpen] = useState(false);
-
-    // popup pour la gestion des equipements fournis d'un séjour
-    const [isPopupEquipmentOpen, setIsPopupEquipmentOpen] = useState(false);
-
-    // popup pour la gestion de l'image d'un séjour
-    const [isPopupImageOpen, setIsPopupImageOpen] = useState(false);
-
-    // Gestion des erreurs/validation
-    const [message, setMessage] = useState({ type: "", text: "" });
-
-    // Fonction de formatage destinée à l'affichage des dates
-    const formatViewDate = (date) => {
-        return format(new Date(date), 'dd-MM-yyyy');
-    };
-
-    // gestion de la sélection du séjour
-    const handleSelectStay = () => {
-        onSelect(stay);
-        setIsPopupOpen(true);
-    };
-
-    // gestion de la désélection du séjour
-    const handleDeselectStay = () => {
-        onDeselect();
-        setIsPopupOpen(false);
-    };
-
-    const isSelected = selectedStay && selectedStay.id === stay.id;
-
+const StayCardTest = ({ stay, onSelect, selectedStay, onDeselect, isSelected }) => {
+    const [activeTab, setActiveTab] = useState('info');
+    const [isExpanded, setIsExpanded] = useState(false);
+     
+    // Surveiller si le séjour est sélectionné et déployer si nécessaire
     useEffect(() => {
-        if (message.text) {
-            const timer = setTimeout(() => {
-                setMessage({ type: "", text: ""});
-            }, 1500);
-
-            return () => clearTimeout(timer);
+        if (isSelected && !isExpanded) {
+            setIsExpanded(true);
+        } else if (!isSelected && isExpanded) {
+            setIsExpanded(false);
         }
-    }, [message]);
-
+    }, [isSelected, isExpanded]);
+    
+    // Fonction simplifiée pour l'expansion/réduction combinée avec la sélection/désélection
+    const toggleExpandAndSelect = () => {
+        if (!isExpanded) {
+            // Si la carte n'est pas déployée, on la sélectionne et la déploie
+            onSelect && onSelect(stay);
+        } else {
+            // Si la carte est déployée, on la réduit ET on désélectionne
+            setIsExpanded(false);
+            onDeselect && onDeselect();
+        }
+    };
+    
+    // Changer d'onglet
+    const handleTabChange = (tabName) => {
+        setActiveTab(tabName);
+    };
+    
+    // Fonction pour mettre à jour le séjour
+    const handleStayUpdate = (updatedStay) => {
+        if (onSelect && updatedStay) {
+            onSelect(updatedStay);
+        }
+    };
+    
+    // Définition des onglets disponibles
+    const tabs = [
+        { id: 'info', label: 'Informations' },
+        { id: 'image', label: 'Image' },
+        { id: 'themes', label: 'Thèmes' },
+        { id: 'highlights', label: 'Points forts' },
+        { id: 'steps', label: 'Étapes' },
+        { id: 'access', label: 'Accès' },
+        { id: 'equipment', label: 'Équipements' }
+    ];
+    
+    // Rendu du contenu de l'onglet actif
+    const renderTabContent = () => {
+        switch (activeTab) {
+            case 'info':
+                return <StayDetails stay={stay} onUpdate={handleStayUpdate} />;
+            case 'image':
+                return <StayImageTest stay={stay} onUpdate={handleStayUpdate} />;
+            case 'themes':
+                return <ThemeTest stay={stay} onUpdate={handleStayUpdate} />;
+            case 'highlights':
+                return <HighlightTest stay={stay} onUpdate={handleStayUpdate} />;
+            case 'steps':
+                return <StayStepTest stay={stay} onUpdate={handleStayUpdate} />;
+            case 'access':
+                return <AccessTest stay={stay} onUpdate={handleStayUpdate} />;
+            case 'equipment':
+                return <EquipmentsTest stay={stay} onUpdate={handleStayUpdate} />;
+            default:
+                return <p>Onglet inconnu</p>;
+        }
+    };
+    
     return (
-        <article className={isSelected ? 'selected' : ''}>
-            <section>
-                {/* Afficher l'image miniature si elle existe */}
-                {stay.image && (Object.keys(stay.image).length > 0 ? (
-                    <div className="stay-thumbnail">
+        <article className={`stay-card ${isSelected ? 'selected' : ''} ${isExpanded ? 'expanded' : ''}`}>
+            {!isExpanded ? (
+                // Vue réduite (fermée)
+                <header className="stay-card__header">
+                    <figure className="stay-thumbnail">
                         <img 
-                            src={stay.image.url} 
-                            alt={stay.image.alt || stay.title} 
-                            style={{ maxWidth: '100px', height: 'auto' }}
+                            src={stay.image?.url || "https://res.cloudinary.com/dpa2kakxx/image/upload/v1741274688/site_montagne_v3/montagneDessin_vcxgkc.png"} 
+                            alt={stay.image?.alt || stay.title || "Image par défaut"}
                         />
-                    </div>
-                ) : (
-                    <div className="stay-thumbnail">
-                        <img 
-                            src="https://res.cloudinary.com/dpa2kakxx/image/upload/v1741274688/site_montagne_v3/montagneDessin_vcxgkc.png" 
-                            alt="Image par défaut"
-                            style={{ maxWidth: '100px', height: 'auto' }}
-                        />
-                    </div>
-                ))}
+                    </figure>
+                    <h3 className="stay-card__title">{decodeHTML(stay.title)}</h3>
+                    <button 
+                        className="stay-card__toggle"
+                        onClick={toggleExpandAndSelect}
+                        aria-expanded={isExpanded}
+                    >
+                        Gérer
+                    </button>
+                </header>
+            ) : (
+                // Vue étendue (ouverte)
+                <>
+                    <header className="stay-card__header stay-card__header--expanded">
+                        <figure className="stay-thumbnail">
+                            <img 
+                                src={stay.image?.url || "https://res.cloudinary.com/dpa2kakxx/image/upload/v1741274688/site_montagne_v3/montagneDessin_vcxgkc.png"} 
+                                alt={stay.image?.alt || stay.title || "Image par défaut"}
+                            />
+                        </figure>
+                        <h3 className="stay-card__title">{decodeHTML(stay.title)}</h3>
+                    </header>
 
-                {decodeHTML(stay.title)}
-                <br />
-                {/* Bouton pour ouvrir/fermer le popup */}
-                <button onClick={handleSelectStay}>
-                    {isSelected ? 'Désélectionner' : 'Voir les infos du séjour'}
-                </button>
-            </section>
-
-            {/* affichage du popup */}
-            {isPopupOpen && (
-                <StayEditPopupTest 
-                    stay={stay}
-                    onClose={handleDeselectStay}
-                />
+                    <section className="stay-card__expanded">
+                        <nav className="stay-card__tabs" aria-label="Onglets du séjour">
+                            {tabs.map(tab => (
+                                <button 
+                                    key={tab.id}
+                                    className={activeTab === tab.id ? 'active' : ''}
+                                    onClick={() => handleTabChange(tab.id)}
+                                    aria-selected={activeTab === tab.id}
+                                    role="tab"
+                                >
+                                    {tab.label}
+                                </button>
+                            ))}
+                        </nav>
+                        
+                        <main className="stay-card__content" role="tabpanel">
+                            {renderTabContent()}
+                        </main>
+                        
+                        <footer className="stay-card__footer">
+                            <button 
+                                className="stay-card__close"
+                                onClick={toggleExpandAndSelect}
+                            >
+                                Fermer
+                            </button>
+                        </footer>
+                    </section>
+                </>
             )}
-
-            {/* Gestion de l'image du séjour */}
-            <section>
-                <button onClick={() => {
-                    onSelect(stay);  // Informer le parent que ce séjour est sélectionné
-                    setIsPopupImageOpen(true);  // Ouvrir le popup d'image
-                }}>
-                    Gérer l'image
-                </button>
-            </section>
-
-            {/* Affichage du popup de gestion d'image */}
-            {isPopupImageOpen && (
-                <StayImageTest 
-                    stay={selectedStay || stay}
-                    onClose={() => {
-                        setIsPopupImageOpen(false);
-                        onDeselect();
-                    }}
-                    onUpdate={onSelect}
-                />
-            )}
-
-            {/* Gestion des thèmes */}
-            <section>
-                <button onClick={() => setIsPopupThemeOpen(true)}>
-                    Gérer les thèmes
-                </button>
-            </section>
-
-            {/* Affichage du popup des thèmes */}
-            {isPopupThemeOpen && (
-                <ThemeTest 
-                    stay={stay}
-                    onClose={() => setIsPopupThemeOpen(false)}
-                />
-            )}
-
-            {/* Gestion des highlights */}
-            <section>
-                <button onClick={() => setIsPopupHighlightOpen(true)}>
-                    Gérer les points positifs
-                </button>
-            </section>
-
-            {/* Affichage du popup des points positifs */}
-            {isPopupHighlightOpen && (
-                <HighlightTest
-                    stay={stay}
-                    onClose={() => setIsPopupHighlightOpen(false)}
-                />
-            )}
-
-            {/* Gestion des étapes */}
-            <section>
-                <button onClick={() => setIsPopupStayStepOpen(true)}>
-                    Gérer les étapes
-                </button>
-            </section>
-
-            {/* Affichage du popup des étapes */}
-            {isPopupStayStepOpen && (
-                <StayStepTest
-                    stay={stay}
-                    onClose={() => setIsPopupStayStepOpen(false)}
-                />
-            )}
-
-            {/* Gestion des acces */}
-            <section>
-                <button onClick={() => setIsPopupAccessOpen(true)}>
-                    Gérer les acces
-                </button>
-            </section>
-
-            {/* affichage du popup */}
-            {isPopupAccessOpen && (
-                <AccessTest 
-                    stay={stay}
-                    onClose={() => setIsPopupAccessOpen(false)}
-                />
-            )}
-
-            {/* Gestion des acces */}
-            <section>
-                <button onClick={() => setIsPopupEquipmentOpen(true)}>
-                    Gérer les équipement fournis
-                </button>
-            </section>
-
-            {/* affichage du popup */}
-            {isPopupEquipmentOpen && (
-                <EquipmentsTest 
-                    stay={stay}
-                    onClose={() => setIsPopupEquipmentOpen(false)}
-                />
-            )}
-
         </article>
     );
 };

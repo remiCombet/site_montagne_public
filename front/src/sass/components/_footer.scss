@@ -1,29 +1,20 @@
-@use '../utils/variables';
-@use '../utils/mixins';
+@use '../utils/variables' as vars;
+@use '../utils/mixins' as mix;
 
-.footer-nav {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: variables.$header-height;
-    background: linear-gradient(90deg, #4d4d4d 0%, #3f3f3f 40%, #333333 60%, #1A1A1A 80%, #000000 100%);
-    color: #FFFFFF;
-    border-top: 1px solid rgb(19, 19, 19);
-    z-index: 10;
-    position: relative;
-    box-shadow: 0 -6px 12px rgba(0, 0, 0, 0.6);
-    @include mixins.padding-horizontal(20px);
-
-    width: 100%;
-    max-width: 1200px;
-    margin: 0 auto;
-
-    .footer-content {
-        text-align: center;
-        
-        p {
-            color: #E0E0E0;
-            font-size: 0.9rem;
-        }
+.site-footer {
+  width: 100%;
+  @include mix.dark-background;
+  color: vars.$white;
+  text-align: center;
+  @include mix.padding-vertical(1rem);
+  
+  // Contenu
+  p {
+    margin: 0;
+    font-size: 1rem;
+    
+    @include mix.for-size('tablet') {
+      font-size: 1.1rem;
     }
-} 
+  }
+}

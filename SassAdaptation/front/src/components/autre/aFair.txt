@@ -1,0 +1,1 @@
+probleme sur breakpoint tablette pour administration verifier sur autres composants que le premier

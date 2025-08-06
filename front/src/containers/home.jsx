@@ -39,7 +39,9 @@ const home = () => {
       <Link to="/admin/accesses">admin-2</Link>
       <br />
       <Link to="/admin-dashboard">dashboard</Link>
-
+      <br />
+      <Link to="/test">Démo Composant</Link>  {/* Nouveau lien vers le composant Test */}
+      
       <br/>
       {/* <Link to="/test">test</Link> */}
       {/* <div className="stays-list">

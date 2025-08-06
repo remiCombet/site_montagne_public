@@ -1,0 +1,81 @@
+@use '../utils/variables' as vars;
+@use '../utils/mixins' as mix;
+
+.sidebar {
+  // Base styles
+  width: 100%;
+  background-color: vars.$background-administration;
+  padding: vars.$spacing-md;
+  
+  // Mobile layout
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border-bottom: 1px solid vars.$border-dark;
+  
+  // Desktop layout
+  @include mix.for-size('tablet') {
+    width: 250px;
+    min-width: 250px;
+    height: 100vh;
+    justify-content: center;
+    align-items: center;
+    padding-top: vars.$spacing-xxl;
+    border-right: 1px solid vars.$border-dark;
+    border-bottom: none;
+    
+    // Sticky position
+    position: sticky;
+    top: 0;
+  }
+  
+  // Navigation buttons
+  button {
+    // Button reset
+    background: none;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    padding: vars.$spacing-sm;
+    
+    // Text styling
+    font-family: vars.$font-family-base;
+    font-size: vars.$font-size-base;
+    color: vars.$text-primary;
+    text-align: center;
+    transition: color 0.2s ease;
+
+    @include mix.no-tap-highlight;
+    @include mix.smooth-transition(color);
+    
+    // Spacing for desktop
+    @include mix.for-size('tablet') {
+      margin-bottom: vars.$spacing-xl;
+      font-size: vars.$font-size-lg;
+    }
+    
+    // Hover state
+    &:hover {
+      color: vars.$text-color-hover;
+    }
+    
+    // Active state
+    &.active {
+      color: vars.$text-color-hover;
+      font-weight: 600;
+      position: relative;
+      
+      // Underline indicator for active item
+      &::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 30px;
+        height: 2px;
+        background-color: vars.$text-color-hover;
+      }
+    }
+  }
+}

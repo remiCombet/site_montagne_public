@@ -1,0 +1,455 @@
+@use '../utils/variables' as vars;
+@use '../utils/mixins' as mix;
+@use './editableComponent';
+
+$equipment-active-bg: rgba(vars.$primary-color, 0.08);
+$equipment-active-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+
+.equipment-management {
+  @extend .editable-component;
+  
+  // Spécifique au mode vue
+  .equipment-view-mode {
+    @extend .view-mode;
+    
+    .equipment-header {
+      @extend .component-header;
+      
+      // Styles pour les onglets
+      .equipment-tabs {
+        display: flex;
+        border-bottom: 1px solid vars.$border-color;
+        margin-bottom: vars.$spacing-md;
+        
+        .tab-button {
+          padding: vars.$spacing-sm vars.$spacing-md;
+          background: transparent;
+          border: none;
+          border-bottom: 3px solid transparent;
+          margin-right: vars.$spacing-sm;
+          color: vars.$text-color;
+          font-weight: 500;
+          transition: all vars.$transition-speed ease;
+          cursor: pointer;
+          
+          &:hover {
+            color: vars.$primary-color;
+            border-color: rgba(vars.$primary-color, 0.3);
+          }
+          
+          &.active {
+            color: vars.$primary-color;
+            border-bottom-color: vars.$primary-color;
+            font-weight: 600;
+          }
+          
+          &:focus {
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(vars.$primary-color, 0.3);
+          }
+        }
+      }
+      
+      // Styles pour les listes d'équipements
+      .equipment-content {
+        padding: vars.$spacing-sm 0;
+      }
+      
+      .equipment-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        
+        .equipment-group {
+          margin-bottom: vars.$spacing-md;
+          
+          .equipment-category {
+            color: vars.$primary-color;
+            font-weight: 600;
+            margin-bottom: vars.$spacing-xs;
+            font-size: vars.$font-size-base;
+            text-transform: capitalize;
+            border-bottom: 1px solid vars.$border-light;
+            padding-bottom: vars.$spacing-xs;
+          }
+          
+          .equipment-items {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            
+            .equipment-item {
+              display: flex;
+              flex-direction: column;
+              padding: vars.$spacing-sm;
+              background-color: vars.$white;
+              border-radius: vars.$border-radius;
+              border-left: vars.$border-width-lg solid vars.$secondary-color;
+              margin-bottom: vars.$spacing-sm;
+              transition: transform vars.$transition-speed ease;
+              box-shadow: vars.$box-shadow-sm;
+              
+              &:hover {
+                transform: translateY(-2px);
+              }
+              
+              .equipment-name {
+                font-weight: 600;
+                color: vars.$text-color;
+                margin-bottom: vars.$spacing-xs;
+              }
+              
+              .equipment-desc {
+                font-size: vars.$font-size-sm;
+                color: vars.$text-color-secondary;
+              }
+            }
+          }
+        }
+      }
+      
+      .empty-message {
+        color: vars.$text-color-secondary;
+        font-style: italic;
+        padding: vars.$spacing-sm 0;
+      }
+    }
+    
+    .equipment-action {
+      @extend .component-action;
+    }
+  }
+  
+  // Spécifique au mode édition
+  .equipment-edit-mode {
+    @extend .edit-mode;
+    
+    // Styles pour les onglets en mode édition
+    .equipment-tabs {
+      display: flex;
+      border-bottom: 1px solid vars.$border-color;
+      margin-bottom: vars.$spacing-md;
+      
+      // Style en colonne sur mobile
+      @include mix.for-size('mobile-only') {
+        flex-direction: column;
+        gap: vars.$spacing-xs;
+        
+        .tab-button {
+          width: 100%;
+          border-radius: vars.$border-radius;
+          border: 1px solid vars.$border-color;
+          
+          &.active {
+            background-color: rgba(vars.$primary-color, 0.1);
+            border-color: vars.$primary-color;
+          }
+        }
+      }
+      
+      // Style en ligne sur tablette et desktop
+      @include mix.for-size('tablet') {
+        flex-direction: row;
+        
+        .tab-button {
+          border-bottom: 3px solid transparent;
+          margin-right: vars.$spacing-sm;
+        }
+      }
+      
+      .tab-button {
+        padding: vars.$spacing-sm vars.$spacing-md;
+        background: transparent;
+        color: vars.$text-color;
+        font-weight: 500;
+        transition: all vars.$transition-speed ease;
+        cursor: pointer;
+        
+        &:hover:not(:disabled) {
+          color: vars.$primary-color;
+          border-color: rgba(vars.$primary-color, 0.3);
+        }
+        
+        &.active {
+          color: vars.$primary-color;
+          border-bottom-color: vars.$primary-color;
+          font-weight: 600;
+        }
+        
+        &:disabled {
+          opacity: 0.6;
+          cursor: not-allowed;
+        }
+        
+        &:focus {
+          outline: none;
+          box-shadow: 0 0 0 2px rgba(vars.$primary-color, 0.3);
+        }
+      }
+    }
+    
+    // Animation pour transition du message
+    .alert {
+      transition: opacity 0.3s ease-in-out;
+      
+      &.fade-out {
+        opacity: 0;
+      }
+    }
+    
+    // Sections pour les équipements
+    .equipment-section,
+    .equipment-selection-section,
+    .equipment-form-section {
+      background-color: vars.$white;
+      padding: vars.$spacing-md;
+      border-radius: vars.$border-radius;
+      margin-bottom: vars.$spacing-md;
+      box-shadow: vars.$box-shadow;
+      
+      h4 {
+        color: vars.$primary-color;
+        margin-top: 0;
+        margin-bottom: vars.$spacing-sm;
+      }
+    }
+    
+    // Styles pour les listes d'équipements avec actions
+    .equipment-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      
+      &.with-actions {
+        .equipment-group {
+          margin-bottom: vars.$spacing-md;
+          
+          .equipment-category {
+            color: vars.$primary-color;
+            font-weight: 600;
+            margin-bottom: vars.$spacing-xs;
+            font-size: vars.$font-size-base;
+            text-transform: capitalize;
+            border-bottom: 1px solid vars.$border-light;
+            padding-bottom: vars.$spacing-xs;
+          }
+          
+          .equipment-items {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            
+            .equipment-item {
+              // Modifier la disposition en colonne par défaut (pour mobile)
+              @include mix.flex(column, flex-start, stretch);
+              padding: vars.$spacing-sm;
+              margin-bottom: vars.$spacing-sm;
+              background-color: vars.$background-light;
+              border-radius: vars.$border-radius;
+              border-left: vars.$border-width-lg solid vars.$secondary-color;
+              box-shadow: vars.$box-shadow-sm;
+              transition: transform vars.$transition-speed ease, box-shadow vars.$transition-speed ease;
+              
+              &:hover {
+                transform: translateY(-2px);
+                box-shadow: vars.$box-shadow;
+              }
+              
+              .equipment-content {
+                width: 100%;
+                margin-bottom: vars.$spacing-sm;
+                
+                .equipment-name {
+                  display: block;
+                  font-weight: 600;
+                  color: vars.$primary-color;
+                  margin-bottom: vars.$spacing-xs;
+                }
+                
+                .equipment-desc {
+                  display: block;
+                  font-size: vars.$font-size-sm;
+                  color: vars.$text-color-secondary;
+                  @include mix.text-truncate;
+                }
+              }
+              
+              // Modification des actions pour être en colonne sur mobile
+              .equipment-actions {
+                width: 100%;
+                @include mix.flex(column, center, stretch);
+                gap: vars.$spacing-sm;
+                padding: 0;
+                margin: 0;
+                
+                button {
+                  width: 100%;
+                }
+              }
+              
+              // Adaptation pour tablette et desktop
+              @include mix.for-size('tablet') {
+                @include mix.flex(row, space-between, center);
+                
+                .equipment-content {
+                  margin-bottom: 0;
+                  flex: 1;
+                }
+                
+                .equipment-actions {
+                  width: auto;
+                  min-width: 120px;
+                  flex-direction: row;
+                  
+                  button {
+                    width: auto;
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+    
+    // Style pour le sélecteur d'équipement
+    .equipment-selector {
+      margin: vars.$spacing-sm 0;
+      
+      .input-group {
+        // Affichage en colonne sur mobile
+        @include mix.flex(column, stretch, stretch);
+        gap: vars.$spacing-sm;
+        
+        .equipment-select {
+          width: 100%;
+          padding: vars.$spacing-sm;
+          border: vars.$border-width solid vars.$input-border;
+          border-radius: vars.$border-radius;
+          background-color: vars.$white;
+          
+          &:focus {
+            outline: none;
+            border-color: vars.$primary-color;
+            box-shadow: 0 0 0 2px rgba(vars.$primary-color, 0.1);
+          }
+        }
+        
+        button {
+          width: 100%;
+        }
+        
+        // Adaptation pour tablette et desktop
+        @include mix.for-size('tablet') {
+          @include mix.flex(row, flex-start, center);
+          
+          .equipment-select {
+            flex: 1;
+          }
+          
+          button {
+            width: auto;
+            min-width: 100px;
+          }
+        }
+      }
+    }
+    
+    // Styles pour la section de création de catégorie
+    .form-header {
+      @include mix.flex(column, space-between, center);
+      margin-bottom: vars.$spacing-md;
+      
+      h4 {
+        margin-bottom: vars.$spacing-sm;
+      }
+      
+      button {
+        width: 100%;
+      }
+      
+      @include mix.for-size('tablet') {
+        @include mix.flex(row, space-between, center);
+        
+        h4 {
+          margin-bottom: 0;
+        }
+        
+        button {
+          width: auto;
+        }
+      }
+    }
+    
+    // Style pour le formulaire de création de catégorie
+    .equipment-form {
+      margin-top: vars.$spacing-md;
+      
+      fieldset {
+        border: none;
+        padding: 0;
+        margin: 0 0 vars.$spacing-md;
+        
+        legend {
+          font-weight: 600;
+          color: vars.$primary-color;
+          margin-bottom: vars.$spacing-sm;
+        }
+      }
+      
+      .form-group {
+        margin-bottom: vars.$spacing-md;
+        
+        label {
+          display: block;
+          margin-bottom: vars.$spacing-xs;
+          font-weight: 500;
+        }
+        
+        .text-input {
+          width: 100%;
+          padding: vars.$spacing-sm;
+          border: vars.$border-width solid vars.$input-border;
+          border-radius: vars.$border-radius;
+          
+          &:focus {
+            outline: none;
+            border-color: vars.$primary-color;
+          }
+        }
+        
+        .type-selection {
+          margin-bottom: vars.$spacing-sm;
+          
+          .new-type-input {
+            @include mix.flex(column, stretch, stretch);
+            gap: vars.$spacing-xs;
+            
+            @include mix.for-size('tablet') {
+              @include mix.flex(row, stretch, center);
+              
+              .text-input {
+                flex: 1;
+              }
+            }
+          }
+        }
+      }
+      
+      // Masquer visuellement mais garder accessible
+      .visually-hidden {
+        @include mix.visually-hidden;
+      }
+    }
+    
+    // Messages d'information
+    .info-message {
+      color: vars.$text-color-secondary;
+      background-color: vars.$background-light;
+      border-left: vars.$border-width-lg solid vars.$info-color;
+      padding: vars.$spacing-md;
+      border-radius: vars.$border-radius;
+      margin: vars.$spacing-sm 0;
+    }
+  }
+}

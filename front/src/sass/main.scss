@@ -1,81 +1,103 @@
 @use './base';
 @use './utils/variables' as vars;
-@use './utils/mixins';
-@use './components/menu';
-@use './components/header';
-@use './components/background-section';
-@use './components/breadcrumb';
-@use 'components/articles';
-@use './components/articleCard';
-@use './components/articleDetail';
-@use './components/hero';
-@use './components/footer';
-@use './components/stayList';
-@use './components/stayCard';
-@use './components/articleNavigation';
-@use './components/calendar';
-@use './components/adminDashboard';
-@use './components/updateStayPopup';
+@use './utils/mixins' as mix;
+
+// Importer layout en premier (structure de base)
+@use './layout/layout';
+
+// Imports des composants
 @use './components/buttons';
+@use './components/authForm';
+@use './components/auth';
+@use './components/formValidation';
+@use './components/profil';
+@use './components/header';
+@use './components/footer';
+@use './components/sidebar';
+@use './components/adminDashboard';
+@use './components/stayCard';
+@use './components/test';
+
+@use './components/editableComponent';
+@use'./components/themeTest';
+@use './components/stayImage';
+@use './components/stayHighlights';
+@use './components/staySteps';
+@use'./components/accessTest';
+@use './components/equipmentsTest';
+@use './components/stayDetails';
 @use './components/receptionPoint';
-@use './components/stayEditPopup';
-@use './components/equipments';
-@use './components/alerts';
-@use './components/reservation';
-@use './components/articleImageManager';
 
 * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
 html, body {
-    height: 100%;
+  height: 100%;
+  background-color: vars.$background-site;
 }
 
-// Règles spécifiques au focus sur les éléments de formulaire
+.visually-hidden {
+  @include mix.visually-hidden;
+}
+
+// Règles modifiées pour le focus
 input:focus, textarea:focus {
-    outline: 2px solid #4e90c8;
-    outline-offset: 2px;
+  outline: none;
 }
 
-.App {
-    @include mixins.center-horizontal(1200px);
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
+// Exception pour les champs d'authentification
+.auth-form input:focus {
+  outline: none;
+}
 
-    .main-content {
-        width: 100%;
-        flex: 1;
-        background-color: rgb(124, 124, 124);
-        
-        &__inner {
-            padding: 1rem;
-        }
+// Contenu spécifique, styles qui ne font pas partie de la structure
+.App .main-content {
+  background-color: vars.$background-dark;
+  
+  &__inner {
+    padding: vars.$spacing-md;
+  }
 
-        article {
-            margin: 2rem 0;
-            padding-bottom: 1rem;
-            background-color: rgb(192, 192, 192);
-            border: 1px solid black;
-        }
+  // Nouvelle règle plus spécifique pour les articles
+  > article,
+  .content-area > article,
+  .page-content > article {
+    @include mix.margin-vertical(vars.$spacing-xl);
+    background-color: vars.$background-medium;
+    border: 1px solid vars.$border-dark;
+  }
 
-        .bottom-line {
-            border-bottom: 1px solid white;
-        }
+  // Exempter explicitement les articles des composants
+  .editable-component article,
+  [class*="-management"] article,
+  .step-item article,
+  .step-content,
+  .step-edit-item article {
+    margin: 0;
+    background-color: transparent;
+    border: none;
+  }
 
-        h2, h3, h4 {
-            color: vars.$third-color;
-            margin-bottom: 0.6rem;
-            font-size: vars.$font-size-first-title;
-        }
+  .bottom-line {
+    border-bottom: 1px solid vars.$border-light;
+  }
 
-        p, li {
-            font-size: vars.$font-size-base;
-            line-height: vars.$line-height-base;
-        }
-    }
+  // Utiliser le mixin margin-bottom pour les titres
+  h2, h3, h4 {
+    color: vars.$third-color;
+    margin-bottom: vars.$spacing-sm;
+  }
+
+  h2 { font-size: vars.$font-size-h2; }
+  h3 { font-size: vars.$font-size-h3; }
+  h4 { font-size: vars.$font-size-h4; }
+
+  p, li {
+    font-size: vars.$font-size-base;
+    line-height: vars.$line-height-base;
+  }
 }
 

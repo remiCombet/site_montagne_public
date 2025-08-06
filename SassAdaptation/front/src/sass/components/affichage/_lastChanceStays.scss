@@ -1,0 +1,129 @@
+@use '../../utils/variables' as vars;
+@use '../../utils/mixins' as mix;
+@use '../../utils/functions' as fn;
+@use 'sass:map';
+
+.last-chance-stays {
+    background-color: #fff8f8; // Fond légèrement teinté pour donner une sensation d'urgence
+    border-radius: fn.radius('medium');
+    box-shadow: map.get(vars.$shadows, 'featured');
+    margin-bottom: fn.spacing('xl');
+    padding: fn.spacing('lg') fn.spacing('md');
+
+    &__header {
+        text-align: center;
+        margin-bottom: fn.spacing('lg');
+    }
+    
+    &__title {
+        // Utilisons les couleurs disponibles
+        color: map.get(vars.$status-colors, 'rejected'); // Rouge pour urgent
+        font-size: map.get(vars.$font-sizes, 'large');
+        margin-bottom: fn.spacing('xs');
+    }
+    
+    &__subtitle {
+        color: fn.text-color('muted');
+        font-size: map.get(vars.$font-sizes, 'base');
+    }
+    
+    &__grid {
+        display: grid;
+        grid-template-columns: repeat(1, 1fr);
+        gap: fn.spacing('md');
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        
+        // Spécifique pour 2 cartes
+        @include mix.respond-to('tablet') {
+            grid-template-columns: repeat(2, 1fr);
+            max-width: 800px;
+            margin: 0 auto;
+        }
+    }
+}
+
+// Extension de la classe stay-card avec des styles spécifiques
+.stay-card {
+    // Styles pour la version urgente de la carte
+    &--urgent {
+        border: 2px solid map.get(vars.$status-colors, 'rejected');
+        background-color: white; // Pour contraster avec le fond teinté
+        
+        &:hover {
+            box-shadow: 0 8px 25px rgba(231, 76, 60, 0.3);
+        }
+        
+        // Titre spécifique pour les cartes urgentes
+        .stay-card__title {
+            color: fn.text-color('dark');
+            font-weight: 700;
+        }
+    }
+    
+    // Badge pour places restantes
+    &__badge {
+        position: absolute;
+        top: fn.spacing('sm');
+        right: fn.spacing('sm');
+        background-color: map.get(vars.$status-colors, 'rejected');
+        color: fn.text-color('light');
+        padding: fn.spacing('xs') fn.spacing('sm');
+        border-radius: fn.radius('small');
+        font-size: map.get(vars.$font-sizes, 'small');
+        font-weight: 700;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        z-index: 10;
+        animation: pulseEffect 2s infinite ease-in-out;
+    }
+    
+    // Style pour l'indicateur de capacité
+    &__capacity {
+        display: flex;
+        align-items: center;
+        font-weight: 600;
+        color: map.get(vars.$status-colors, 'rejected');
+        
+        // Barre de progression visuelle (optionnelle)
+        &::after {
+            content: '';
+            display: inline-block;
+            width: 50px;
+            height: 6px;
+            margin-left: fn.spacing('sm');
+            background: linear-gradient(to right, map.get(vars.$status-colors, 'rejected') 80%, #e5e5e5 80%);
+            border-radius: fn.radius('small');
+        }
+    }
+    
+    // Bouton spécifique pour l'action urgente
+    &__button {
+        &--urgent {
+            background-color: map.get(vars.$status-colors, 'rejected');
+            color: fn.text-color('light');
+            width: 50%; // Bouton plus large pour l'action prioritaire
+            
+            &:hover {
+                background-color: fn.color('accent', 'dark');
+            }
+            
+            &:focus {
+                outline: 2px solid fn.color('accent', 'light');
+            }
+        }
+    }
+}
+
+// Animation de pulsation pour le badge
+@keyframes pulseEffect {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+    100% {
+        transform: scale(1);
+    }
+}

@@ -1,12 +1,26 @@
 import React, { useState } from "react";
-import { NavLink, useLocation } from "react-router-dom";
+import { NavLink, useLocation, useNavigate } from "react-router-dom";
+import { useAuth } from "../context/authContext";
 
-function Menu({ user }) {
+function Menu() {
   const [isSubMenuOpen, setIsSubMenuOpen] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
+  
+  // Utiliser le contexte au lieu de Redux
+  const { isLoggedIn, isAdmin, logout } = useAuth();
 
-  // Vérifie si la route actuelle est dans les sous-menus de "Séjours"
   const isInStaysSubMenu = location.pathname.startsWith("/stays");
+
+  // Fonction de déconnexion mise à jour
+  const handleLogout = (e) => {
+    e.preventDefault();
+    
+    // Déconnexion
+    logout();
+    
+    navigate('/');
+  };
 
   return (
     <ul className="main-navBar">
@@ -15,80 +29,84 @@ function Menu({ user }) {
           Accueil
         </NavLink>
       </li>
+      <li
+        className={`menu-item-has-submenu ${
+          isSubMenuOpen || isInStaysSubMenu ? "submenu-active" : ""
+        }`}
+        onMouseEnter={() => setIsSubMenuOpen(true)}
+        onMouseLeave={() => setIsSubMenuOpen(false)}
+      >
+        <NavLink
+          to="/stays"
+          className={({ isActive }) => (isActive ? "active" : "")}
+        >
+          Séjours
+        </NavLink>
+        <ul className="submenu">
+          <li>
+            <NavLink to="/stays/mountain" className={({ isActive }) => (isActive ? "active" : "")}>
+              Montagne
+            </NavLink>
+          </li>
+          <li>
+            <NavLink to="/stays/beach" className={({ isActive }) => (isActive ? "active" : "")}>
+              Plage
+            </NavLink>
+          </li>
+          <li>
+            <NavLink to="/stays/city" className={({ isActive }) => (isActive ? "active" : "")}>
+              Ville
+            </NavLink>
+          </li>
+        </ul>
+      </li>
 
-      {/* Menu pour un utilisateur connecté */}
-      {/* {user?.isLogged ? ( */}
+      {isLoggedIn ? (
         <>
           <li>
-            <NavLink
-              to="/profil"
-              className={({ isActive }) => (isActive ? "active" : "")}
-            >
+            <NavLink to="/profil" className={({ isActive }) => (isActive ? "active" : "")}>
               Profil
             </NavLink>
           </li>
-          <li
-            className={`menu-item-has-submenu ${
-              isSubMenuOpen || isInStaysSubMenu ? "submenu-active" : ""
-            }`}
-            onMouseEnter={() => setIsSubMenuOpen(true)}
-            onMouseLeave={() => setIsSubMenuOpen(false)}
-          >
+          {isAdmin && (
+            <li>
+              <NavLink to="/admin-dashboard" className={({ isActive }) => (isActive ? "active" : "")}>
+                Administration
+              </NavLink>
+            </li>
+          )}
+          <li>
             <NavLink
-              to="/stays"
-              className={({ isActive }) => (isActive ? "active" : "")}
+              to="/"
+              onClick={handleLogout}
+              className={({ isActive }) => (isActive ? "" : "inactive")}
             >
-              Séjours
+              Déconnexion
             </NavLink>
-            <ul className="submenu">
-              <li>
-                <NavLink
-                  to="/stays/mountain"
-                  className={({ isActive }) => (isActive ? "active" : "")}
-                >
-                  Montagne
-                </NavLink>
-              </li>
-              <li>
-                <NavLink
-                  to="/stays/beach"
-                  className={({ isActive }) => (isActive ? "active" : "")}
-                >
-                  Plage
-                </NavLink>
-              </li>
-              <li>
-                <NavLink
-                  to="/stays/city"
-                  className={({ isActive }) => (isActive ? "active" : "")}
-                >
-                  Ville
-                </NavLink>
-              </li>
-            </ul>
           </li>
         </>
-      {/* ) : ( */}
-        {/* // Menu pour un utilisateur non connecté */}
+      ) : (
         <>
           <li>
-            <NavLink
-              to="/register"
-              className={({ isActive }) => (isActive ? "active" : "")}
-            >
-              Inscription
-            </NavLink>
-          </li>
-          <li>
-            <NavLink
-              to="/login"
-              className={({ isActive }) => (isActive ? "active" : "")}
+            <NavLink 
+              to="/auth" 
+              state={{ showRegister: false }} 
+              className={({ isActive }) => (isActive && !location.state?.showRegister ? "active" : "")}
             >
               Connexion
             </NavLink>
           </li>
+          <li>
+            <NavLink 
+              to="/auth" 
+              state={{ showRegister: true }} 
+              className={({ isActive }) => (isActive && location.state?.showRegister ? "active" : "")}
+            >
+              Inscription
+            </NavLink>
+          </li>
         </>
-      {/* )} */}
+      )}
     </ul>
   );
 }

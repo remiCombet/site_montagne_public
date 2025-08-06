@@ -1,0 +1,104 @@
+@use '../utils/variables' as vars;
+@use '../utils/mixins' as mix;
+
+.test-component {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: vars.$spacing-lg;
+  background-color: vars.$background-site;
+  border-radius: vars.$border-radius;
+  box-shadow: vars.$box-shadow;
+  
+  @include mix.for-size-down('tablet') {
+    padding: vars.$spacing-md;
+  }
+}
+
+.test-title {
+  color: vars.$primary-color;
+  font-size: 2.5rem;
+  text-align: center;
+  margin-bottom: vars.$spacing-lg;
+  position: relative;
+  
+  &::after {
+    content: '';
+    position: absolute;
+    width: 80px;
+    height: 4px;
+    background-color: vars.$secondary-color;
+    bottom: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+  
+  @include mix.for-size-down('tablet') {
+    font-size: 1.8rem;
+  }
+}
+
+.test-content {
+  display: flex;
+  gap: vars.$spacing-lg;
+  align-items: flex-start;
+  
+  @include mix.for-size-down('tablet') {
+    flex-direction: column;
+    gap: vars.$spacing-md;
+  }
+}
+
+.test-image-container {
+  flex: 0 0 40%;
+  
+  @include mix.for-size-down('tablet') {
+    flex: 0 0 auto;
+    width: 100%;
+    margin-bottom: vars.$spacing-md;
+  }
+}
+
+.test-image {
+  width: 100%;
+  border-radius: vars.$border-radius;
+  transition: opacity 0.5s ease;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+  
+  &.loading {
+    opacity: 0;
+  }
+  
+  &.loaded {
+    opacity: 1;
+  }
+}
+
+.image-placeholder {
+  width: 100%;
+  height: 300px;
+  background-color: #f0f0f0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #999;
+  font-style: italic;
+  border-radius: vars.$border-radius;
+}
+
+.test-paragraphs {
+  flex: 1;
+}
+
+.test-paragraph {
+  margin-bottom: vars.$spacing-md;
+  line-height: 1.6;
+  color: vars.$text-primary;
+  
+  &:last-child {
+    margin-bottom: 0;
+  }
+  
+  @include mix.for-size-down('tablet') {
+    font-size: 0.95rem;
+  }
+}

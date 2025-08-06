@@ -1,0 +1,61 @@
+@use './base';
+@use './utils/variables' as vars;
+@use './utils/mixins' as mix;
+@use './utils/functions' as fn;
+@use 'sass:map';
+
+@use './layout/layout';
+
+// composants
+@use './components/header';
+@use './components/banner-section';
+@use './components/admin-dashboard';
+@use './components/footer';
+@use './components/reservations';
+@use './components/messagePopup';
+@use './components/article';
+@use './components/stay';
+@use './components/stay-details';
+@use './components/reception-point';
+@use './components/theme';
+@use './components/highlights';
+@use './components/access';
+@use './components/equipments';
+@use './components/stayInfoTabs';
+@use './components/imageManagement';
+@use './components/affichage/profil';
+
+// affichage
+@use './components/affichage/featuredStays';
+@use './components/affichage/lastChanceStays';
+@use './components/affichage/contact';
+@use './components/affichage/stayCard';
+
+// encore en test
+@use './components/affichage/stay-booking';
+
+// test staycard
+@use './components/affichage/test2';
+
+// test stayDetails
+@use './components/affichage/stayDetails';
+
+// effets
+@use './components/effects/snowEffects';
+
+// test auth
+@use './components/auth/index';
+
+// @use 'components/authpo/auth-main';
+// @use 'components/authpo/auth-responsive';
+// @use './components/auth/auth';
+// @use './components/auth/form';
+// @use './components/auth/input';
+// @use './components/auth/login';
+// @use './components/auth/register';
+
+.App {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}

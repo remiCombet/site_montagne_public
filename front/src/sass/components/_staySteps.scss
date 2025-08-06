@@ -1,0 +1,342 @@
+@use '../utils/variables' as vars;
+@use '../utils/mixins' as mix;
+@use './editableComponent';
+
+$step-header-bg: vars.$primary-color;
+$step-header-text: vars.$white;
+
+.step-management {
+  @extend .editable-component;
+  
+  // Spécifique au mode vue
+  .step-view-mode {
+    @extend .view-mode;
+    
+    .step-header {
+      @extend .component-header;
+      
+      // Styles spécifiques aux étapes
+      .step-list {
+        list-style: none;
+        padding: 0;
+        margin: vars.$spacing-md 0 0;
+        
+        .step-item {
+          position: relative;
+          margin-bottom: vars.$spacing-lg;
+          padding: vars.$spacing-md;
+          background-color: vars.$white;
+          border-radius: vars.$border-radius;
+          border-left: vars.$border-width-lg solid vars.$primary-color;
+          box-shadow: vars.$box-shadow;
+          @include mix.smooth-transition(all);
+          
+          .step-number {
+            display: inline-block;
+            background-color: $step-header-bg;
+            color: $step-header-text;
+            padding: vars.$spacing-xs vars.$spacing-sm;
+            border-radius: vars.$border-radius-pill;
+            font-weight: 600;
+            margin-bottom: vars.$spacing-sm;
+            font-size: vars.$font-size-sm;
+          }
+          
+          .step-title {
+            font-size: vars.$font-size-lg;
+            margin: vars.$spacing-xs 0;
+            color: vars.$primary-color;
+          }
+          
+          .step-description {
+            margin-bottom: vars.$spacing-sm;
+            color: vars.$text-color;
+          }
+          
+          .step-details {
+            @include mix.flex(row, flex-start, center, wrap);
+            gap: vars.$spacing-md;
+            margin-bottom: vars.$spacing-sm;
+            list-style: none;
+            padding: 0;
+            
+            .step-detail {
+              @include mix.flex(row, flex-start, center);
+              gap: vars.$spacing-xs;
+              color: vars.$text-color-secondary;
+              font-weight: 500;
+              
+              i {
+                font-size: vars.$font-size-sm;
+                color: vars.$primary-color;
+              }
+            }
+          }
+          
+          // Style du bouton pour afficher/masquer l'hébergement
+          .accommodation-toggle {
+            margin: vars.$spacing-sm 0;
+            display: inline-block;
+          }
+          
+          // Styles pour l'hébergement avec animation
+          .step-accommodation {
+            margin-top: vars.$spacing-md;
+            padding-top: vars.$spacing-sm;
+            border-top: vars.$border-width solid vars.$border-color-light;
+            overflow: hidden;
+            @include mix.smooth-transition(all, 0.3s);
+            
+            &.is-hidden {
+              max-height: 0;
+              opacity: 0;
+              margin-top: 0;
+              padding-top: 0;
+              border-top: 0;
+            }
+            
+            &.is-visible {
+              max-height: 300px;
+              opacity: 1;
+              margin-top: vars.$spacing-md;
+              padding-top: vars.$spacing-sm;
+            }
+            
+            h5 {
+              font-size: vars.$font-size-base;
+              margin-bottom: vars.$spacing-xs;
+              color: vars.$text-color;
+            }
+            
+            p {
+              margin-bottom: vars.$spacing-xs;
+              color: vars.$text-color-secondary;
+              font-size: vars.$font-size-sm;
+            }
+          }
+        }
+      }
+    }
+    
+    .step-action {
+      @extend .component-action;
+    }
+  }
+  
+  // Spécifique au mode édition
+  .step-edit-mode {
+    @extend .edit-mode;
+    
+    // Sections spécifiques aux étapes
+    .step-list-section,
+    .step-form-section {
+      @extend .form-section;
+    }
+    
+    // Liste des étapes en mode édition
+    .step-edit-list {
+      list-style: none;
+      padding: 0;
+      margin: vars.$spacing-md 0 0;
+      
+      .step-edit-item {
+        @include mix.flex(column, flex-start, stretch);
+        margin-bottom: vars.$spacing-md;
+        padding: vars.$spacing-sm;
+        background-color: vars.$white;
+        border-radius: vars.$border-radius;
+        border-left: vars.$border-width-lg solid vars.$primary-color;
+        box-shadow: vars.$box-shadow;
+        @include mix.smooth-transition(all);
+        
+        &.active-edit {
+          background-color: editableComponent.$item-active-bg;
+          border-left-width: calc(vars.$border-width-lg * 1.5);
+          transform: translateX(vars.$spacing-xs);
+          box-shadow: editableComponent.$item-active-shadow;
+        }
+        
+        .step-content {
+          margin-bottom: vars.$spacing-sm;
+          
+          .step-number {
+            display: inline-block;
+            background-color: $step-header-bg;
+            color: $step-header-text;
+            padding: vars.$spacing-xs vars.$spacing-sm;
+            border-radius: vars.$border-radius-pill;
+            font-weight: 600;
+            font-size: vars.$font-size-xs;
+            margin-bottom: vars.$spacing-xs;
+          }
+          
+          .step-title {
+            display: block;
+            color: vars.$primary-color;
+            margin-bottom: vars.$spacing-xs;
+            font-weight: 600;
+          }
+          
+          .step-description {
+            display: block;
+            color: vars.$text-color;
+            font-size: vars.$font-size-sm;
+            margin-bottom: vars.$spacing-xs;
+            @include mix.text-truncate;
+          }
+          
+          .step-stats {
+            font-size: vars.$font-size-sm;
+            color: vars.$text-color-secondary;
+            list-style: none;
+            padding: 0;
+            
+            li {
+              display: inline-block;
+              margin: 0 vars.$spacing-xs;
+              
+              &:first-child {
+                margin-left: 0;
+              }
+            }
+          }
+        }
+        
+        // Modification des boutons d'action pour affichage vertical
+        .step-actions {
+          @include mix.flex(column, center, stretch);
+          gap: vars.$spacing-sm;
+          
+          // En mode mobile, garder les boutons en colonne
+          // Et pour tablette/desktop, les mettre à droite en colonne
+          @include mix.for-size('tablet') {
+            width: auto;
+            min-width: 120px;
+          }
+        }
+        
+        // Adaptation pour tablette et desktop
+        @include mix.for-size('tablet') {
+          @include mix.flex(row, space-between, center);
+          
+          .step-content {
+            margin-bottom: 0;
+            flex: 1;
+          }
+        }
+      }
+    }
+    
+    // Formulaire d'ajout/modification d'une étape
+    .step-form {
+      background-color: vars.$white;
+      padding: vars.$spacing-md;
+      border-radius: vars.$border-radius;
+      margin-top: vars.$spacing-md;
+      box-shadow: vars.$box-shadow;
+      @include mix.smooth-transition(all);
+      
+      .form-row {
+        @include mix.flex(column, flex-start, stretch);
+        gap: vars.$spacing-md;
+        margin-bottom: vars.$spacing-md;
+        
+        @include mix.for-size('tablet') {
+          @include mix.flex(row, space-between, flex-start);
+          
+          .form-group {
+            flex: 1;
+          }
+        }
+      }
+
+      // Style spécifique pour le formulaire en mode édition
+      &.is-editing {
+        border-left: vars.$border-width-lg solid vars.$primary-color;
+        background-color: editableComponent.$item-active-bg;
+        box-shadow: 0 0 8px rgba(vars.$primary-color, 0.2);
+      }
+    }
+    
+    // Section d'hébergement
+    .accommodation-section {
+      margin-top: vars.$spacing-lg;
+      padding: vars.$spacing-md;
+      background-color: rgba(vars.$primary-color, 0.05);
+      border-radius: vars.$border-radius;
+      border-left: vars.$border-width-lg solid vars.$primary-color;
+      
+      h4 {
+        margin-top: 0;
+        color: vars.$primary-color;
+        font-size: vars.$font-size-base;
+        margin-bottom: vars.$spacing-md;
+      }
+    }
+    
+    // Footer spécifique
+    .step-edit-footer {
+      @extend .edit-footer;
+    }
+    
+    // Animation pour le changement de titre du formulaire
+    .form-title-container {
+      position: relative;
+      height: 2.5rem;
+      overflow: hidden;
+      margin-bottom: vars.$spacing-md;
+      
+      .form-title {
+        position: absolute;
+        width: 100%;
+        @include mix.smooth-transition(all, 0.4s, ease-in-out);
+        
+        // États des titres
+        &.title-hidden {
+          opacity: 0;
+          transform: translateX(-100%);
+        }
+        
+        &.title-visible {
+          opacity: 1;
+          transform: translateX(0);
+        }
+        
+        &.title-edit.title-entering {
+          opacity: 0;
+          transform: translateX(100%);
+        }
+        
+        &.title-add.title-entering {
+          opacity: 0;
+          transform: translateX(-100%);
+        }
+      }
+    }
+    
+    // Style de surbrillance pour le formulaire en mode modification
+    .step-form.is-editing {
+      border-left: vars.$border-width-lg solid vars.$primary-color;
+      background-color: editableComponent.$item-active-bg;
+      box-shadow: 0 0 8px rgba(vars.$primary-color, 0.2);
+      @include mix.smooth-transition(all);
+      
+      // Indicateur visuel
+      .editing-indicator {
+        display: inline-block;
+        background: vars.$primary-color;
+        color: vars.$white;
+        padding: vars.$spacing-xs vars.$spacing-sm;
+        border-radius: vars.$border-radius-pill;
+        margin-bottom: vars.$spacing-sm;
+        font-size: vars.$font-size-sm;
+        @include mix.smooth-transition(all);
+        opacity: 1;
+      }
+    }
+    
+    .editing-indicator {
+      opacity: 0;
+    }
+  }
+}

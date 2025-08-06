@@ -1,152 +1,399 @@
 @use '../utils/variables' as vars;
-@use '../utils/mixins';
+@use '../utils/mixins' as mix;
+@use './editableComponent';
 
-.reception-point-section {
-    padding: vars.$spacing-medium;
-    background: vars.$fourth-color;
+// Variables spécifiques aux points de réception
+$reception-active-bg: rgba(vars.$primary-color, 0.08);
+$reception-active-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+
+.reception-point-management {
+  @extend .editable-component;
+  margin-bottom: vars.$spacing-md;
+  
+  // Loading et messages
+  .loading-message {
+    color: vars.$text-color-tertiary;
+    font-style: italic;
+    text-align: center;
+    padding: vars.$spacing-md;
+    background-color: rgba(vars.$background-light, 0.5);
     border-radius: vars.$border-radius;
-    position: relative;
-
-    &::-webkit-scrollbar {
-        width: 8px;
-    }
-
-    &::-webkit-scrollbar-track {
-        background: #f1f1f1;
-        border-radius: 4px;
-    }
-
-    &::-webkit-scrollbar-thumb {
-        background: #888;
-        border-radius: 4px;
-        
-        &:hover {
-            background: #555;
-        }
-    }
-
-    // Message d'état
-    .message {
-        padding: 10px;
-        margin-bottom: 15px;
-        border-radius: 4px;
-
-        &.success {
-            background-color: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
-        }
-
-        &.error {
-            background-color: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
-        }
-    }
-
-    // Point de réception actuel
+  }
+  
+  // Mode Vue
+  .reception-view-mode {
+    @include mix.flex(column, flex-start, stretch);
+    gap: vars.$spacing-md;
+    
     .current-point {
-        margin: 20px 0;
-        padding: 15px;
-        background: #f8f9fa;
-        border: 1px solid #dee2e6;
-        border-radius: 4px;
-
-        h3 {
-            color: #2c3e50;
-            margin-bottom: 15px;
-        }
-
-        p {
-            margin: 8px 0;
+      padding: vars.$spacing-md;
+      background-color: vars.$background-light;
+      border-radius: vars.$border-radius;
+      border-left: vars.$border-width-lg solid vars.$primary-color;
+      
+      h4 {
+        color: vars.$primary-color;
+        margin: 0 0 vars.$spacing-md 0;
+      }
+      
+      .point-details {
+        margin: 0;
+        padding: 0;
+        margin-bottom: vars.$spacing-md;
+        
+        .detail-item {
+          @include mix.flex(column, flex-start, stretch);
+          margin-bottom: vars.$spacing-sm;
+          
+          @include mix.for-size('tablet') {
+            @include mix.flex(row, flex-start, baseline);
+          }
+          
+          dt {
+            font-weight: 600;
+            width: 100px;
+            color: vars.$text-color-secondary;
+            margin-bottom: vars.$spacing-xs;
             
-            strong {
-                color: #495057;
-                margin-right: 8px;
+            @include mix.for-size('tablet') {
+              margin-bottom: 0;
             }
+          }
+          
+          dd {
+            margin: 0;
+            color: vars.$text-color;
+          }
         }
+      }
+      
+      // Style pour le bouton de modification du point actuel
+      .edit-current-button {
+        margin-top: vars.$spacing-xs;
+        width: 100%;
+        
+        @include mix.for-size('tablet') {
+          width: auto;
+          align-self: flex-start;
+        }
+      }
     }
-
-    // Formulaire
-    form {
-        display: flex;
-        flex-direction: column;
-        gap: 15px;
-
+    
+    .empty-message {
+      color: vars.$text-color-secondary;
+      font-style: italic;
+      background-color: vars.$background-light;
+      padding: vars.$spacing-md;
+      border-radius: vars.$border-radius;
+      text-align: center;
+    }
+    
+    .reception-actions {
+      @include mix.flex(column, center, stretch);
+      gap: vars.$spacing-sm;
+      
+      @include mix.for-size('tablet') {
+        @include mix.flex(row, center, center);
+        gap: vars.$spacing-md;
+      }
+      
+      button {
+        width: 100%;
+        
+        @include mix.for-size('tablet') {
+          width: auto;
+          min-width: 200px;
+        }
+      }
+    }
+  }
+  
+  // Mode Sélection
+  .reception-select-mode {
+    padding: vars.$spacing-md;
+    background-color: vars.$white;
+    border-radius: vars.$border-radius;
+    box-shadow: vars.$box-shadow;
+    
+    .section-header {
+      margin-bottom: vars.$spacing-md;
+      
+      h4 {
+        color: vars.$primary-color;
+        margin: 0;
+      }
+    }
+    
+    .point-selection-form {
+      .form-group {
+        margin-bottom: vars.$spacing-md;
+        
         label {
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
-            color: #495057;
-            font-weight: 500;
+          display: block;
+          margin-bottom: vars.$spacing-xs;
+          font-weight: 500;
         }
-
-        input {
-            padding: 8px 12px;
-            border: 1px solid #ced4da;
-            border-radius: 4px;
-            font-size: 14px;
-
-            &:focus {
-                outline: none;
-                border-color: #80bdff;
-                box-shadow: 0 0 0 2px rgba(0,123,255,0.25);
+        
+        .select-input {
+          width: 100%;
+          padding: vars.$spacing-sm;
+          border: vars.$border-width solid vars.$border-color;
+          border-radius: vars.$border-radius;
+          
+          &:focus {
+            outline: none;
+            border-color: vars.$primary-color;
+            box-shadow: 0 0 0 2px rgba(vars.$primary-color, 0.1);
+          }
+          
+          &:disabled {
+            background-color: vars.$background-light;
+            opacity: 0.7;
+            cursor: not-allowed;
+          }
+        }
+      }
+      
+      .selected-point-details {
+        background-color: vars.$background-light;
+        padding: vars.$spacing-md;
+        border-radius: vars.$border-radius;
+        margin-bottom: vars.$spacing-lg;
+        border-left: vars.$border-width-lg solid vars.$secondary-color;
+        
+        h4 {
+          color: vars.$secondary-color;
+          margin: 0 0 vars.$spacing-md 0;
+        }
+        
+        .point-details {
+          margin: 0;
+          padding: 0;
+          
+          .detail-item {
+            @include mix.flex(column, flex-start, stretch);
+            margin-bottom: vars.$spacing-sm;
+            
+            @include mix.for-size('tablet') {
+              @include mix.flex(row, flex-start, baseline);
             }
+            
+            dt {
+              font-weight: 600;
+              width: 100px;
+              color: vars.$text-color-secondary;
+              margin-bottom: vars.$spacing-xs;
+              
+              @include mix.for-size('tablet') {
+                margin-bottom: 0;
+              }
+            }
+            
+            dd {
+              margin: 0;
+              color: vars.$text-color;
+            }
+          }
         }
+      }
     }
+  }
+  
+  // Mode Création
+  .reception-create-mode {
+    padding: vars.$spacing-md;
+    background-color: vars.$white;
+    border-radius: vars.$border-radius;
+    box-shadow: vars.$box-shadow;
+    
+    .section-header {
+      margin-bottom: vars.$spacing-md;
+      
+      h4 {
+        color: vars.$primary-color;
+        margin: 0;
+      }
+    }
+    
+    .point-creation-form {
+      .form-fieldset {
+        border: none;
+        padding: 0;
+        margin: 0 0 vars.$spacing-lg 0;
+        
+        legend {
+          font-weight: 600;
+          color: vars.$primary-color;
+          margin-bottom: vars.$spacing-md;
+          padding-bottom: vars.$spacing-xs;
+          border-bottom: vars.$border-width solid vars.$border-light;
+          width: 100%;
+        }
+      }
+      
+      .form-group {
+        margin-bottom: vars.$spacing-md;
+        
+        label {
+          display: block;
+          margin-bottom: vars.$spacing-xs;
+          font-weight: 500;
+        }
+        
+        .text-input,
+        .time-input {
+          width: 100%;
+          padding: vars.$spacing-sm;
+          border: vars.$border-width solid vars.$border-color;
+          border-radius: vars.$border-radius;
+          
+          &:focus {
+            outline: none;
+            border-color: vars.$primary-color;
+            box-shadow: 0 0 0 2px rgba(vars.$primary-color, 0.1);
+          }
+          
+          &:disabled {
+            background-color: vars.$background-light;
+            opacity: 0.7;
+            cursor: not-allowed;
+          }
+        }
+      }
+      
+      .form-row {
+        @include mix.flex(column, flex-start, stretch);
+        gap: vars.$spacing-md;
+        
+        @include mix.for-size('tablet') {
+          @include mix.flex(row, space-between, flex-start);
+          
+          .form-group {
+            flex: 1;
+          }
+        }
+      }
 
-    // Boutons
-    .action-buttons {
-        margin-top: 20px;
-        display: flex;
-        gap: 10px;
-        justify-content: flex-end;
+      // Style pour le toggle des sélecteurs d'heure
+      .time-selector-toggle {
+        margin-bottom: vars.$spacing-md;
+        @include mix.flex(column, flex-start, stretch);
+        gap: vars.$spacing-xs;
 
         button {
-            padding: 8px 16px;
-            border-radius: 4px;
-            border: none;
-            cursor: pointer;
-            font-weight: 500;
-            transition: all 0.2s ease;
+          align-self: flex-start;
+          padding: vars.$spacing-xs vars.$spacing-sm;
+          font-size: 0.9rem;
+        }
 
-            &.submit-button {
-                background-color: #007bff;
-                color: white;
+        .helper-text {
+          color: vars.$text-color-secondary;
+          font-size: 0.85rem;
+          margin-left: vars.$spacing-xs;
+          margin-top: 0.25rem;
+          margin-bottom: 0.75rem;
+        }
+      }
 
-                &:hover {
-                    background-color: #0056b3;
-                }
+      // Style pour les sélecteurs d'heure
+      .time-selector-row {
+        margin-top: vars.$spacing-sm;
+      }
+
+      .time-selector-group {
+        @include mix.flex(column, flex-start, stretch);
+        margin-bottom: vars.$spacing-md;
+
+        span {
+          display: block;
+          margin-bottom: vars.$spacing-xs;
+          font-weight: 500;
+        }
+        
+        .time-selector-container {
+          @include mix.flex(row, flex-start, center);
+          gap: vars.$spacing-xs;
+          
+          .time-select {
+            padding: vars.$spacing-sm;
+            border: vars.$border-width solid vars.$border-color;
+            border-radius: vars.$border-radius;
+            
+            &:focus {
+              outline: none;
+              border-color: vars.$primary-color;
+              box-shadow: 0 0 0 2px rgba(vars.$primary-color, 0.1);
             }
-
-            &.cancel-button {
-                background-color: #6c757d;
-                color: white;
-
-                &:hover {
-                    background-color: #5a6268;
-                }
+            
+            &:disabled {
+              background-color: vars.$background-light;
+              opacity: 0.7;
+              cursor: not-allowed;
             }
+          }
+          
+          .hours-select {
+            min-width: 70px;
+          }
+          
+          .minutes-select {
+            min-width: 70px;
+          }
+          
+          .time-separator {
+            font-weight: bold;
+            font-size: 1.2rem;
+            margin: 0 vars.$spacing-xs;
+            color: vars.$text-color-secondary;
+          }
         }
+        
+        .helper-text {
+          color: vars.$text-color-secondary;
+          font-size: 0.85rem;
+          margin-top: vars.$spacing-xs;
+        }
+      }
+
+      .form-row {
+        // ...styles existants
+        
+        // Ajustement spécifique pour la mise en page tablette des sélecteurs d'heure
+        &.time-selector-row {
+          @include mix.for-size('tablet') {
+            .time-selector-group {
+              flex: 1;
+              
+              .time-selector-container {
+                .time-select {
+                  min-width: 80px;
+                }
+              }
+            }
+          }
+        }
+      }
     }
-
-    // Mode sélection
-    .select-point-section {
-        margin: 20px 0;
-
-        select {
-            width: 100%;
-            padding: 8px 12px;
-            border: 1px solid #ced4da;
-            border-radius: 4px;
-            margin-bottom: 15px;
-        }
-
-        .selected-point-details {
-            padding: 15px;
-            background: #f8f9fa;
-            border: 1px solid #dee2e6;
-            border-radius: 4px;
-        }
+  }
+  
+  // Style commun pour les actions
+  .form-actions {
+    @include mix.flex(column, center, stretch);
+    gap: vars.$spacing-sm;
+    margin-top: vars.$spacing-lg;
+    
+    @include mix.for-size('tablet') {
+      @include mix.flex(row, center, center);
+      gap: vars.$spacing-md;
     }
+    
+    button {
+      width: 100%;
+      
+      @include mix.for-size('tablet') {
+        width: auto;
+        min-width: 150px;
+      }
+    }
+  }
 }

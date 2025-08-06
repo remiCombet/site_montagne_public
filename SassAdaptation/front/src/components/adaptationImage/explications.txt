@@ -1,0 +1,332 @@
+fichiers pour mettre en place l'utilitaire qui permet de gérer des images responsives
+
+Utilitaire d'optimisation d'images pour différents media queries
+Revenons sur l'utilitaire que j'avais proposé pour gérer les images responsives avec Cloudinary. Voici une version complète et commentée :
+
+1. Fichier utilitaire d'images responsives
+/**
+ * Utilitaires pour la gestion des images responsives avec Cloudinary
+ */
+
+/**
+ * Génère une URL Cloudinary optimisée selon le type d'appareil
+ * @param {string} imageUrl - URL originale de l'image
+ * @param {string} deviceType - Type d'appareil (mobile, tablet, desktop)
+ * @param {Object} options - Options personnalisées (crop, gravity, quality, etc.)
+ * @returns {string} URL optimisée pour Cloudinary
+ */
+export const getOptimizedImageUrl = (imageUrl, deviceType = 'desktop', options = {}) => {
+    // Image par défaut si aucune URL n'est fournie
+    if (!imageUrl) {
+        return "https://res.cloudinary.com/dpa2kakxx/image/upload/v1741274688/site_montagne_v3/montagneDessin_vcxgkc.png";
+    }
+    
+    // Configuration par défaut selon le type d'appareil
+    const deviceConfig = {
+        mobile: {
+            width: 640,
+            quality: 'auto:eco',
+            gravity: 'auto',
+            format: 'auto'
+        },
+        tablet: {
+            width: 1024, 
+            quality: 'auto:good',
+            gravity: 'auto',
+            format: 'auto'
+        },
+        desktop: {
+            width: 1920,
+            quality: 'auto:best',
+            gravity: 'auto',
+            format: 'auto'
+        }
+    };
+    
+    // Fusionner les options par défaut avec les options personnalisées
+    const config = {...deviceConfig[deviceType], ...options};
+    
+    // Créer la chaîne de transformation Cloudinary
+    const transformationString = [
+        `w_${config.width}`,
+        `c_${options.crop || 'fill'}`,
+        `g_${config.gravity}`,
+        `q_${config.quality}`,
+        `f_${config.format}`
+    ].join(',');
+    
+    // Si l'URL est de Cloudinary, appliquer les transformations
+    if (imageUrl.includes('cloudinary.com') && imageUrl.includes('/upload/')) {
+        const parts = imageUrl.split('/upload/');
+        return `${parts[0]}/upload/${transformationString}/${parts[1]}`;
+    }
+    
+    // Sinon retourner l'URL d'origine
+    return imageUrl;
+};
+
+/**
+ * Récupère les URLs optimisées pour tous les types d'appareils
+ * @param {string} imageUrl - URL originale de l'image
+ * @param {Object} options - Options de transformation
+ * @returns {Object} URLs pour mobile, tablet, desktop
+ */
+export const getResponsiveImageUrls = (imageUrl, options = {}) => {
+    return {
+        mobile: getOptimizedImageUrl(imageUrl, 'mobile', options),
+        tablet: getOptimizedImageUrl(imageUrl, 'tablet', options),
+        desktop: getOptimizedImageUrl(imageUrl, 'desktop', options)
+    };
+};
+
+/**
+ * Obtient une URL optimisée selon le contexte d'utilisation
+ * @param {string} imageUrl - URL originale
+ * @param {string} context - Contexte d'utilisation (banner, thumbnail, card, gallery)
+ * @param {string} deviceType - Type d'appareil
+ * @returns {string} URL optimisée
+ */
+export const getContextualImageUrl = (imageUrl, context = 'banner', deviceType = 'desktop') => {
+    // Configurations selon le contexte d'utilisation
+    const contextConfig = {
+        // Bannières en pleine largeur (16:9)
+        banner: {
+            crop: 'fill',
+            gravity: 'center',
+            aspectRatio: '16:9',
+            quality: 'auto'
+        },
+        // Vignettes carrées (1:1)
+        thumbnail: {
+            crop: 'thumb',
+            gravity: 'faces', // Privilégie les visages pour le cadrage
+            aspectRatio: '1:1',
+            quality: 'auto:good'
+        },
+        // Cartes d'articles/séjours (4:3)
+        card: {
+            crop: 'fill',
+            gravity: 'auto',
+            aspectRatio: '4:3',
+            quality: 'auto:good'
+        },
+        // Images de galerie (optimisées pour le poids)
+        gallery: {
+            crop: 'scale',
+            quality: 'auto:eco'
+        }
+    };
+    
+    return getOptimizedImageUrl(imageUrl, deviceType, contextConfig[context] || {});
+};
+
+2. Composant React d'image responsive
+import React, { useState, useEffect } from 'react';
+import { getResponsiveImageUrls } from '../../utils/imageUtils';
+
+/**
+ * Composant d'image responsive qui charge l'image optimale selon la taille d'écran
+ */
+const ResponsiveImage = ({ 
+    src,
+    alt = "", 
+    className = "", 
+    context = "card",
+    options = {},
+    ...props 
+}) => {
+    const [currentImageUrl, setCurrentImageUrl] = useState("");
+    const [responsiveUrls, setResponsiveUrls] = useState(null);
+    
+    // Générer les URLs pour les différentes tailles d'écran
+    useEffect(() => {
+        const contextualOptions = {
+            banner: { crop: 'fill', aspectRatio: '16:9' },
+            thumbnail: { crop: 'thumb', gravity: 'faces' },
+            card: { crop: 'fill', aspectRatio: '4:3' },
+            gallery: { crop: 'scale' }
+        }[context] || {};
+        
+        // Fusionner les options contextuelles avec les options personnalisées
+        const mergedOptions = { ...contextualOptions, ...options };
+        
+        // Récupérer les URLs responsives
+        setResponsiveUrls(getResponsiveImageUrls(src, mergedOptions));
+        
+        // Par défaut, utiliser l'URL mobile
+        setCurrentImageUrl(getResponsiveImageUrls(src, mergedOptions).mobile);
+    }, [src, context, options]);
+    
+    // Mettre à jour l'image en fonction de la taille d'écran
+    useEffect(() => {
+        if (!responsiveUrls) return;
+        
+        const updateImageSource = () => {
+            const width = window.innerWidth;
+            if (width >= 1024) {
+                setCurrentImageUrl(responsiveUrls.desktop);
+            } else if (width >= 768) {
+                setCurrentImageUrl(responsiveUrls.tablet);
+            } else {
+                setCurrentImageUrl(responsiveUrls.mobile);
+            }
+        };
+        
+        // Mettre à jour l'image au chargement et lors du redimensionnement
+        updateImageSource();
+        window.addEventListener('resize', updateImageSource);
+        
+        return () => {
+            window.removeEventListener('resize', updateImageSource);
+        };
+    }, [responsiveUrls]);
+    
+    return (
+        <img 
+            src={currentImageUrl || src} 
+            alt={alt} 
+            className={`responsive-image ${className} ${context}-image`} 
+            loading="lazy"
+            {...props}
+        />
+    );
+};
+
+export default ResponsiveImage;
+
+3. Exemple d'utilisation pour une bannière
+import React from 'react';
+import { getContextualImageUrl } from '../../utils/imageUtils';
+
+const Banner = ({ imageUrl, title, subtitle }) => {
+    // Utiliser des media queries CSS pour charger la bonne image
+    const style = {
+        '--banner-img-mobile': `url("${getContextualImageUrl(imageUrl, 'banner', 'mobile')}")`,
+        '--banner-img-tablet': `url("${getContextualImageUrl(imageUrl, 'banner', 'tablet')}")`,
+        '--banner-img-desktop': `url("${getContextualImageUrl(imageUrl, 'banner', 'desktop')}")`
+    };
+    
+    return (
+        <div className="banner" style={style}>
+            <div className="banner__content">
+                {title && <h1 className="banner__title">{title}</h1>}
+                {subtitle && <p className="banner__subtitle">{subtitle}</p>}
+            </div>
+        </div>
+    );
+};
+
+export default Banner;
+
+4. CSS correspondant pour la bannière
+@use '../utils/mixins' as mix;
+@use '../utils/variables' as vars;
+
+.banner {
+    width: 100%;
+    height: 250px;
+    position: relative;
+    
+    // Image de fond par défaut (mobile)
+    background-image: var(--banner-img-mobile);
+    background-size: cover;
+    background-position: center;
+    
+    // Versions tablette et desktop avec les images appropriées
+    @include mix.respond-to('tablet') {
+        height: 350px;
+        background-image: var(--banner-img-tablet);
+    }
+    
+    @include mix.respond-to('desktop') {
+        height: 450px;
+        background-image: var(--banner-img-desktop);
+    }
+    
+    // Overlay sombre semi-transparent
+    &::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.4);
+        z-index: 1;
+    }
+    
+    &__content {
+        position: relative;
+        z-index: 2;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        height: 100%;
+        color: #fff;
+        text-align: center;
+        padding: 0 20px;
+    }
+    
+    &__title {
+        font-size: 2rem;
+        margin-bottom: 1rem;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+        
+        @include mix.respond-to('tablet') {
+            font-size: 2.5rem;
+        }
+        
+        @include mix.respond-to('desktop') {
+            font-size: 3rem;
+        }
+    }
+    
+    &__subtitle {
+        font-size: 1rem;
+        max-width: 600px;
+        margin: 0 auto;
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+        
+        @include mix.respond-to('tablet') {
+            font-size: 1.25rem;
+        }
+    }
+}
+
+5. Utilisation du composant d'image responsive dans une carte
+import React from 'react';
+import { Link } from 'react-router-dom';
+import ResponsiveImage from '../common/ResponsiveImage';
+
+const StayCard = ({ stay }) => {
+    return (
+        <div className="stay-card">
+            <Link to={`/stays/${stay.id}`} className="stay-card__link">
+                <div className="stay-card__image-container">
+                    <ResponsiveImage 
+                        src={stay.image?.url} 
+                        alt={stay.title} 
+                        context="card"
+                    />
+                </div>
+                <div className="stay-card__content">
+                    <h3 className="stay-card__title">{stay.title}</h3>
+                    <div className="stay-card__info">
+                        <span className="stay-card__location">{stay.location}</span>
+                        <span className="stay-card__price">{stay.price} €</span>
+                    </div>
+                </div>
+            </Link>
+        </div>
+    );
+};
+
+export default StayCard;
+Cette implémentation offre une solution complète pour :
+
+Optimiser les images selon le contexte d'utilisation (bannière, vignette, carte, etc.)
+Charger dynamiquement des images optimisées selon la taille d'écran
+Utiliser les variables CSS pour les bannières responsives
+Centraliser la logique d'optimisation des images dans un seul utilitaire
+Cela fournit une approche cohérente et réutilisable pour toutes les images de votre application.

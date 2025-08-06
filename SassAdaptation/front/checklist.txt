@@ -1,0 +1,5 @@
+accommodation,
+highlight,
+stayStep,
+stays,
+user,

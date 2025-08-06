@@ -1,0 +1,73 @@
+@use '../utils/variables' as vars;
+@use '../utils/functions' as fn;
+@use '../utils/mixins' as mix;
+@use 'sass:map';
+
+// Overlay qui couvre toute la page
+.popup-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: fn.bg-color('popup');
+  z-index: 999;
+  @include mix.transition(
+    opacity,
+    fn.transition-duration('fast'),
+    fn.transition-curve('ease-out')
+  );
+}
+
+.message-popup {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  padding: fn.spacing('base');
+  border-radius: fn.radius('small');
+  box-shadow: fn.shadow('header');
+  z-index: 1000;
+  @include mix.transition(
+    all,
+    fn.transition-duration('fast'),
+    fn.transition-curve('ease-out')
+  );
+  max-width: 400px;
+  text-align: center;
+  
+  &.success {
+    background: rgba(fn.status-color('validé'), 0.95);
+    color: fn.text-color('light');
+  }
+  
+  &.error {
+    background: rgba(fn.status-color('refusé'), 0.95);
+    color: fn.text-color('light');
+  }
+
+  .message-text {
+    display: block;
+    font-size: fn.font-size('base');
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -40%);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%);
+  }
+}
+
+@keyframes fadeBackground {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}

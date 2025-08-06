@@ -1,0 +1,65 @@
+@use '../utils/variables' as vars;
+@use '../utils/mixins' as mix;
+
+// Variables locales pour ce composant spécifique
+$validation-success: #388e3c;
+$validation-error: #d32f2f;
+$validation-pending: #777;
+$validation-bg: rgba(240, 240, 240, 0.5);
+
+.field-requirements {
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+  
+  // Position relative pour TOUS les écrans
+  position: relative;
+  width: 100%;
+  background-color: rgba(255, 255, 255, 0.98);
+  border-radius: vars.$border-radius;
+  padding: vars.$spacing-sm;
+  margin-top: 5px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  
+  // État par défaut - Caché mais ne prend pas d'espace
+  display: none;
+  
+  // État visible - Prend de l'espace normalement
+  .field-focused & {
+    display: block;
+  }
+  
+  // Titre
+  h4 {
+    font-weight: 600;
+  }
+  
+  // Reste du code inchangé pour la validation visuelle
+  ul {
+    list-style: none;
+    padding-left: 0.5rem;
+    
+    li {
+      position: relative;
+      padding-left: 1.8rem;
+      margin-bottom: 0.4rem;
+      color: $validation-pending;
+      
+      &:before {
+        content: "\2717";
+        position: absolute;
+        left: 0;
+        color: $validation-error;
+        font-weight: bold;
+      }
+      
+      &.satisfied {
+        color: $validation-success;
+        text-decoration: line-through;
+        
+        &:before {
+          content: "\2713";
+          color: $validation-success;
+        }
+      }
+    }
+  }
+}

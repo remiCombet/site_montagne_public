@@ -1,0 +1,228 @@
+@use '../utils/variables' as vars;
+@use '../utils/mixins' as mix;
+@use '../utils/functions' as fn;
+
+.access-management {
+    width: 100%;
+
+    // Mode visualisation
+    .access-view-mode {
+        .access-header {
+            margin-bottom: fn.spacing('base');
+
+            h3 {
+                font-size: fn.font-size('large');
+                margin-bottom: fn.spacing('base');
+            }
+        }
+
+        .access-list {
+            display: flex;
+            flex-direction: column;
+            gap: fn.spacing('base');
+
+            .access-item {
+                background-color: fn.bg-color('secondary');
+                border-radius: fn.radius('small');
+
+                .access-category {
+                    display: block;
+                    margin-bottom: fn.spacing('xxs');
+                }
+
+                .access-informations {
+                    color: fn.text-color('muted');
+                    font-size: fn.font-size('small');
+                }
+            }
+        }
+
+        .access-action {
+            display: flex;
+            justify-content: center;
+            margin: fn.spacing('lg') 0;
+        }
+    }
+
+    // Mode édition
+    .access-edit-mode {
+        .section-header {
+            margin-bottom: fn.spacing('lg');
+
+            h3 {
+                font-size: fn.font-size('large');
+            }
+        }
+
+        .access-section {
+            margin-bottom: fn.spacing('xl');
+
+            h4 {
+                margin-bottom: fn.spacing('base');
+            }
+
+            .access-list.with-actions {
+                display: flex;
+                flex-direction: column;
+                gap: fn.spacing('base');
+
+                .access-item {
+                    display: flex;
+                    flex-direction: column;
+                    gap: fn.spacing('sm');
+                    padding: fn.spacing('base');
+                    border: fn.border('dark');
+                    border-radius: fn.radius('small');
+
+                    &.active-edit {
+                        border: fn.border('active');
+                    }
+
+                    .access-content {
+                        flex: 1;
+                        margin-bottom: fn.spacing('xs');
+
+                        .access-category {
+                            display: block;
+                            margin-bottom: fn.spacing('xxs');
+                        }
+
+                        .access-informations {
+                            color: fn.text-color('muted');
+                        }
+                    }
+
+                    .access-actions {
+                        display: flex;
+                        width: 100%;
+                        justify-content: center;
+                        gap: fn.spacing('xs');
+                        // Reset des styles par défaut du menu
+                        margin: 0;
+                        padding: 0;
+                        list-style: none;
+
+                        button {
+                            padding: fn.spacing('xs');
+                            border-radius: fn.radius('small');
+                        }
+
+                        @include mix.respond-to('tablet') {
+                            width: auto;
+                            justify-content: flex-end;
+
+                            button {
+                                padding: fn.spacing('xs') fn.spacing('base');
+                            }
+                        }
+                    }
+
+                    @include mix.respond-to('tablet') {
+                        flex-direction: row;
+                        align-items: center;
+
+                        .access-content {
+                            margin-bottom: 0;
+                            margin-right: fn.spacing('base');
+                        }
+                    }
+                }
+            }
+        }
+
+        .access-form-section {
+            margin-bottom: fn.spacing('xl');
+
+            .form-title-container {
+                position: relative;
+                margin-bottom: fn.spacing('base');
+
+                .form-title {
+                    &.title-visible {
+                        opacity: 1;
+                        transform: translateY(0);
+                        transition: opacity transition-duration('medium') transition-curve('ease-out'),
+                                  transform transition-duration('medium') transition-curve('ease-out');
+                    }
+
+                    &.title-hidden {
+                        opacity: 0;
+                        transform: translateY(-10px);
+                    }
+                }
+            }
+
+            .access-form {
+                background-color: fn.bg-color('secondary');
+                padding: fn.spacing('lg');
+                border: fn.border('dark');
+                border-radius: fn.radius('base');
+
+                .editing-indicator {
+                    display: block;
+                    margin-bottom: fn.spacing('sm');
+                }
+        
+                fieldset {
+                    legend {
+                        margin-bottom: fn.spacing('base');
+                    }
+                }
+
+                &.is-editing {
+                    border: fn.border('active');
+                }
+
+                .form-group {
+                    margin-bottom: fn.spacing('base');
+
+                    label {
+                        display: block;
+                        margin-bottom: fn.spacing('xxs');
+                        color: fn.text-color('dark');
+                    }
+
+                    .text-input,
+                    .text-area {
+                        width: 100%;
+                        padding: fn.spacing('xs');
+                        border: fn.border('dark');
+                        border-radius: fn.radius('small');
+
+                        &:focus {
+                            border: fn.border('active');
+                            outline: none;
+                        }
+                    }
+                }
+
+                .form-actions {
+                    display: flex;
+                    gap: fn.spacing('base');
+                    margin-top: fn.spacing('lg');
+                    justify-content: flex-start;
+                    // Reset des styles par défaut du menu
+                    margin: 0;
+                    padding: 0;
+                    list-style: none;
+
+                    button {
+                        padding: fn.spacing('xs') fn.spacing('base');
+                        border-radius: fn.radius('small');
+                    }
+                }
+            }
+        }
+
+        .edit-footer {
+            display: flex;
+            justify-content: center;
+            margin-bottom: fn.spacing('base');
+
+            button {
+                padding: fn.spacing('xs') fn.spacing('base');
+                border-radius: fn.radius('small');
+            }
+        }
+    }
+}

@@ -1,0 +1,196 @@
+// Variables (à adapter selon votre palette de couleurs)
+$color-primary: #3a6b35;
+$color-secondary: #6a994e;
+$color-accent: #f8961e;
+$color-success: #386641;
+$color-error: #bc4749;
+$color-text: #333333;
+$color-background: #ffffff;
+$color-border: #dddddd;
+
+.stay-booking {
+  margin: 2rem 0;
+  padding: 2rem;
+  background-color: $color-background;
+  border-radius: 0.5rem;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  
+  &--existing {
+    border-left: 4px solid $color-accent;
+  }
+  
+  &__title {
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+    color: $color-primary;
+  }
+  
+  &__auth-required {
+    text-align: center;
+    padding: 1.5rem;
+    background-color: rgba($color-primary, 0.05);
+    border-radius: 0.5rem;
+    
+    p {
+      margin-bottom: 1.5rem;
+      font-weight: 500;
+    }
+  }
+  
+  &__auth-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+  }
+  
+  &__login-btn,
+  &__register-btn {
+    display: inline-block;
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.25rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.2s ease;
+  }
+  
+  &__login-btn {
+    background-color: $color-primary;
+    color: white;
+    
+    &:hover {
+      background-color: darken($color-primary, 10%);
+    }
+  }
+  
+  &__register-btn {
+    background-color: $color-secondary;
+    color: white;
+    
+    &:hover {
+      background-color: darken($color-secondary, 10%);
+    }
+  }
+  
+  &__form {
+    margin-top: 1rem;
+  }
+  
+  &__error {
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+    background-color: rgba($color-error, 0.1);
+    border-left: 3px solid $color-error;
+    border-radius: 0.25rem;
+    color: darken($color-error, 10%);
+  }
+  
+  &__success {
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+    background-color: rgba($color-success, 0.1);
+    border-left: 3px solid $color-success;
+    border-radius: 0.25rem;
+    color: darken($color-success, 10%);
+  }
+  
+  &__form-group {
+    margin-bottom: 1.5rem;
+    
+    label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+      color: $color-text;
+    }
+    
+    input[type="number"],
+    textarea {
+      width: 100%;
+      padding: 0.75rem;
+      border: 1px solid $color-border;
+      border-radius: 0.25rem;
+      font-size: 1rem;
+      
+      &:focus {
+        outline: none;
+        border-color: $color-primary;
+        box-shadow: 0 0 0 2px rgba($color-primary, 0.2);
+      }
+      
+      &:disabled {
+        background-color: #f5f5f5;
+        cursor: not-allowed;
+      }
+    }
+  }
+  
+  &__form-help {
+    display: block;
+    margin-top: 0.5rem;
+    color: #666;
+    font-size: 0.875rem;
+  }
+  
+  &__submit-btn {
+    display: block;
+    width: 100%;
+    padding: 0.875rem;
+    background-color: $color-primary;
+    color: white;
+    border: none;
+    border-radius: 0.25rem;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    
+    &:hover:not(:disabled) {
+      background-color: darken($color-primary, 10%);
+    }
+    
+    &:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+  }
+  
+  &__message {
+    text-align: center;
+    
+    h2 {
+      color: $color-accent;
+      margin-bottom: 1rem;
+    }
+    
+    p {
+      margin-bottom: 0.5rem;
+      line-height: 1.5;
+      
+      &:last-child {
+        margin-bottom: 0;
+      }
+    }
+  }
+  
+  &__fully-booked-message {
+    margin-top: 1rem;
+    padding: 1rem;
+    background-color: rgba($color-accent, 0.1);
+    border-left: 3px solid $color-accent;
+    border-radius: 0.25rem;
+    color: darken($color-accent, 15%);
+    font-weight: 500;
+    text-align: center;
+  }
+}
+
+// Responsive adjustments
+@media (max-width: 768px) {
+  .stay-booking {
+    padding: 1.5rem;
+    
+    &__auth-buttons {
+      flex-direction: column;
+    }
+  }
+}

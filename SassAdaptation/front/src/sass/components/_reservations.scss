@@ -1,0 +1,496 @@
+@use '../utils/variables' as vars;
+@use '../utils/mixins' as mix;
+@use '../utils/functions' as fn;
+@use 'sass:map';
+
+// Styles de base pour tous les badges de statut
+%status-badge-base {
+    display: inline-block;
+    padding: spacing('xxs') spacing('xs');
+    border-radius: fn.radius('small');
+    font-size: fn.font-size('small');
+    font-weight: 600;
+    text-align: center;
+    width: auto; // Ajout pour s'assurer que le badge prend toute la largeur nécessaire
+    min-width: 80px; // Largeur minimale pour éviter les badges trop courts
+}
+
+.reservations {
+    width: 100%;
+    
+    // Alertes
+    .alert {
+        width: 100%;
+        padding: fn.spacing('base');
+        margin-bottom: fn.spacing('base');
+
+        &.alert-danger {
+            background: fn.status-color('rejected');
+            color: fn.text-color('light');
+        }
+
+        &.alert-success {
+            background: fn.status-color('approved');
+            color: fn.text-color('light');
+        }
+    }
+
+    // Navigation
+    .view-tabs {
+        display: flex;
+        gap: fn.spacing('xs');
+        margin-bottom: fn.spacing('base');
+        border-bottom: fn.border('primary');
+
+        button {
+            padding: fn.spacing('xs') fn.spacing('base');
+            background: transparent;
+            border: none;
+            border-bottom: 2px solid transparent;
+            cursor: pointer;
+            transition: all 0.3s ease;
+
+            &.active {
+                border-bottom: map.get(vars.$borders, 'active');
+                font-weight: 600;
+            }
+
+            &:hover {
+                background: rgba(0, 0, 0, 0.05);
+            }
+        }
+    }
+
+    // Vue des demandes en attente
+    .pending-requests {
+        .stats-summary {
+            margin-bottom: fn.spacing('xl');
+
+            .stats-grid {
+                display: grid;
+                grid-template-columns: repeat(2, 1fr);
+                gap: fn.spacing('base');
+
+                li {
+                    padding: fn.spacing('base');
+                    background: fn.bg-color('secondary');
+                    border-radius: fn.radius('small');
+
+                    .stat-label {
+                        display: block;
+                        font-size: fn.font-size('small');
+                        color: map.get(vars.$text-colors, 'muted');
+                    }
+
+                    .stat-value {
+                        display: block;
+                        font-size: 1.25rem;
+                        font-weight: bold;
+                    }
+                }
+            }
+        }
+
+        .requests-list {
+            overflow-x: auto;
+
+            table {
+                width: 100%;
+                border-collapse: collapse;
+
+                th, td {
+                    padding: fn.spacing('sm');
+                    border: map.get(vars.$table-styles, 'border');
+                }
+
+                thead {
+                    background: map.get(vars.$table-styles, 'header-bg');
+                }
+
+                tr:hover {
+                    background: map.get(vars.$table-styles, 'row-hover');
+                }
+
+                .actions-cell {
+                    display: flex;
+                    flex-direction: column;
+                    gap: fn.spacing('xs');
+                    padding: fn.spacing('xs');
+                    width: 100%;
+                    min-width: 120px;
+
+                    button {
+                        width: 100%;
+                        padding: fn.spacing('xs');
+                        text-align: center;
+                        white-space: nowrap;
+                        border-radius: map.get(vars.$border-radius, 'small');
+
+                        &.approve-btn {
+                            background: map.get(vars.$status-colors, 'approved');
+                            color: map.get(vars.$text-colors, 'light');
+                        }
+
+                        &.reject-btn {
+                            background: map.get(vars.$status-colors, 'rejected');
+                            color: map.get(vars.$text-colors, 'light');
+                        }
+
+                        &.change-status-btn {
+                            background: map.get(vars.$status-colors, 'waiting');
+                            color: map.get(vars.$text-colors, 'light');
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    .requests-list.stay-requests {
+        overflow-x: auto;
+        margin: 0 -1rem;
+        padding: 0 1rem;
+
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            border: map.get(vars.$table-styles, 'border');
+            border-radius: map.get(vars.$border-radius, 'small');
+
+            th, td {
+                padding: fn.spacing('sm');
+                border-right: map.get(vars.$table-styles, 'border');
+                border-bottom: map.get(vars.$table-styles, 'border');
+
+                &:last-child {
+                    border-right: none;
+                }
+            }
+        }
+    }
+
+    // Style commun pour tous les tableaux en mobile
+    .requests-list {
+        table, thead, tbody, th, tr, td {
+            display: block;
+            width: 100%;
+        }
+
+        thead {
+            display: none;
+        }
+
+        tr {
+            margin-bottom: fn.spacing('xs');
+            border: map.get(vars.$table-styles, 'border');
+            border-radius: map.get(vars.$border-radius, 'small');
+            padding: fn.spacing('xs');
+        }
+
+        td {
+            padding: calc(fn.spacing('xs') / 2) fn.spacing('xs');
+            border-bottom: map.get(vars.$table-styles, 'border');
+            min-height: 2.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: fn.spacing('xs');
+
+            &:before {
+                content: attr(data-label);
+                font-weight: 600;
+                color: map.get(vars.$text-colors, 'muted');
+            }
+
+            &:last-child {
+                border-bottom: none;
+            }
+
+            .status-badge {
+                width: 20%;
+                padding: fn.spacing('xs');
+            }
+        }
+
+        // Cellules d'action
+        .actions-cell {
+            display: flex;
+            flex-direction: column;
+            gap: fn.spacing('xs');
+
+            button {
+                width: 40%;
+                padding: calc(fn.spacing('xs') / 2) fn.spacing('xs');
+                margin: 0 auto;
+                text-align: center;
+                white-space: nowrap;
+                border-radius: map.get(vars.$border-radius, 'small');
+                
+                &.approve-btn, &.validate-stay-btn {
+                    background: map.get(vars.$status-colors, 'approved');
+                    color: map.get(vars.$text-colors, 'light');
+                }
+
+                &.reject-btn, &.reject-stay-btn, &.cancel-stay-btn {
+                    background: map.get(vars.$status-colors, 'rejected');
+                    color: map.get(vars.$text-colors, 'light');
+                }
+
+                &.change-status-btn, &.revert-stay-btn {
+                    background: map.get(vars.$status-colors, 'waiting');
+                    color: map.get(vars.$text-colors, 'light');
+                }
+
+                &.force-validate-btn {
+                    background: map.get(vars.$status-colors, 'warning');
+                    color: map.get(vars.$text-colors, 'light');
+                }
+            }
+        }
+
+        // Style desktop
+        @include mix.respond-to('desktop') {
+            overflow-x: visible;
+            margin: 0;
+            padding: 0;
+
+            table, thead, tbody, th, tr, td {
+                display: table-row-group;
+                width: auto;
+            }
+
+            table {
+                display: table;
+                width: 100%;
+                border-collapse: collapse;
+                border: map.get(vars.$table-styles, 'border');
+            }
+
+            thead {
+                display: table-header-group;
+                background: map.get(vars.$table-styles, 'header-bg');
+
+                th {
+                    display: table-cell;
+                    padding: fn.spacing('xs');
+                    font-weight: 600;
+                    text-align: left;
+                    border-bottom: 2px solid map.get(vars.$table-styles, 'border');
+                }
+            }
+
+            tbody {
+                display: table-row-group;
+            }
+
+            tr {
+                display: table-row;
+                margin: 0;
+                border: none;
+                
+                &:hover {
+                    background: map.get(vars.$table-styles, 'row-hover');
+                }
+            }
+
+            td {
+                display: table-cell;
+                padding: fn.spacing('xs');
+                border: map.get(vars.$table-styles, 'border');
+                min-height: auto;
+                flex-direction: row;
+                vertical-align: middle;
+
+                &:before {
+                    display: none; // Suppression des labels mobiles
+                }
+            }
+
+            // Optimisation des colonnes
+            .stay-cell {
+                max-width: 250px;
+                white-space: normal;
+            }
+
+            .comment-cell {
+                max-width: 300px;
+            }
+
+            // Ajustement des actions
+            .actions-cell {
+                display: flex;
+                flex-direction: row;
+                gap: fn.spacing('xs');
+                justify-content: flex-start;
+                min-width: 200px;
+
+                button {
+                    width: auto;
+                    margin: 0;
+                    padding: calc(fn.spacing('xs') / 2) fn.spacing('base');
+                }
+            }
+
+            // Badges de statut
+            .status-badge {
+                width: auto;
+                margin: 0;
+            }
+        }
+    }
+
+    // Vue par séjour
+    .stays-list {
+        display: flex;
+        flex-direction: column;
+        gap: fn.spacing('xl');
+
+        .stay-item {
+            background: fn.bg-color('secondary');
+            border-radius: fn.radius('small');
+            padding: fn.spacing('base');
+            margin-bottom: fn.spacing('base');
+
+            .stay-header {
+                margin-bottom: 1rem;
+
+                .stay-meta {
+                    display: flex;
+                    flex-wrap: wrap;
+                    gap: fn.spacing('base');
+                    margin-top: fn.spacing('xs');
+                }
+            }
+
+            .stay-stats {
+                display: grid;
+                grid-template-columns: repeat(2, 1fr);
+                gap: fn.spacing('base');
+                margin-bottom: fn.spacing('lg');
+
+                @include mix.respond-to('tablet') {
+                    grid-template-columns: repeat(3, 1fr);
+                }
+
+                li {
+                    padding: fn.spacing('sm');
+                    background: rgba(fn.bg-color('light'), 0.1);
+                    border-radius: fn.radius('small');
+
+                    .label {
+                        font-size: fn.font-size('small');
+                        color: map.get(vars.$text-colors, 'muted');
+                    }
+
+                    .value {
+                        font-size: fn.font-size('medium');
+                        font-weight: bold;
+                    }
+                }
+            }
+
+            .stay-status {
+                margin-top: fn.spacing('lg');
+                padding-top: fn.spacing('lg');
+                border-top: fn.border('dark');
+
+                .status-summary {
+                    margin: fn.spacing('base') 0 fn.spacing('xl');
+
+                    .status-box-container {
+                        margin-bottom: fn.spacing('base');
+                    }
+                    
+                    .status-label {
+                        color: map.get(vars.$text-colors, 'muted');
+                        margin-bottom: fn.spacing('xs');
+                    }
+
+                    .status-value {
+                        font-weight: 600;
+                        
+                        &.complet { color: map.get(vars.$status-colors, 'complet'); }
+                        &.participants_insuffisants { color: map.get(vars.$status-colors, 'participants_insuffisants'); }
+                        &.en_attente_de_validation { color: map.get(vars.$status-colors, 'en_attente_de_validation'); }
+                        &.en_attente { color: map.get(vars.$status-colors, 'en_attente'); }
+                        &.validé { color: map.get(vars.$status-colors, 'validé'); }
+                        &.refusé { color: map.get(vars.$status-colors, 'refusé'); }
+                        &.annulé { color: map.get(vars.$status-colors, 'annulé'); }
+                    }
+                }
+
+                .status-actions {
+                    display: flex;
+                    flex-direction: column;
+                    gap: fn.spacing('base');
+
+                    .action-buttons {
+                        display: flex;
+                        flex-direction: column;
+                        gap: fn.spacing('base');
+            
+                        button {
+                            width: 40%;
+                            margin: 0 auto;
+                            padding: calc(fn.spacing('xs') / 2) fn.spacing('xs');
+                            text-align: center;
+                            // white-space: nowrap;
+                            border-radius: map.get(vars.$border-radius, 'small');
+                        }
+                    }
+            
+                    .special-action-buttons {
+                        button {
+                            width: 40%;
+                            margin: 0 auto;
+                            padding: calc(fn.spacing('xs') / 2) fn.spacing('xs');
+                            text-align: center;
+                            white-space: nowrap;
+                            border-radius: map.get(vars.$border-radius, 'small');
+                        }
+                    }
+                }
+            }
+
+            @include mix.respond-to('desktop') {
+                .status-actions {
+                    .action-buttons, .special-action-buttons {
+                        flex-direction: row;
+                        justify-content: center;
+                        gap: fn.spacing('base');
+
+                        button {
+                            width: auto;
+                            min-width: 120px; // Largeur minimale pour uniformité
+                            max-width: 200px; // Largeur maximale pour éviter des boutons trop larges
+                            padding: calc(fn.spacing('xs') / 2) fn.spacing('base');
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+// Badges de statut
+.status-badge {
+    @extend %status-badge-base;
+}
+
+.fill-status {
+    @extend %status-badge-base;
+}
+
+.admin-status {
+    @extend %status-badge-base;
+}
+
+// Application des couleurs pour tous les types de badges
+@each $status, $color in vars.$status-colors {
+    .status-badge.#{$status},
+    .fill-status.#{$status},
+    .admin-status.#{$status} {
+        background: rgba($color, 0.2);
+        color: $color;
+    }
+}

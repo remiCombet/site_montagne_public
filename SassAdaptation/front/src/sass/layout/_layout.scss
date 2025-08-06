@@ -1,0 +1,76 @@
+@use 'sass:map';
+@use '../utils/variables' as vars;
+@use '../utils/mixins' as mix;
+@use '../utils/functions' as fn;
+
+// Header
+.main-header {
+    width: 100%;
+    min-height: map.get(map.get(vars.$layout-heights, 'header'), 'mobile');
+    height: auto;
+
+    @include mix.respond-to('tablet') {
+        min-height: map.get(map.get(vars.$layout-heights, 'header'), 'tablet');
+    }
+
+    @include mix.respond-to('desktop') {
+        min-height: map.get(map.get(vars.$layout-heights, 'header'), 'desktop');
+    }
+}
+
+// Contenu principal
+.main-content {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    flex: 1 0 auto; 
+    padding: 0 fn.spacing('base');
+    min-height: 0; // Permet de gérer la croissance des enfants
+
+    @include mix.respond-to('desktop') {
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    // Spécial pour les pages admin
+    &--admin {
+        max-width: none !important;
+        
+        @include mix.respond-to('desktop') {
+            max-width: none !important;
+        }
+    }
+
+    // Spécial pour la page de détail d'un séjour
+    &--stay-details {
+        padding: 0 !important;
+        max-width: none !important;
+        
+        @include mix.respond-to('desktop') {
+            max-width: none !important; 
+        }
+    }
+    
+    // Pour l'admin dashboard
+    .admin-dashboard {
+        margin: 0 -1rem;
+        padding: 0;
+        width: calc(100% + 2rem);
+        flex: 1;
+    }
+}
+
+// Footer
+.main-footer {
+    width: 100%;
+    height: map.get(map.get(vars.$layout-heights, 'footer'), 'mobile');
+    margin-top: auto;
+
+    @include mix.respond-to('tablet') {
+        height: map.get(map.get(vars.$layout-heights, 'footer'), 'tablet');
+    }
+
+    @include mix.respond-to('desktop') {
+        height: map.get(map.get(vars.$layout-heights, 'footer'), 'desktop');
+    }
+}

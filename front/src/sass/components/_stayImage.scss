@@ -1,0 +1,155 @@
+@use '../utils/variables' as vars;
+@use '../utils/mixins' as mix;
+@use './editableComponent';
+
+.image-management {
+  @extend .editable-component;
+  
+  // Spécifique au mode vue
+  .image-view-mode {
+    @extend .view-mode;
+    
+    .image-header {
+      @extend .component-header;
+      
+      // Styles spécifiques à l'image
+      .image-preview-container {
+        width: 100%;
+        margin: vars.$spacing-sm 0 0 0;
+        text-align: center;
+        
+        .preview-image {
+          max-width: 100%;
+          max-height: 200px;
+          object-fit: contain;
+          border-radius: vars.$border-radius;
+          border: vars.$border-width solid vars.$border-color-light;
+          box-shadow: vars.$box-shadow;
+          transition: all vars.$transition-speed ease;
+          
+          &:hover {
+            transform: scale(1.02);
+          }
+        }
+        
+        figcaption {
+          color: vars.$text-color-secondary;
+          font-style: italic;
+          margin-top: vars.$spacing-xs;
+          font-size: vars.$font-size-sm;
+          
+          .image-status {
+            display: inline-block;
+            margin-left: vars.$spacing-sm;
+            font-weight: 500;
+            color: vars.$text-color-tertiary;
+          }
+        }
+      }
+    }
+    
+    .image-action {
+      @extend .component-action;
+    }
+  }
+  
+  // Spécifique au mode édition
+  .image-edit-mode {
+    @extend .edit-mode;
+    
+    // Styles spécifiques au mode édition d'image
+    .image-preview-container {
+      width: 100%;
+      margin: 0 0 vars.$spacing-lg 0;
+      text-align: center;
+      
+      .preview-image {
+        max-width: 100%;
+        max-height: 300px;
+        object-fit: contain;
+        border-radius: vars.$border-radius;
+        border: vars.$border-width solid vars.$border-color-light;
+        box-shadow: vars.$box-shadow;
+      }
+      
+      .image-status {
+        display: block;
+        margin-top: vars.$spacing-sm;
+        font-style: italic;
+        color: vars.$text-color-tertiary;
+      }
+    }
+    
+    // Styles spécifiques pour la sélection de fichier
+    .file-input {
+      width: 100%;
+      padding: vars.$spacing-sm 0;
+      cursor: pointer;
+    }
+    
+    // Conserver uniquement la mise en page des boutons, pas leur style
+    .action-buttons {
+      @include mix.flex(column, center, center);
+      gap: vars.$spacing-sm;
+      margin-top: vars.$spacing-md;
+      
+      // Adaptation pour tablette et desktop
+      @include mix.for-size('tablet') {
+        @include mix.flex(row, center, center);
+        gap: vars.$spacing-md;
+      }
+    }
+    
+    // Footer du mode édition
+    .image-edit-footer {
+      @extend .edit-footer;
+    }
+    
+    // Animation pour transition du message
+    .alert {
+      transition: opacity 0.3s ease-in-out;
+      
+      &.fade-out {
+        opacity: 0;
+      }
+    }
+    
+    // Styles pour les sections de formulaire comme dans StaySteps
+    .form-section {
+      background-color: vars.$white;
+      padding: vars.$spacing-md;
+      border-radius: vars.$border-radius;
+      margin-bottom: vars.$spacing-md;
+      box-shadow: vars.$box-shadow;
+      
+      h4 {
+        color: vars.$primary-color;
+        margin-top: 0;
+        margin-bottom: vars.$spacing-sm;
+      }
+    }
+    
+    // Zone de danger pour la suppression - similaire à accommodation-section dans StaySteps
+    .danger-zone {
+      margin-top: vars.$spacing-lg;
+      padding: vars.$spacing-md;
+      background-color: rgba(vars.$error-color, 0.05);
+      border-radius: vars.$border-radius;
+      border-left: vars.$border-width-lg solid vars.$error-color;
+    }
+    
+    // Confirmation de suppression
+    .delete-confirmation {
+      margin-top: vars.$spacing-md;
+      padding: vars.$spacing-md;
+      background-color: rgba(vars.$error-color, 0.08);
+      border-radius: vars.$border-radius;
+      border: 1px solid rgba(vars.$error-color, 0.2);
+      
+      h4 {
+        color: vars.$error-color;
+        margin-top: 0;
+      }
+    }
+  }
+}
